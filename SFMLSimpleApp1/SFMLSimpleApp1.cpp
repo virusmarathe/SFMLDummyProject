@@ -6,16 +6,29 @@
 #include <string>
 
 sf::Vector2f velocity(1, 1);
-float speed = 100;
+float speed = 200;
 sf::Vector2f paddle1Vel(0, 0);
 sf::Vector2f paddle2Vel(0, 0);
-float paddleSpeed = 200;
+float paddleSpeed = 400;
 
 std::string intToString(int integer)
 {
     char numstr[10]; // enough to hold all numbers up to 32-bits
     sprintf_s(numstr, "%i", integer);
     return numstr;
+}
+
+bool hasCollision(const sf::Shape& shape1, const sf::Shape& shape2)
+{
+    bool foundCollision = false;
+
+    sf::FloatRect shape1Rect = shape1.getGlobalBounds();
+    sf::FloatRect shape2Rect = shape2.getGlobalBounds();
+
+    if (shape1Rect.left < shape2Rect.left + shape2Rect.width && shape1Rect.left + shape1Rect.width > shape2Rect.left &&
+        shape1Rect.top < shape2Rect.top + shape2Rect.height && shape1Rect.top + shape1Rect.height > shape2Rect.top) return true;
+
+    return foundCollision;
 }
 
 int main()
@@ -61,38 +74,27 @@ int main()
             {
                 window.close();
             }
+        }
 
-            if (currEvent.type == sf::Event::KeyPressed)
-            {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-                {
-                    paddle1Vel.y = 1;
-                }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-                {
-                    paddle1Vel.y = -1;
-                }
+        paddle1Vel.y = 0;
+        paddle2Vel.y = 0;
 
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-                {
-                    paddle2Vel.y = -1;
-                }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-                {
-                    paddle2Vel.y = 1;
-                }
-            }
-            if (currEvent.type == sf::Event::KeyReleased)
-            {
-                if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-                {
-                    paddle1Vel.y = 0;
-                }
-                if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-                {
-                    paddle2Vel.y = 0;
-                }
-            }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+        {
+            paddle1Vel.y += 1;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+        {
+            paddle1Vel.y -= 1;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        {
+            paddle2Vel.y -= 1;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        {
+            paddle2Vel.y += 1;
         }
 
         sf::Time deltaTime = deltaTimer.restart();
@@ -101,15 +103,15 @@ int main()
 
         if (curPos.x + ball.getLocalBounds().width > window.getSize().x) 
         {
-            velocity.x = -1;
-            speed += 10;
+            ball.setPosition(sf::Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f));
             blueScore++;
+            speed = 200;
         }
         else if (curPos.x < 0) 
         {
-            velocity.x = 1;
-            speed += 10;
+            ball.setPosition(sf::Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f));
             redScore++;
+            speed = 200;
         }
         if (curPos.y + ball.getLocalBounds().height > window.getSize().y)
         {
@@ -122,12 +124,38 @@ int main()
             speed += 10;
         }
 
+        if (hasCollision(ball, paddle1))
+        {
+            velocity.x = -1;
+        }
+        else if (hasCollision(ball, paddle2))
+        {
+            velocity.x = 1;
+        }
+
         redScoreText.setString("Score: " + intToString(redScore));
         blueScoreText.setString("Score: " + intToString(blueScore));
 
         ball.setPosition(ball.getPosition() + velocity * speed * deltaTime.asSeconds());
         paddle1.setPosition(paddle1.getPosition() + paddle1Vel * paddleSpeed * deltaTime.asSeconds());
         paddle2.setPosition(paddle2.getPosition() + paddle2Vel * paddleSpeed * deltaTime.asSeconds());
+
+        if (paddle1.getPosition().y < 0)
+        {
+            paddle1.setPosition(sf::Vector2f(paddle1.getPosition().x, 0));
+        }
+        if (paddle1.getPosition().y + paddle1.getLocalBounds().height > window.getSize().y)
+        {
+            paddle1.setPosition(sf::Vector2f(paddle1.getPosition().x, window.getSize().y - paddle1.getLocalBounds().height));
+        }
+        if (paddle2.getPosition().y < 0)
+        {
+            paddle2.setPosition(sf::Vector2f(paddle2.getPosition().x, 0));
+        }
+        if (paddle2.getPosition().y + paddle2.getLocalBounds().height > window.getSize().y)
+        {
+            paddle2.setPosition(sf::Vector2f(paddle2.getPosition().x, window.getSize().y - paddle2.getLocalBounds().height));
+        }
 
         window.clear();
         window.draw(ball);
@@ -140,14 +168,3 @@ int main()
 
     return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
