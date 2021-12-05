@@ -4,13 +4,24 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
+sf::Vector2f velocity(1, 1);
+float speed = 100;
+sf::Vector2f paddle1Vel(0, 0);
+sf::Vector2f paddle2Vel(0, 0);
+float paddleSpeed = 100;
+
 int main()
 {
-    std::cout << "Hello World!\n";
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Hello SFML!");
+    sf::CircleShape ball(10.0f);
+    sf::RectangleShape paddle1(sf::Vector2f(10,100));
+    sf::RectangleShape paddle2(sf::Vector2f(10, 100));
 
-    sf::RenderWindow window(sf::VideoMode(600, 800), "Hello SFML!");
-    sf::CircleShape shape(100.0f);
-    shape.setFillColor(sf::Color::Green);
+    ball.setFillColor(sf::Color::Green);
+    paddle1.setFillColor(sf::Color::Red);
+    paddle2.setFillColor(sf::Color::Blue);
+    paddle2.setPosition(sf::Vector2f(window.getSize().x - paddle2.getSize().x, 0));
+    sf::Clock deltaTimer;
 
     while (window.isOpen())
     {
@@ -22,10 +33,73 @@ int main()
             {
                 window.close();
             }
+
+            if (currEvent.type == sf::Event::KeyPressed)
+            {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+                {
+                    paddle1Vel.y = 1;
+                }
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+                {
+                    paddle1Vel.y = -1;
+                }
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+                {
+                    paddle2Vel.y = -1;
+                }
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+                {
+                    paddle2Vel.y = 1;
+                }
+            }
+            if (currEvent.type == sf::Event::KeyReleased)
+            {
+                if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+                {
+                    paddle1Vel.y = 0;
+                }
+                if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+                {
+                    paddle2Vel.y = 0;
+                }
+            }
         }
 
+        sf::Time deltaTime = deltaTimer.restart();
+
+        sf::Vector2f curPos = ball.getPosition();
+
+        if (curPos.x + ball.getLocalBounds().width > window.getSize().x) 
+        {
+            velocity.x = -1;
+            speed += 10;
+        }
+        else if (curPos.x < 0) 
+        {
+            velocity.x = 1;
+            speed += 10;
+        }
+        if (curPos.y + ball.getLocalBounds().height > window.getSize().y)
+        {
+            velocity.y = -1;
+            speed += 10;
+        }
+        else if (curPos.y < 0)
+        {
+            velocity.y = 1;
+            speed += 10;
+        }
+
+        ball.setPosition(ball.getPosition() + velocity * speed * deltaTime.asSeconds());
+        paddle1.setPosition(paddle1.getPosition() + paddle1Vel * paddleSpeed * deltaTime.asSeconds());
+        paddle2.setPosition(paddle2.getPosition() + paddle2Vel * paddleSpeed * deltaTime.asSeconds());
+
         window.clear();
-        window.draw(shape);
+        window.draw(ball);
+        window.draw(paddle1);
+        window.draw(paddle2);
         window.display();
     }
 }
