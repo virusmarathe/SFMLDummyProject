@@ -3,12 +3,20 @@
 
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <string>
 
 sf::Vector2f velocity(1, 1);
 float speed = 100;
 sf::Vector2f paddle1Vel(0, 0);
 sf::Vector2f paddle2Vel(0, 0);
-float paddleSpeed = 100;
+float paddleSpeed = 200;
+
+std::string intToString(int integer)
+{
+    char numstr[10]; // enough to hold all numbers up to 32-bits
+    sprintf_s(numstr, "%i", integer);
+    return numstr;
+}
 
 int main()
 {
@@ -20,8 +28,28 @@ int main()
     ball.setFillColor(sf::Color::Green);
     paddle1.setFillColor(sf::Color::Red);
     paddle2.setFillColor(sf::Color::Blue);
-    paddle2.setPosition(sf::Vector2f(window.getSize().x - paddle2.getSize().x, 0));
+    paddle1.setPosition(sf::Vector2f(window.getSize().x - paddle2.getSize().x, 0));
     sf::Clock deltaTimer;
+
+    sf::Font font;
+    if (!font.loadFromFile("BalooBhaijaan2-VariableFont_wght.ttf"))
+    {
+        std::cout << "Font doesn't exist";
+        return -1;
+    }
+
+    sf::Text redScoreText("Red: 0", font);
+    redScoreText.setCharacterSize(24);
+    redScoreText.setFillColor(sf::Color::Red);
+    redScoreText.setPosition(sf::Vector2f(window.getSize().x/2.0f - redScoreText.getGlobalBounds().width / 2.0f, 20));
+
+    sf::Text blueScoreText("Blue: 0", font);
+    blueScoreText.setCharacterSize(24);
+    blueScoreText.setFillColor(sf::Color::Blue);
+    blueScoreText.setPosition(sf::Vector2f(window.getSize().x / 2.0f - blueScoreText.getGlobalBounds().width / 2.0f, 60));
+
+    int redScore = 0;
+    int blueScore = 0;
 
     while (window.isOpen())
     {
@@ -75,11 +103,13 @@ int main()
         {
             velocity.x = -1;
             speed += 10;
+            blueScore++;
         }
         else if (curPos.x < 0) 
         {
             velocity.x = 1;
             speed += 10;
+            redScore++;
         }
         if (curPos.y + ball.getLocalBounds().height > window.getSize().y)
         {
@@ -92,6 +122,9 @@ int main()
             speed += 10;
         }
 
+        redScoreText.setString("Score: " + intToString(redScore));
+        blueScoreText.setString("Score: " + intToString(blueScore));
+
         ball.setPosition(ball.getPosition() + velocity * speed * deltaTime.asSeconds());
         paddle1.setPosition(paddle1.getPosition() + paddle1Vel * paddleSpeed * deltaTime.asSeconds());
         paddle2.setPosition(paddle2.getPosition() + paddle2Vel * paddleSpeed * deltaTime.asSeconds());
@@ -100,8 +133,12 @@ int main()
         window.draw(ball);
         window.draw(paddle1);
         window.draw(paddle2);
+        window.draw(redScoreText);
+        window.draw(blueScoreText);
         window.display();
     }
+
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
