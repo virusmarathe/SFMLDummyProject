@@ -2,10 +2,32 @@
 //
 
 #include <iostream>
+#include <SFML/Graphics.hpp>
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    sf::RenderWindow window(sf::VideoMode(600, 800), "Hello SFML!");
+    sf::CircleShape shape(100.0f);
+    shape.setFillColor(sf::Color::Green);
+
+    while (window.isOpen())
+    {
+        sf::Event currEvent;
+
+        while (window.pollEvent(currEvent))
+        {
+            if (currEvent.type == sf::Event::Closed)
+            {
+                window.close();
+            }
+        }
+
+        window.clear();
+        window.draw(shape);
+        window.display();
+    }
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
