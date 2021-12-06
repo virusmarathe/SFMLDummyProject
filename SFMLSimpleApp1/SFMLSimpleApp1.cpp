@@ -4,19 +4,10 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <string>
-
-sf::Vector2f velocity(1, 1);
-float speed = 200;
-sf::Vector2f paddle1Vel(0, 0);
-sf::Vector2f paddle2Vel(0, 0);
-float paddleSpeed = 400;
-
-std::string intToString(int integer)
-{
-    char numstr[10]; // enough to hold all numbers up to 32-bits
-    sprintf_s(numstr, "%i", integer);
-    return numstr;
-}
+#include <sstream>
+#include <vector>
+#include "Paddle.h"
+#include "Ball.h"
 
 bool hasCollision(const sf::Shape& shape1, const sf::Shape& shape2)
 {
@@ -34,14 +25,18 @@ bool hasCollision(const sf::Shape& shape1, const sf::Shape& shape2)
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Hello SFML!");
-    sf::CircleShape ball(10.0f);
-    sf::RectangleShape paddle1(sf::Vector2f(10,100));
-    sf::RectangleShape paddle2(sf::Vector2f(10, 100));
 
-    ball.setFillColor(sf::Color::Green);
-    paddle1.setFillColor(sf::Color::Red);
-    paddle2.setFillColor(sf::Color::Blue);
-    paddle1.setPosition(sf::Vector2f(window.getSize().x - paddle2.getSize().x, 0));
+    Ball ball(sf::Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f), 10.0f, &window);
+    Ball ball2(sf::Vector2f(300,300), 10.0f, &window);
+    Paddle player1Paddle(sf::Color::Red, sf::Vector2f(window.getSize().x - 10.0f, 0), &window);
+    Paddle player2Paddle(sf::Color::Blue, sf::Vector2f(0,0), &window);
+
+    std::vector<GameObject*> gameObjects;
+    gameObjects.push_back(&ball);
+    gameObjects.push_back(&player1Paddle);
+    gameObjects.push_back(&player2Paddle);
+    gameObjects.push_back(&ball2);
+
     sf::Clock deltaTimer;
 
     sf::Font font;
@@ -51,18 +46,20 @@ int main()
         return -1;
     }
 
-    sf::Text redScoreText("Red: 0", font);
+    sf::Text redScoreText("Player 2: 0", font);
     redScoreText.setCharacterSize(24);
     redScoreText.setFillColor(sf::Color::Red);
-    redScoreText.setPosition(sf::Vector2f(window.getSize().x/2.0f - redScoreText.getGlobalBounds().width / 2.0f, 20));
+    redScoreText.setPosition(sf::Vector2f(window.getSize().x/2.0f - redScoreText.getLocalBounds().width / 2.0f, 20));
 
-    sf::Text blueScoreText("Blue: 0", font);
+    sf::Text blueScoreText("Player 1: 0", font);
     blueScoreText.setCharacterSize(24);
     blueScoreText.setFillColor(sf::Color::Blue);
-    blueScoreText.setPosition(sf::Vector2f(window.getSize().x / 2.0f - blueScoreText.getGlobalBounds().width / 2.0f, 60));
+    blueScoreText.setPosition(sf::Vector2f(window.getSize().x / 2.0f - blueScoreText.getLocalBounds().width / 2.0f, 60));
 
     int redScore = 0;
     int blueScore = 0;
+    std::stringstream redScoreSS;
+    std::stringstream blueScoreSS;
 
     while (window.isOpen())
     {
@@ -76,93 +73,46 @@ int main()
             }
         }
 
-        paddle1Vel.y = 0;
-        paddle2Vel.y = 0;
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-        {
-            paddle1Vel.y += 1;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-        {
-            paddle1Vel.y -= 1;
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        {
-            paddle2Vel.y -= 1;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            paddle2Vel.y += 1;
-        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))    player1Paddle.SetVelocity(1);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))      player1Paddle.SetVelocity(-1);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))       player2Paddle.SetVelocity(-1);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))       player2Paddle.SetVelocity(1);
 
         sf::Time deltaTime = deltaTimer.restart();
 
-        sf::Vector2f curPos = ball.getPosition();
-
-        if (curPos.x + ball.getLocalBounds().width > window.getSize().x) 
+        if (hasCollision(ball.getShape(), player1Paddle.getShape()) || hasCollision(ball.getShape(), player2Paddle.getShape()))
         {
-            ball.setPosition(sf::Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f));
-            blueScore++;
-            speed = 200;
-        }
-        else if (curPos.x < 0) 
-        {
-            ball.setPosition(sf::Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f));
-            redScore++;
-            speed = 200;
-        }
-        if (curPos.y + ball.getLocalBounds().height > window.getSize().y)
-        {
-            velocity.y = -1;
-            speed += 10;
-        }
-        else if (curPos.y < 0)
-        {
-            velocity.y = 1;
-            speed += 10;
+            ball.reverse();
         }
 
-        if (hasCollision(ball, paddle1))
+        if (hasCollision(ball2.getShape(), player1Paddle.getShape()) || hasCollision(ball2.getShape(), player2Paddle.getShape()))
         {
-            velocity.x = -1;
-        }
-        else if (hasCollision(ball, paddle2))
-        {
-            velocity.x = 1;
+            ball2.reverse();
         }
 
-        redScoreText.setString("Score: " + intToString(redScore));
-        blueScoreText.setString("Score: " + intToString(blueScore));
+        redScoreSS.clear();
+        redScoreSS.str("");
+        blueScoreSS.clear();
+        blueScoreSS.str("");
+        redScoreSS << "Player 2: " << redScore;
+        blueScoreSS << "Player 1: " << blueScore;
+        redScoreText.setString(redScoreSS.str());
+        blueScoreText.setString(blueScoreSS.str());
 
-        ball.setPosition(ball.getPosition() + velocity * speed * deltaTime.asSeconds());
-        paddle1.setPosition(paddle1.getPosition() + paddle1Vel * paddleSpeed * deltaTime.asSeconds());
-        paddle2.setPosition(paddle2.getPosition() + paddle2Vel * paddleSpeed * deltaTime.asSeconds());
-
-        if (paddle1.getPosition().y < 0)
+        for (int i = 0; i < gameObjects.size(); i++)
         {
-            paddle1.setPosition(sf::Vector2f(paddle1.getPosition().x, 0));
-        }
-        if (paddle1.getPosition().y + paddle1.getLocalBounds().height > window.getSize().y)
-        {
-            paddle1.setPosition(sf::Vector2f(paddle1.getPosition().x, window.getSize().y - paddle1.getLocalBounds().height));
-        }
-        if (paddle2.getPosition().y < 0)
-        {
-            paddle2.setPosition(sf::Vector2f(paddle2.getPosition().x, 0));
-        }
-        if (paddle2.getPosition().y + paddle2.getLocalBounds().height > window.getSize().y)
-        {
-            paddle2.setPosition(sf::Vector2f(paddle2.getPosition().x, window.getSize().y - paddle2.getLocalBounds().height));
+            gameObjects[i]->update(deltaTime.asSeconds());
         }
 
         window.clear();
-        window.draw(ball);
-        window.draw(paddle1);
-        window.draw(paddle2);
+
+        for (int i = 0; i < gameObjects.size(); i++) 
+        {
+            gameObjects[i]->render();
+        }
         window.draw(redScoreText);
         window.draw(blueScoreText);
+
         window.display();
     }
 
