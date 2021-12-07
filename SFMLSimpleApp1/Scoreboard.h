@@ -11,6 +11,8 @@ public:
 	void update(float dt) override;
 	void render() override;
 
+	void playerScored(int playerNum);
+
 private:
 	sf::Text _player1Text;
 	sf::Text _player2Text;

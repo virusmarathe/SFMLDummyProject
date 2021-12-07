@@ -1,4 +1,5 @@
 #include "Ball.h"
+#include "Game.h"
 
 Ball::Ball(sf::Vector2f startPos, float radius, sf::RenderWindow * window)
 {
@@ -18,13 +19,13 @@ void Ball::update(float dt)
     if (curPos.x + _shape.getLocalBounds().width > _window->getSize().x)
     {
         _shape.setPosition(sf::Vector2f(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f));
-        //blueScore++;
+        Game::instance().notifyBallScored(1);
         _speed = 200;
     }
     else if (curPos.x < 0)
     {
         _shape.setPosition(sf::Vector2f(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f));
-        //redScore++;
+        Game::instance().notifyBallScored(2);
         _speed = 200;
     }
     if (curPos.y + _shape.getLocalBounds().height > _window->getSize().y)

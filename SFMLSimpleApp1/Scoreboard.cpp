@@ -32,3 +32,15 @@ void Scoreboard::render()
 	_window->draw(_player1Text);
 	_window->draw(_player2Text);
 }
+
+void Scoreboard::playerScored(int playerNum)
+{
+	if (playerNum == 1)
+	{
+		_player1Score++;
+	}
+	else
+	{
+		_player2Score++;
+	}
+}
