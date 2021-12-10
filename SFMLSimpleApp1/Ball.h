@@ -4,7 +4,7 @@
 class Ball : public GameObject
 {
 public:
-	Ball(sf::Vector2f startPos, float radius, sf::RenderWindow * window);
+	Ball(sf::Vector2f startPos, float radius, sf::RenderWindow * window, sf::Texture& texture);
 
 	void update(float dt) override;
 	void render() override;
@@ -15,6 +15,7 @@ public:
 private:
 	sf::CircleShape _shape;
 	sf::Vector2f _velocity;
+	sf::Sprite _sprite;
 	float _speed;
 };
 

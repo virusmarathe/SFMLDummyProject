@@ -12,7 +12,12 @@ void Game::init(sf::RenderWindow * window)
         std::cout << "Couldn't find font BalooBhaijaan2-VariableFont_wght.ttf";
     }
 
-    _ball = new Ball(sf::Vector2f(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), 10.0f, _window);
+    if (!_texture.loadFromFile("notaBall.png"))
+    {
+        std::cout << "Couldn't find image notaBall.png";
+    }
+
+    _ball = new Ball(sf::Vector2f(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), 10.0f, _window, _texture);
     _player1Paddle = new Paddle(sf::Color::Red, sf::Vector2f(_window->getSize().x - 10.0f, 0), _window);
     _player2Paddle = new Paddle(sf::Color::Blue, sf::Vector2f(0, 0), _window);
     _scoreboard = new Scoreboard(_font, 24, _window);

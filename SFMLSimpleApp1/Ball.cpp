@@ -1,7 +1,7 @@
 #include "Ball.h"
 #include "Game.h"
 
-Ball::Ball(sf::Vector2f startPos, float radius, sf::RenderWindow * window)
+Ball::Ball(sf::Vector2f startPos, float radius, sf::RenderWindow * window, sf::Texture& texture)
 {
 	_shape.setFillColor(sf::Color::Green);
 	_shape.setPosition(startPos);
@@ -9,6 +9,7 @@ Ball::Ball(sf::Vector2f startPos, float radius, sf::RenderWindow * window)
 	_window = window;
     _velocity = sf::Vector2f(1, 1);
     _speed = 200;
+    _sprite.setTexture(texture);
 }
 
 void Ball::update(float dt)
@@ -38,9 +39,12 @@ void Ball::update(float dt)
         _velocity.y = 1;
         _speed += 10;
     }
+
+    _sprite.setPosition(_shape.getPosition());
 }
 
 void Ball::render()
 {
 	_window->draw(_shape);
+    _window->draw(_sprite);
 }

@@ -37,5 +37,6 @@ private:
 	sf::Font _font;
 	Scoreboard* _scoreboard = nullptr;
 	std::vector<GameObject*> _gameObjects;
+	sf::Texture _texture;
 };
 
