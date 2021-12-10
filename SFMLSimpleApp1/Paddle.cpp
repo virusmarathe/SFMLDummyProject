@@ -21,6 +21,8 @@ void Paddle::update(float dt)
 	{
 		_shape.setPosition(sf::Vector2f(_shape.getPosition().x, _window->getSize().y - _shape.getLocalBounds().height));
 	}
+
+	_collisionRect = _shape.getGlobalBounds();
 }
 
 void Paddle::render()

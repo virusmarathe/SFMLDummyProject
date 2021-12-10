@@ -10,12 +10,12 @@ public:
 	void render() override;
 
 	void reverse() { _velocity.x *= -1; }
-	sf::CircleShape& getShape() { return _shape; }
+	sf::FloatRect& getCollisionRect() { return _collisionRect; }
 
 private:
-	sf::CircleShape _shape;
 	sf::Vector2f _velocity;
 	sf::Sprite _sprite;
+	sf::FloatRect _collisionRect;
 	float _speed;
 };
 

@@ -22,7 +22,7 @@ public:
 	void update(float dt);
 	void render();
 
-	bool hasCollision(const sf::Shape& shape1, const sf::Shape& shape2);
+	bool hasCollision(const sf::FloatRect& shape1, const sf::FloatRect& shape2);
 
 	void notifyBallScored(int playerNum);
 
@@ -30,6 +30,8 @@ public:
 
 private:
 	Game() {}
+	bool loadResources();
+
 	sf::RenderWindow * _window = nullptr;
 	Ball* _ball = nullptr;
 	Paddle* _player1Paddle = nullptr;

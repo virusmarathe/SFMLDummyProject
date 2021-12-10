@@ -10,11 +10,12 @@ public:
 
 	void SetVelocity(float velY) { _velocity.y = velY; }
 
-	sf::RectangleShape& getShape() { return _shape; }
+	sf::FloatRect& getCollisionRect() { return _collisionRect; }
 
 private:
 	sf::RectangleShape _shape;
 	sf::Vector2f _velocity;
+	sf::FloatRect _collisionRect;
 	float _speed;
 };
 

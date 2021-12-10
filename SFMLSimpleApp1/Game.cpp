@@ -6,18 +6,11 @@
 
 void Game::init(sf::RenderWindow * window)
 {
-	_window = window;
-    if (!_font.loadFromFile("BalooBhaijaan2-VariableFont_wght.ttf"))
-    {
-        std::cout << "Couldn't find font BalooBhaijaan2-VariableFont_wght.ttf";
-    }
+    loadResources();
 
-    if (!_texture.loadFromFile("notaBall.png"))
-    {
-        std::cout << "Couldn't find image notaBall.png";
-    }
+    _window = window;
 
-    _ball = new Ball(sf::Vector2f(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), 10.0f, _window, _texture);
+    _ball = new Ball(sf::Vector2f(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), 20.0f, _window, _texture);
     _player1Paddle = new Paddle(sf::Color::Red, sf::Vector2f(_window->getSize().x - 10.0f, 0), _window);
     _player2Paddle = new Paddle(sf::Color::Blue, sf::Vector2f(0, 0), _window);
     _scoreboard = new Scoreboard(_font, 24, _window);
@@ -48,7 +41,7 @@ void Game::handleInput()
 
 void Game::update(float dt)
 {
-    if (hasCollision(_ball->getShape(), _player1Paddle->getShape()) || hasCollision(_ball->getShape(), _player2Paddle->getShape()))
+    if (hasCollision(_ball->getCollisionRect(), _player1Paddle->getCollisionRect()) || hasCollision(_ball->getCollisionRect(), _player2Paddle->getCollisionRect()))
     {
         _ball->reverse();
     }
@@ -71,15 +64,12 @@ void Game::render()
     _window->display();
 }
 
-bool Game::hasCollision(const sf::Shape& shape1, const sf::Shape& shape2)
+bool Game::hasCollision(const sf::FloatRect& shape1, const sf::FloatRect& shape2)
 {
     bool foundCollision = false;
 
-    sf::FloatRect shape1Rect = shape1.getGlobalBounds();
-    sf::FloatRect shape2Rect = shape2.getGlobalBounds();
-
-    if (shape1Rect.left < shape2Rect.left + shape2Rect.width && shape1Rect.left + shape1Rect.width > shape2Rect.left &&
-        shape1Rect.top < shape2Rect.top + shape2Rect.height && shape1Rect.top + shape1Rect.height > shape2Rect.top) return true;
+    if (shape1.left < shape2.left + shape2.width && shape1.left + shape1.width > shape2.left &&
+        shape1.top < shape2.top + shape2.height && shape1.top + shape1.height > shape2.top) return true;
 
     return foundCollision;
 }
@@ -96,4 +86,21 @@ Game::~Game()
         delete _gameObjects[i];
     }
     _gameObjects.clear();
+}
+
+bool Game::loadResources()
+{
+    if (!_font.loadFromFile("BalooBhaijaan2-VariableFont_wght.ttf"))
+    {
+        std::cout << "Couldn't find font BalooBhaijaan2-VariableFont_wght.ttf";
+        return false;
+    }
+
+    if (!_texture.loadFromFile("notaBall.png"))
+    {
+        std::cout << "Couldn't find image notaBall.png";
+        return false;
+    }
+
+    return true;
 }
