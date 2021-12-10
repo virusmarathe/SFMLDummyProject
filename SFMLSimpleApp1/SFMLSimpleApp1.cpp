@@ -4,10 +4,11 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Game.h"
+#include "Config.h"
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Pong!");
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Pong!");
     Game::instance().init(&window);
 
     sf::Clock deltaTimer;

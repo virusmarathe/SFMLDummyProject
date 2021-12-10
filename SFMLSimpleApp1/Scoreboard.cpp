@@ -1,4 +1,5 @@
 #include "Scoreboard.h"
+#include "Config.h"
 
 Scoreboard::Scoreboard(sf::Font& font, int charSize, sf::RenderWindow * window)
 {
@@ -37,10 +38,10 @@ void Scoreboard::playerScored(int playerNum)
 {
 	if (playerNum == 1)
 	{
-		_player1Score++;
+		_player1Score += POINTS_PER_SCORE;
 	}
 	else
 	{
-		_player2Score++;
+		_player2Score += POINTS_PER_SCORE;
 	}
 }

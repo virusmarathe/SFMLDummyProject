@@ -1,11 +1,12 @@
 #include "Paddle.h"
+#include "Config.h"
 
 Paddle::Paddle(sf::Color color, sf::Vector2f startPos, sf::RenderWindow * window)
 {
 	_shape.setFillColor(color);
 	_shape.setPosition(startPos);
-	_shape.setSize(sf::Vector2f(10, 100));
-	_speed = 400.0f;
+	_shape.setSize(sf::Vector2f(PADDLE_WIDTH, PADDLE_HEIGHT));
+	_speed = PADDLE_SPEED;
 	_window = window;
 }
 
