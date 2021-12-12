@@ -13,6 +13,7 @@ struct Vector2 {
 	Vector2 operator*(const float scale) { return Vector2(x * scale, y * scale); }
 	Vector2 operator-(const Vector2& rhs) { return Vector2(x - rhs.x, y - rhs.y); }
 	Vector2 operator/(const float scale) { return Vector2(x / scale, y / scale); }
+	bool operator==(const Vector2& rhs) { return x == rhs.x && y == rhs.y; }
 	Vector2& operator+=(const Vector2& rhs) 
 	{
 		x += rhs.x;
