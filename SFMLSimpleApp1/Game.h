@@ -6,6 +6,7 @@ class Ball;
 class Paddle;
 class Scoreboard;
 class GameObject;
+class Entity;
 
 class Game
 {
@@ -40,5 +41,7 @@ private:
 	Scoreboard* _scoreboard = nullptr;
 	std::vector<GameObject*> _gameObjects;
 	sf::Texture _texture;
+	std::shared_ptr<Entity> _ballEntity;
+	std::vector<std::shared_ptr<Entity>> _entities;
 };
 

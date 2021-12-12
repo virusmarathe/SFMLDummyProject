@@ -5,6 +5,7 @@
 #include <iostream>
 #include "Config.h"
 #include "Engine/Math/Vector2.h"
+#include "Engine/Entity.h"
 
 void Game::init(sf::RenderWindow * window)
 {
@@ -17,11 +18,16 @@ void Game::init(sf::RenderWindow * window)
     _player2Paddle = new Paddle(sf::Color::Blue, Vector2(), _window);
     _scoreboard = new Scoreboard(_font, 24, _window);
 
+    _ballEntity = std::make_shared<Entity>();
+    _ballEntity->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(50,20));
+    _ballEntity->renderer = std::make_shared<CSpriteRenderer>(_texture);
+
+    _entities.push_back(_ballEntity);
+
     _gameObjects.push_back(_ball);
     _gameObjects.push_back(_player1Paddle);
     _gameObjects.push_back(_player2Paddle);
     _gameObjects.push_back(_scoreboard);
-
 }
 
 void Game::handleInput()
@@ -52,6 +58,12 @@ void Game::update(float dt)
     {
         _gameObjects[i]->update(dt);
     }
+
+    // trying out a movement system
+    for (auto ent : _entities)
+    {
+        ent->transform->position += ent->transform->velocity * dt;
+    }
 }
 
 void Game::render()
@@ -61,6 +73,13 @@ void Game::render()
     for (int i = 0; i < _gameObjects.size(); i++)
     {
         _gameObjects[i]->render();
+    }
+
+    // trying out a rendering system
+    for (auto ent : _entities)
+    {
+        ent->renderer->sprite.setPosition(ent->transform->position.x, ent->transform->position.y);
+        _window->draw(ent->renderer->sprite);
     }
 
     _window->display();
