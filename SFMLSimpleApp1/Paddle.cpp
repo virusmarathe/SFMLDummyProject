@@ -1,10 +1,10 @@
 #include "Paddle.h"
 #include "Config.h"
 
-Paddle::Paddle(sf::Color color, sf::Vector2f startPos, sf::RenderWindow * window)
+Paddle::Paddle(sf::Color color, Vector2 startPos, sf::RenderWindow * window)
 {
 	_shape.setFillColor(color);
-	_shape.setPosition(startPos);
+	_position = startPos;
 	_shape.setSize(sf::Vector2f(PADDLE_WIDTH, PADDLE_HEIGHT));
 	_speed = PADDLE_SPEED;
 	_window = window;
@@ -12,17 +12,18 @@ Paddle::Paddle(sf::Color color, sf::Vector2f startPos, sf::RenderWindow * window
 
 void Paddle::update(float dt)
 {
-	_shape.setPosition(_shape.getPosition() + _velocity * _speed * dt);
+	_position += _velocity * _speed * dt;
 
-	if (_shape.getPosition().y < 0)
+	if (_position.y < 0)
 	{
-		_shape.setPosition(sf::Vector2f(_shape.getPosition().x, 0));
+		_position.y = 0;
 	}
-	if (_shape.getPosition().y + _shape.getLocalBounds().height > _window->getSize().y)
+	if (_position.y + _shape.getLocalBounds().height > _window->getSize().y)
 	{
-		_shape.setPosition(sf::Vector2f(_shape.getPosition().x, _window->getSize().y - _shape.getLocalBounds().height));
+		_position.y = _window->getSize().y - _shape.getLocalBounds().height;
 	}
 
+	_shape.setPosition(_position.x, _position.y);
 	_collisionRect = _shape.getGlobalBounds();
 }
 

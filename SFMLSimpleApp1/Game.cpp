@@ -4,6 +4,7 @@
 #include "Scoreboard.h"
 #include <iostream>
 #include "Config.h"
+#include "Engine/Math/Vector2.h"
 
 void Game::init(sf::RenderWindow * window)
 {
@@ -11,9 +12,9 @@ void Game::init(sf::RenderWindow * window)
 
     _window = window;
 
-    _ball = new Ball(sf::Vector2f(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), BALL_SIZE, _window, _texture);
-    _player1Paddle = new Paddle(sf::Color::Red, sf::Vector2f(_window->getSize().x - PADDLE_WIDTH, 0), _window);
-    _player2Paddle = new Paddle(sf::Color::Blue, sf::Vector2f(0, 0), _window);
+    _ball = new Ball(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), BALL_SIZE, _window, _texture);
+    _player1Paddle = new Paddle(sf::Color::Red, Vector2(_window->getSize().x - PADDLE_WIDTH, 0), _window);
+    _player2Paddle = new Paddle(sf::Color::Blue, Vector2(), _window);
     _scoreboard = new Scoreboard(_font, 24, _window);
 
     _gameObjects.push_back(_ball);

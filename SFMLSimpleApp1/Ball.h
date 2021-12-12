@@ -1,10 +1,11 @@
 #pragma once
 #include "GameObject.h"
+#include "Engine/Math/Vector2.h"
 
 class Ball : public GameObject
 {
 public:
-	Ball(sf::Vector2f startPos, float radius, sf::RenderWindow * window, sf::Texture& texture);
+	Ball(Vector2 startPos, float radius, sf::RenderWindow * window, sf::Texture& texture);
 
 	void update(float dt) override;
 	void render() override;
@@ -13,7 +14,8 @@ public:
 	sf::FloatRect& getCollisionRect() { return _collisionRect; }
 
 private:
-	sf::Vector2f _velocity;
+	Vector2 _position;
+	Vector2 _velocity;
 	sf::Sprite _sprite;
 	sf::FloatRect _collisionRect;
 	float _speed;
