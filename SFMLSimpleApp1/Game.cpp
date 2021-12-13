@@ -21,7 +21,7 @@ void Game::init(sf::RenderWindow * window)
     _ballEntity = std::make_shared<Entity>(0);
     _ballEntity->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f),
                                                           Vector2((BALL_SIZE * 2) / _ballTexture.getSize().x, (BALL_SIZE * 2) / _ballTexture.getSize().y),
-                                                          Vector2(0,200));
+                                                          Vector2(BALL_START_SPEED,BALL_START_SPEED));
     _ballEntity->renderer = std::make_shared<CSpriteRenderer>(_ballTexture);
     _ballEntity->renderer->sprite.setScale(_ballEntity->transform->scale.x, _ballEntity->transform->scale.y);
     _ballEntity->collider = std::make_shared<CRectCollider>(sf::FloatRect(_ballEntity->transform->position.x, _ballEntity->transform->position.y, BALL_SIZE * 2, BALL_SIZE * 2));
@@ -30,23 +30,23 @@ void Game::init(sf::RenderWindow * window)
 
     std::shared_ptr<Entity> topWall = std::make_shared<Entity>(1);
     topWall->transform = std::make_shared<CTransform>(Vector2(0, 0));
-    topWall->collider = std::make_shared<CRectCollider>(sf::FloatRect(0,0,_window->getSize().x, 50));
+    topWall->collider = std::make_shared<CRectCollider>(sf::FloatRect(0,0,(float)_window->getSize().x, 50));
 
     std::shared_ptr<Entity> bottomWall = std::make_shared<Entity>(2);
-    bottomWall->transform = std::make_shared<CTransform>(Vector2(0, _window->getSize().y - 50));
-    bottomWall->collider = std::make_shared<CRectCollider>(sf::FloatRect(0, _window->getSize().y - 50, _window->getSize().x, 50));
+    bottomWall->transform = std::make_shared<CTransform>(Vector2(0, (float)_window->getSize().y - 50));
+    bottomWall->collider = std::make_shared<CRectCollider>(sf::FloatRect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
 
     _entities.push_back(topWall);
     _entities.push_back(bottomWall);
 
     _player1Entity = std::make_shared<Entity>(3);
-    _player1Entity->transform = std::make_shared<CTransform>(Vector2(0, 0));
+    _player1Entity->transform = std::make_shared<CTransform>(Vector2(500, 200));
     _player1Entity->renderer = std::make_shared<CSpriteRenderer>(_paddleTexture);
     _player1Entity->collider = std::make_shared<CRectCollider>(sf::FloatRect(_player1Entity->renderer->sprite.getTextureRect()));
     _entities.push_back(_player1Entity);
 
     _player2Entity = std::make_shared<Entity>(4);
-    _player2Entity->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x - PADDLE_WIDTH, 0));
+    _player2Entity->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x - PADDLE_WIDTH, 200));
     _player2Entity->renderer = std::make_shared<CSpriteRenderer>(_paddleTexture);
     _player2Entity->collider = std::make_shared<CRectCollider>(sf::FloatRect(_player2Entity->renderer->sprite.getTextureRect()));
     _entities.push_back(_player2Entity);
@@ -72,10 +72,10 @@ void Game::handleInput()
         }
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))    _player1Paddle->SetVelocity(1);
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))      _player1Paddle->SetVelocity(-1);
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))       _player2Paddle->SetVelocity(-1);
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))       _player2Paddle->SetVelocity(1);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))       _player1Entity->transform->velocity.y = -PADDLE_SPEED;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))       _player1Entity->transform->velocity.y = PADDLE_SPEED;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))    _player2Entity->transform->velocity.y = PADDLE_SPEED;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))      _player2Entity->transform->velocity.y = -PADDLE_SPEED;
 }
 
 void Game::update(float dt)
@@ -101,6 +101,14 @@ void Game::update(float dt)
         if (ent != _ballEntity && hasCollision(_ballEntity->collider->collider, ent->collider->collider))
         {
             _ballEntity->transform->velocity *= -1;
+        }
+        if (ent != _ballEntity && ent != _player1Entity && hasCollision(_player1Entity->collider->collider, ent->collider->collider))
+        {
+            _player1Entity->transform->velocity.y = 0;
+        }
+        if (ent != _ballEntity && ent != _player2Entity && hasCollision(_player2Entity->collider->collider, ent->collider->collider))
+        {
+            _player2Entity->transform->velocity.y = 0;
         }
     }
 

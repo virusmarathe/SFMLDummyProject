@@ -1,7 +1,7 @@
 #pragma once
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 600;
+const int WINDOW_WIDTH = 1280;
+const int WINDOW_HEIGHT = 720;
 const float PADDLE_WIDTH = 50.0f;
 const float PADDLE_HEIGHT = 100.0f;
 const float PADDLE_SPEED = 400.0f;
