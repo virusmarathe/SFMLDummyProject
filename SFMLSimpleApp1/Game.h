@@ -40,8 +40,9 @@ private:
 	sf::Font _font;
 	Scoreboard* _scoreboard = nullptr;
 	std::vector<GameObject*> _gameObjects;
-	sf::Texture _texture;
-	std::shared_ptr<Entity> _ballEntity;
+	sf::Texture _ballTexture, _paddleTexture;
+	std::shared_ptr<Entity> _ballEntity, _player1Entity, _player2Entity;
 	std::vector<std::shared_ptr<Entity>> _entities;
+	bool _debugToggle = false;
 };
 
