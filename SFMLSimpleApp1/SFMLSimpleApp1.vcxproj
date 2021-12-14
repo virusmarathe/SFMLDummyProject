@@ -145,24 +145,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Paddle.cpp" />
-    <ClCompile Include="Scoreboard.cpp" />
     <ClCompile Include="SFMLSimpleApp1.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ball.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Engine\Components\CRectCollider.h" />
-    <ClInclude Include="Engine\Components\CSpriteRenderer.h" />
+    <ClInclude Include="Engine\Components\CSprite.h" />
+    <ClInclude Include="Engine\Components\CText.h" />
     <ClInclude Include="Engine\Components\CTransform.h" />
     <ClInclude Include="Engine\Entity.h" />
     <ClInclude Include="Engine\Math\Vector2.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Paddle.h" />
-    <ClInclude Include="Scoreboard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

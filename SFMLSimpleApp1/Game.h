@@ -2,10 +2,6 @@
 #include "SFML/Graphics.hpp"
 #include <vector>
 
-class Ball;
-class Paddle;
-class Scoreboard;
-class GameObject;
 class Entity;
 
 class Game
@@ -27,21 +23,14 @@ public:
 
 	void notifyBallScored(int playerNum);
 
-	~Game();
-
 private:
 	Game() {}
 	bool loadResources();
 
 	sf::RenderWindow * _window = nullptr;
-	Ball* _ball = nullptr;
-	Paddle* _player1Paddle = nullptr;
-	Paddle* _player2Paddle = nullptr;
 	sf::Font _font;
-	Scoreboard* _scoreboard = nullptr;
-	std::vector<GameObject*> _gameObjects;
 	sf::Texture _ballTexture, _paddleTexture;
-	std::shared_ptr<Entity> _ballEntity, _player1Entity, _player2Entity;
+	std::shared_ptr<Entity> _ballEntity, _player1Entity, _player2Entity, _player1Score, _player2Score;
 	std::vector<std::shared_ptr<Entity>> _entities;
 	bool _debugToggle = false;
 };
