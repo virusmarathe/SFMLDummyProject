@@ -7,7 +7,7 @@
 
 class Entity
 {
-	int _id;
+	const size_t _id = 0;
 
 public:
 	std::shared_ptr<CTransform> transform;
@@ -15,7 +15,7 @@ public:
 	std::shared_ptr<CRectCollider> collider;
 	std::shared_ptr<CText> text;
 
-	Entity(int id) : _id(id) { }
+	Entity(size_t id) : _id(id) { }
 	bool operator==(const Entity& rhs) { return _id == rhs._id; }
 	bool operator!=(const Entity& rhs) { return _id != rhs._id; }
 };

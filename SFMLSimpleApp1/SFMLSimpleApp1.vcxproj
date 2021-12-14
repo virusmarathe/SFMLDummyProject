@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Entity\EntityManager.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="SFMLSimpleApp1.cpp" />
   </ItemGroup>
@@ -154,8 +155,9 @@
     <ClInclude Include="Engine\Components\CSprite.h" />
     <ClInclude Include="Engine\Components\CText.h" />
     <ClInclude Include="Engine\Components\CTransform.h" />
-    <ClInclude Include="Engine\Entity.h" />
+    <ClInclude Include="Engine\Entity\Entity.h" />
     <ClInclude Include="Engine\Math\Vector2.h" />
+    <ClInclude Include="Engine\Entity\EntityManager.h" />
     <ClInclude Include="Game.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

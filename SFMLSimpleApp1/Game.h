@@ -1,5 +1,6 @@
 #pragma once
 #include "SFML/Graphics.hpp"
+#include "Engine/Entity/EntityManager.h"
 #include <vector>
 
 class Entity;
@@ -31,7 +32,7 @@ private:
 	sf::Font _font;
 	sf::Texture _ballTexture, _paddleTexture;
 	std::shared_ptr<Entity> _ballEntity, _player1Entity, _player2Entity, _player1Score, _player2Score;
-	std::vector<std::shared_ptr<Entity>> _entities;
+	EntityManager _entities;
 	bool _debugToggle = false;
 };
 
