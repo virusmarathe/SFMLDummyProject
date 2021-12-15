@@ -47,7 +47,7 @@ struct Vector2 {
 	}
 	float magnitude()
 	{
-		return sqrt(magnitudeSqr());
+		return sqrtf(magnitudeSqr());
 	}
 	void normalize()
 	{

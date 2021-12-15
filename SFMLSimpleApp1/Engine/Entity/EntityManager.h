@@ -14,13 +14,14 @@ public:
 	EntityManager();
 
 	std::shared_ptr<Entity> addEntity(const std::string& tag);
-	void removeEntity(const Entity& ent);
 
-	EntityList getEntities() { return _entityList; }
-	EntityList getEntities(const std::string& tag) { return _entityMap[tag]; }
+	EntityList& getEntities() { return _entityList; }
+	EntityList& getEntities(const std::string& tag);
+
+	void update();
 
 private:
-	EntityList _entityList;
+	EntityList _entityList, _entitiesToAdd, _entitiesToRemove;
 	EntityMap _entityMap;
 	size_t _totalEntities = 0;
 };

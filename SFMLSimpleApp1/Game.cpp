@@ -10,13 +10,7 @@ void Game::init(sf::RenderWindow * window)
 
     _window = window;
 
-    _ballEntity = _entities.addEntity("Ball");
-    _ballEntity->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f),
-                                                          Vector2((BALL_SIZE * 2) / _ballTexture.getSize().x, (BALL_SIZE * 2) / _ballTexture.getSize().y),
-                                                          Vector2(BALL_START_SPEED,BALL_START_SPEED));
-    _ballEntity->sprite = std::make_shared<CSprite>(_ballTexture);
-    _ballEntity->sprite->sprite.setScale(_ballEntity->transform->scale.x, _ballEntity->transform->scale.y);
-    _ballEntity->collider = std::make_shared<CRectCollider>(sf::FloatRect(_ballEntity->transform->position.x, _ballEntity->transform->position.y, BALL_SIZE * 2, BALL_SIZE * 2));
+    spawnNewBall();
 
     std::shared_ptr<Entity> topWall = _entities.addEntity("Wall");
     topWall->transform = std::make_shared<CTransform>(Vector2(0, 0));
@@ -70,6 +64,8 @@ void Game::handleInput()
 
 void Game::update(float dt)
 {
+    _entities.update();
+
     // trying out a movement system
     for (auto ent : _entities.getEntities())
     {
@@ -88,19 +84,28 @@ void Game::update(float dt)
     {
         if (ent->collider)
         {
-            if (ent != _ballEntity && hasCollision(_ballEntity->collider->collider, ent->collider->collider))
+            for (auto ball : _entities.getEntities("Ball"))
             {
-                _ballEntity->transform->velocity *= -1;
+                if (ball && ent != ball && hasCollision(ball->collider->collider, ent->collider->collider))
+                {
+                    ball->transform->velocity *= -1;
+                }
             }
-            if (ent != _ballEntity && ent != _player1Entity && hasCollision(_player1Entity->collider->collider, ent->collider->collider))
+            for (auto player : _entities.getEntities("Player"))
             {
-                _player1Entity->transform->velocity.y = 0;
-            }
-            if (ent != _ballEntity && ent != _player2Entity && hasCollision(_player2Entity->collider->collider, ent->collider->collider))
-            {
-                _player2Entity->transform->velocity.y = 0;
+                if (ent->tag() == "Wall" && hasCollision(player->collider->collider, ent->collider->collider))
+                {
+                    player->transform->velocity.y = 0;
+                }
             }
         }
+    }
+
+    _ballTimer += dt;
+    if (_ballTimer >= 10)
+    {
+        spawnNewBall();
+        _ballTimer = 0;
     }
 }
 
@@ -155,6 +160,19 @@ bool Game::hasCollision(const sf::FloatRect& shape1, const sf::FloatRect& shape2
 void Game::notifyBallScored(int playerNum)
 {
     // TODO
+}
+
+void Game::spawnNewBall()
+{
+    float xVel = rand() % 2 == 1 ? 1 : -1;
+    float yVel = rand() % 2 == 1 ? 1 : -1;
+    std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
+    ball->transform = std::make_shared<CTransform>(Vector2(50 + rand() % (_window->getSize().x - 50), 100 + rand() % (_window->getSize().y - 100)),
+        Vector2((BALL_SIZE * 2) / _ballTexture.getSize().x, (BALL_SIZE * 2) / _ballTexture.getSize().y),
+        Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel));
+    ball->sprite = std::make_shared<CSprite>(_ballTexture);
+    ball->sprite->sprite.setScale(ball->transform->scale.x, ball->transform->scale.y);
+    ball->collider = std::make_shared<CRectCollider>(sf::FloatRect(ball->transform->position.x, ball->transform->position.y, BALL_SIZE * 2, BALL_SIZE * 2));
 }
 
 bool Game::loadResources()
