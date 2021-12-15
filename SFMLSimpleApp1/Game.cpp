@@ -32,13 +32,11 @@ void Game::init(sf::RenderWindow * window)
     
     _player1Score = _entities.addEntity("Score");
     _player1Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
-    _player1Score->text = std::make_shared<CText>(_font, 24, sf::Color::Blue);
-    _player1Score->text->text.setString("Player 1: 0");
+    _player1Score->text = std::make_shared<CText>("Player 1: 0",_font, 24, sf::Color::Blue);
 
     _player2Score = _entities.addEntity("Score");
     _player2Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
-    _player2Score->text = std::make_shared<CText>(_font, 24, sf::Color::Red);
-    _player2Score->text->text.setString("Player 2: 0");
+    _player2Score->text = std::make_shared<CText>("Player 1: 0", _font, 24, sf::Color::Red);
 }
 
 void Game::handleInput()
@@ -164,10 +162,10 @@ void Game::notifyBallScored(int playerNum)
 
 void Game::spawnNewBall()
 {
-    float xVel = rand() % 2 == 1 ? 1 : -1;
-    float yVel = rand() % 2 == 1 ? 1 : -1;
+    int xVel = rand() % 2 == 1 ? 1 : -1;
+    int yVel = rand() % 2 == 1 ? 1 : -1;
     std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
-    ball->transform = std::make_shared<CTransform>(Vector2(50 + rand() % (_window->getSize().x - 50), 100 + rand() % (_window->getSize().y - 100)),
+    ball->transform = std::make_shared<CTransform>(Vector2(50.0f + rand() % (_window->getSize().x - 50), 100.0f + rand() % (_window->getSize().y - 100)),
         Vector2((BALL_SIZE * 2) / _ballTexture.getSize().x, (BALL_SIZE * 2) / _ballTexture.getSize().y),
         Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel));
     ball->sprite = std::make_shared<CSprite>(_ballTexture);

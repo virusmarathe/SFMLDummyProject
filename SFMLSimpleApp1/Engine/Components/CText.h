@@ -6,13 +6,10 @@ class CText
 {
 public:
 	sf::Text text;
-	unsigned int fontSize;
 	sf::Color textColor;
 
-	CText(sf::Font& font, unsigned int fontSize, sf::Color color) : fontSize(fontSize) 
+	CText(const char * textString, sf::Font& font, unsigned int fontSize, sf::Color color) : text(sf::String(textString), font, fontSize)
 	{
-		text.setFont(font);
-		text.setCharacterSize(fontSize);
 		text.setFillColor(color);
 	}
 };

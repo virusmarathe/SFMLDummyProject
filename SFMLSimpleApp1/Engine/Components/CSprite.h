@@ -6,5 +6,5 @@ class CSprite
 public:
 	sf::Sprite sprite;
 
-	CSprite(sf::Texture& texture) { sprite.setTexture(texture); }
+	CSprite(sf::Texture& texture) : sprite(texture) { }
 };

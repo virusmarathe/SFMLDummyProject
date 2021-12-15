@@ -9,16 +9,18 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Pong!");
+    window.setFramerateLimit(240);
     Game::instance().init(&window);
 
     sf::Clock deltaTimer;
     while (window.isOpen())
     {
+        sf::Time deltaTime = deltaTimer.restart();
+
         // handle events
         Game::instance().handleInput();
 
         // update
-        sf::Time deltaTime = deltaTimer.restart();
         Game::instance().update(deltaTime.asSeconds());
 
         // render
