@@ -1,12 +1,12 @@
 #pragma once
 
-#include "SFML/Graphics.hpp"
+#include "Math/Rect.h"
 
 class CRectCollider
 {
 public:
-	sf::FloatRect collider;
+	Rect rect;
 	bool enabled;
 
-	CRectCollider(sf::FloatRect col) : collider(col), enabled(true) { }
+	CRectCollider(Rect col) : rect(col), enabled(true) { }
 };

@@ -1,8 +1,9 @@
 #include "Game.h"
 #include <iostream>
 #include "Config.h"
-#include "Engine/Math/Vector2.h"
-#include "Engine/Entity/Entity.h"
+#include "Math/Vector2.h"
+#include "Entity/Entity.h"
+#include "Math/Rect.h"
 
 void Game::init(sf::RenderWindow * window)
 {
@@ -14,21 +15,21 @@ void Game::init(sf::RenderWindow * window)
 
     std::shared_ptr<Entity> topWall = _entities.addEntity("Wall");
     topWall->transform = std::make_shared<CTransform>(Vector2(0, 0));
-    topWall->collider = std::make_shared<CRectCollider>(sf::FloatRect(0,0,(float)_window->getSize().x, 50));
+    topWall->collider = std::make_shared<CRectCollider>(Rect(0,0,(float)_window->getSize().x, 50));
 
     std::shared_ptr<Entity> bottomWall = _entities.addEntity("Wall");
     bottomWall->transform = std::make_shared<CTransform>(Vector2(0, (float)_window->getSize().y - 50));
-    bottomWall->collider = std::make_shared<CRectCollider>(sf::FloatRect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
+    bottomWall->collider = std::make_shared<CRectCollider>(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
 
     _player1Entity = _entities.addEntity("Player");
     _player1Entity->transform = std::make_shared<CTransform>(Vector2(500, 200));
     _player1Entity->sprite = std::make_shared<CSprite>(_paddleTexture);
-    _player1Entity->collider = std::make_shared<CRectCollider>(sf::FloatRect(_player1Entity->sprite->sprite.getTextureRect()));
+    _player1Entity->collider = std::make_shared<CRectCollider>(Rect(_player1Entity->sprite->sprite.getTextureRect()));
 
     _player2Entity = _entities.addEntity("Player");
     _player2Entity->transform = std::make_shared<CTransform>(Vector2((float)_window->getSize().x - PADDLE_WIDTH, 200));
     _player2Entity->sprite = std::make_shared<CSprite>(_paddleTexture);
-    _player2Entity->collider = std::make_shared<CRectCollider>(sf::FloatRect(_player2Entity->sprite->sprite.getTextureRect()));
+    _player2Entity->collider = std::make_shared<CRectCollider>(Rect(_player2Entity->sprite->sprite.getTextureRect()));
     
     _player1Score = _entities.addEntity("Score");
     _player1Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
@@ -72,8 +73,7 @@ void Game::update(float dt)
             ent->transform->position += ent->transform->velocity * dt;
             if (ent->collider)
             {
-                ent->collider->collider.left = ent->transform->position.x;
-                ent->collider->collider.top = ent->transform->position.y;
+                ent->collider->rect.pos = ent->transform->position;
             }
         }
     }
@@ -84,14 +84,14 @@ void Game::update(float dt)
         {
             for (auto ball : _entities.getEntities("Ball"))
             {
-                if (ball && ent != ball && hasCollision(ball->collider->collider, ent->collider->collider))
+                if (ball && ent != ball && hasCollision(ball->collider->rect, ent->collider->rect))
                 {
                     ball->transform->velocity *= -1;
                 }
             }
             for (auto player : _entities.getEntities("Player"))
             {
-                if (ent->tag() == "Wall" && hasCollision(player->collider->collider, ent->collider->collider))
+                if (ent->tag() == "Wall" && hasCollision(player->collider->rect, ent->collider->rect))
                 {
                     player->transform->velocity.y = 0;
                 }
@@ -128,14 +128,14 @@ void Game::render()
 
         if (_debugToggle && ent->collider)
         {
-            sf::FloatRect rect = ent->collider->collider;
+            Rect rect = ent->collider->rect;
             sf::Vertex line[] =
             {
-                sf::Vertex(sf::Vector2f(rect.left, rect.top)),
-                sf::Vertex(sf::Vector2f(rect.left + rect.width, rect.top)),
-                sf::Vertex(sf::Vector2f(rect.left + rect.width, rect.top + rect.height)),
-                sf::Vertex(sf::Vector2f(rect.left, rect.top + rect.height)),
-                sf::Vertex(sf::Vector2f(rect.left, rect.top))
+                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y)),
+                sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y)),
+                sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y + rect.size.y)),
+                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y + rect.size.y)),
+                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y))
             };
             line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Green;
             _window->draw(line, 5, sf::LineStrip);
@@ -145,14 +145,12 @@ void Game::render()
     _window->display();
 }
 
-bool Game::hasCollision(const sf::FloatRect& shape1, const sf::FloatRect& shape2)
+bool Game::hasCollision(const Rect& shape1, const Rect& shape2)
 {
-    bool foundCollision = false;
-
-    if (shape1.left < shape2.left + shape2.width && shape1.left + shape1.width > shape2.left &&
-        shape1.top < shape2.top + shape2.height && shape1.top + shape1.height > shape2.top) return true;
-
-    return foundCollision;
+    return (shape1.pos.x < shape2.pos.x + shape2.size.x &&
+        shape1.pos.x + shape1.size.x > shape2.pos.x &&
+        shape1.pos.y < shape2.pos.y + shape2.size.y &&
+        shape1.pos.y + shape1.size.y > shape2.pos.y);
 }
 
 void Game::notifyBallScored(int playerNum)
@@ -170,7 +168,7 @@ void Game::spawnNewBall()
         Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel));
     ball->sprite = std::make_shared<CSprite>(_ballTexture);
     ball->sprite->sprite.setScale(ball->transform->scale.x, ball->transform->scale.y);
-    ball->collider = std::make_shared<CRectCollider>(sf::FloatRect(ball->transform->position.x, ball->transform->position.y, BALL_SIZE * 2, BALL_SIZE * 2));
+    ball->collider = std::make_shared<CRectCollider>(Rect(ball->transform->position.x, ball->transform->position.y, BALL_SIZE * 2, BALL_SIZE * 2));
 }
 
 bool Game::loadResources()
