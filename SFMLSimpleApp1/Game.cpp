@@ -4,6 +4,7 @@
 #include "Math/Vector2.h"
 #include "Entity/Entity.h"
 #include "Math/Rect.h"
+#include "Physics/Physics.h"
 
 void Game::init(sf::RenderWindow * window)
 {
@@ -84,14 +85,14 @@ void Game::update(float dt)
         {
             for (auto ball : _entities.getEntities("Ball"))
             {
-                if (ball && ent != ball && hasCollision(ball->collider->rect, ent->collider->rect))
+                if (ball && ent != ball && Physics::checkCollision(ball->collider->rect, ent->collider->rect))
                 {
                     ball->transform->velocity *= -1;
                 }
             }
             for (auto player : _entities.getEntities("Player"))
             {
-                if (ent->tag() == "Wall" && hasCollision(player->collider->rect, ent->collider->rect))
+                if (ent->tag() == "Wall" && Physics::checkCollision(player->collider->rect, ent->collider->rect))
                 {
                     player->transform->velocity.y = 0;
                 }
@@ -110,6 +111,8 @@ void Game::update(float dt)
 void Game::render()
 {
     _window->clear();
+
+    Vector2 mousePos = sf::Mouse::getPosition(*_window);
 
     // trying out a rendering system
     for (auto ent : _entities.getEntities())
@@ -138,19 +141,16 @@ void Game::render()
                 sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y))
             };
             line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Green;
+            if (Physics::checkCollision(mousePos, rect))
+            {
+                line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Red;
+            }
+
             _window->draw(line, 5, sf::LineStrip);
         }
     }
 
     _window->display();
-}
-
-bool Game::hasCollision(const Rect& shape1, const Rect& shape2)
-{
-    return (shape1.pos.x < shape2.pos.x + shape2.size.x &&
-        shape1.pos.x + shape1.size.x > shape2.pos.x &&
-        shape1.pos.y < shape2.pos.y + shape2.size.y &&
-        shape1.pos.y + shape1.size.y > shape2.pos.y);
 }
 
 void Game::notifyBallScored(int playerNum)

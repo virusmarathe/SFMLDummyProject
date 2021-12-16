@@ -20,8 +20,6 @@ public:
 	void update(float dt);
 	void render();
 
-	bool hasCollision(const Rect& shape1, const Rect& shape2);
-
 	void notifyBallScored(int playerNum);
 
 	void spawnNewBall();
