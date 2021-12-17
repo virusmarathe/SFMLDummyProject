@@ -58,6 +58,7 @@ void Game::handleInput()
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))       _player1Entity->transform->velocity.y = -PADDLE_SPEED;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))       _player1Entity->transform->velocity.y = PADDLE_SPEED;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))       _player1Entity->transform->velocity.y = 0;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))    _player2Entity->transform->velocity.y = PADDLE_SPEED;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))      _player2Entity->transform->velocity.y = -PADDLE_SPEED;
 }
@@ -108,6 +109,8 @@ void Game::update(float dt)
     }
 }
 
+Vector2 debugStart(100, 100);
+
 void Game::render()
 {
     _window->clear();
@@ -144,6 +147,36 @@ void Game::render()
             if (Physics::checkCollision(mousePos, rect))
             {
                 line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Red;
+            }
+
+            // test ray
+            sf::Vertex ray[] =
+            {
+                sf::Vertex(sf::Vector2f(debugStart.x, debugStart.y)),
+                sf::Vertex(sf::Vector2f(mousePos.x, mousePos.y))
+            };
+            ray[0].color = ray[1].color = sf::Color::Yellow;
+            _window->draw(ray, 2, sf::Lines);
+
+            Vector2 contactPoint;
+            Vector2 normal;
+            float tNearHit;
+
+            if (Physics::checkCollision(debugStart, mousePos - debugStart, rect, contactPoint, normal, tNearHit))
+            {
+                line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Yellow;
+
+                sf::CircleShape shape(10);
+                shape.setPosition(sf::Vector2f(contactPoint.x, contactPoint.y));
+                _window->draw(shape);
+
+                sf::Vertex normalLine[] =
+                {
+                    sf::Vertex(sf::Vector2f(contactPoint.x, contactPoint.y)),
+                    sf::Vertex(sf::Vector2f(contactPoint.x + normal.x * 20, contactPoint.y + normal.y * 20))
+                };
+                normalLine[0].color = normalLine[1].color = sf::Color::Red;
+                _window->draw(normalLine, 2, sf::Lines);
             }
 
             _window->draw(line, 5, sf::LineStrip);
