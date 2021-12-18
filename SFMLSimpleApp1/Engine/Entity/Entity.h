@@ -4,6 +4,7 @@
 #include "Components/CSprite.h"
 #include "Components/CRectCollider.h"
 #include "Components/CText.h"
+#include "Components/CPhysicsBody.h"
 
 class Entity
 {
@@ -13,6 +14,7 @@ public:
 	std::shared_ptr<CSprite> sprite;
 	std::shared_ptr<CRectCollider> collider;
 	std::shared_ptr<CText> text;
+	std::shared_ptr<CPhysicsBody> physics;
 
 	bool operator==(const Entity& rhs) { return _id == rhs._id; }
 	bool operator!=(const Entity& rhs) { return _id != rhs._id; }

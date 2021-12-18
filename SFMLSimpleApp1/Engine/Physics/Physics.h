@@ -44,7 +44,7 @@ public:
 		contactPoint = origin + (dir * tHitNear);
 		int xSign = dir.x > 0 ? -1 : 1;
 		int ySign = dir.y > 0 ? -1 : 1;
-		normal = nearX > nearY ? Vector2(xSign, 0) : Vector2(0, ySign);
+		normal = nearX > nearY ? Vector2((float)xSign, 0) : Vector2(0, (float)ySign);
 
 		float tFar = std::min(farX, farY);
 
