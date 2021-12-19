@@ -62,7 +62,6 @@ void Game::handleInput()
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))       _player1Entity->physics->velocity.y = PADDLE_SPEED;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))       _player1Entity->physics->velocity.x = -PADDLE_SPEED;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))       _player1Entity->physics->velocity.x = PADDLE_SPEED;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))       _player1Entity->physics->velocity.y = 0;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))    _player2Entity->physics->velocity.y = PADDLE_SPEED;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))      _player2Entity->physics->velocity.y = -PADDLE_SPEED;
 }
@@ -71,26 +70,7 @@ void Game::update(float dt)
 {
     _entities.update();
 
-    for (auto ent : _entities.getEntities())
-    {
-        if (ent->collider)
-        {
-            for (auto ball : _entities.getEntities("Ball"))
-            {
-                if (ball && ent != ball && Physics::checkCollision(ball->collider->rect, ent->collider->rect))
-                {
-                    ball->physics->velocity *= -1;
-                }
-            }
-            for (auto player : _entities.getEntities("Player"))
-            {
-                if (ent->tag() == "Wall" && Physics::checkCollision(player->collider->rect, ent->collider->rect))
-                {
-                    player->physics->velocity.y = 0;
-                }
-            }
-        }
-    }
+    sPhysics(dt);
 
     // trying out a movement system
     for (auto ent : _entities.getEntities())
@@ -153,32 +133,6 @@ void Game::render()
                 line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Red;
             }
 
-            // test ray
-            sf::Vertex ray[] =
-            {
-                sf::Vertex(sf::Vector2f(debugStart.x, debugStart.y)),
-                sf::Vertex(sf::Vector2f(mousePos.x, mousePos.y))
-            };
-            ray[0].color = ray[1].color = sf::Color::Yellow;
-            _window->draw(ray, 2, sf::Lines);
-
-            Vector2 contactPoint;
-            Vector2 normal;
-            float tNearHit;
-
-            if (Physics::checkCollision(debugStart, mousePos - debugStart, rect, contactPoint, normal, tNearHit))
-            {
-                line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Yellow;
-
-                sf::Vertex normalLine[] =
-                {
-                    sf::Vertex(sf::Vector2f(contactPoint.x, contactPoint.y)),
-                    sf::Vertex(sf::Vector2f(contactPoint.x + normal.x * 20, contactPoint.y + normal.y * 20))
-                };
-                normalLine[0].color = normalLine[1].color = sf::Color::Red;
-                _window->draw(normalLine, 2, sf::Lines);
-            }
-
             _window->draw(line, 5, sf::LineStrip);
         }
     }
@@ -225,4 +179,40 @@ bool Game::loadResources()
     }
 
     return true;
+}
+
+void Game::sPhysics(float dt)
+{
+    for (auto ent : _entities.getEntities())
+    {
+        if (ent->collider && ent->physics)
+        {
+            for (auto ent2 : _entities.getEntities())
+            {
+                if (ent == ent2) continue;
+                if (ent2->collider)
+                {
+                    Vector2 halfOffset = (ent->collider->rect.size / 2.0f);
+                    Vector2 rayPos = ent->collider->rect.pos + halfOffset;
+                    Rect expandedRect(ent2->collider->rect.pos - halfOffset, ent2->collider->rect.size + ent->collider->rect.size);
+                    Vector2 contactPoint;
+                    Vector2 normal;
+                    float hitTime;
+
+                    if (Physics::checkCollision(rayPos, ent->physics->velocity * dt, expandedRect, contactPoint, normal, hitTime))
+                    {
+                        if (ent->physics->elastic)
+                        {
+                            // calculate reflection vector
+                            ent->physics->velocity = (normal * (-1 * ent->physics->velocity.dot(normal)) * 2) + ent->physics->velocity;                     
+                        }
+                        else
+                        {
+                            ent->physics->velocity -= (normal * (ent->physics->velocity * dt * (1 - hitTime)).dot(normal)) / dt;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

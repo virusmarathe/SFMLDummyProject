@@ -25,6 +25,8 @@ public:
 
 	static bool checkCollision(const Vector2& origin, const Vector2& dir, const Rect& rect, Vector2& contactPoint, Vector2& normal, float& tHitNear)
 	{
+		if (dir == Vector2(0,0)) return false;
+
 		Vector2 topLeft = rect.pos;
 		Vector2 bottomRight = topLeft + rect.size;
 
@@ -48,7 +50,7 @@ public:
 
 		float tFar = std::min(farX, farY);
 
-		if (tFar < 0) return false;
+		if (tFar <= 0) return false;
 		if (tHitNear > 1) return false;
 
 		return nearX < farY && nearY < farX;

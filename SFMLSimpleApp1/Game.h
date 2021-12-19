@@ -27,6 +27,7 @@ public:
 private:
 	Game() {}
 	bool loadResources();
+	void sPhysics(float dt);
 
 	sf::RenderWindow * _window = nullptr;
 	sf::Font _font;
