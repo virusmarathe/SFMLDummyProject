@@ -12,27 +12,13 @@ void Game::init(sf::RenderWindow * window)
 
     _window = window;
 
-    spawnNewBall();
+    spawnWall(Rect(0, 0, (float)_window->getSize().x, 50));
+    spawnWall(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
+    spawnWall(Rect(0, 0, 50, (float)_window->getSize().y));
+    spawnWall(Rect((float)_window->getSize().x - 50, 0, 50, (float)_window->getSize().y));
 
-    std::shared_ptr<Entity> topWall = _entities.addEntity("Wall");
-    topWall->transform = std::make_shared<CTransform>(Vector2(0, 0));
-    topWall->collider = std::make_shared<CRectCollider>(Rect(0,0,(float)_window->getSize().x, 50));
-
-    std::shared_ptr<Entity> bottomWall = _entities.addEntity("Wall");
-    bottomWall->transform = std::make_shared<CTransform>(Vector2(0, (float)_window->getSize().y - 50));
-    bottomWall->collider = std::make_shared<CRectCollider>(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
-
-    _player1Entity = _entities.addEntity("Player");
-    _player1Entity->transform = std::make_shared<CTransform>(Vector2(500, 200));
-    _player1Entity->sprite = std::make_shared<CSprite>(_paddleTexture);
-    _player1Entity->collider = std::make_shared<CRectCollider>(Rect(_player1Entity->sprite->sprite.getTextureRect()));
-    _player1Entity->physics = std::make_shared<CPhysicsBody>();
-
-    _player2Entity = _entities.addEntity("Player");
-    _player2Entity->transform = std::make_shared<CTransform>(Vector2((float)_window->getSize().x - PADDLE_WIDTH, 200));
-    _player2Entity->sprite = std::make_shared<CSprite>(_paddleTexture);
-    _player2Entity->collider = std::make_shared<CRectCollider>(Rect(_player2Entity->sprite->sprite.getTextureRect()));
-    _player2Entity->physics = std::make_shared<CPhysicsBody>();
+    spawnPlayer(Vector2(200, 200), 0);
+    spawnPlayer(Vector2(800, 400), 1);
 
     _player1Score = _entities.addEntity("Score");
     _player1Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
@@ -41,6 +27,8 @@ void Game::init(sf::RenderWindow * window)
     _player2Score = _entities.addEntity("Score");
     _player2Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
     _player2Score->text = std::make_shared<CText>("Player 1: 0", _font, 24, sf::Color::Red);
+
+    _ballTimer = 10;
 }
 
 void Game::handleInput()
@@ -58,12 +46,7 @@ void Game::handleInput()
         }
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))       _player1Entity->physics->velocity.y = -PADDLE_SPEED;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))       _player1Entity->physics->velocity.y = PADDLE_SPEED;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))       _player1Entity->physics->velocity.x = -PADDLE_SPEED;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))       _player1Entity->physics->velocity.x = PADDLE_SPEED;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))    _player2Entity->physics->velocity.y = PADDLE_SPEED;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))      _player2Entity->physics->velocity.y = -PADDLE_SPEED;
+    sInput();
 }
 
 void Game::update(float dt)
@@ -71,19 +54,7 @@ void Game::update(float dt)
     _entities.update();
 
     sPhysics(dt);
-
-    // trying out a movement system
-    for (auto ent : _entities.getEntities())
-    {
-        if (ent->transform && ent->physics)
-        {
-            ent->transform->position += ent->physics->velocity * dt;
-            if (ent->collider)
-            {
-                ent->collider->rect.pos = ent->transform->position;
-            }
-        }
-    }
+    sMovement(dt);
 
     _ballTimer += dt;
     if (_ballTimer >= 10)
@@ -93,48 +64,14 @@ void Game::update(float dt)
     }
 }
 
-Vector2 debugStart(100, 100);
-
 void Game::render()
 {
     _window->clear();
 
-    Vector2 mousePos = sf::Mouse::getPosition(*_window);
-
-    // trying out a rendering system
-    for (auto ent : _entities.getEntities())
+    sRender();
+    if (_debugToggle)
     {
-        if (ent->sprite)
-        {
-            ent->sprite->sprite.setPosition(ent->transform->position.x, ent->transform->position.y);
-            _window->draw(ent->sprite->sprite);
-        }
-
-        if (ent->text)
-        {
-            ent->text->text.setPosition(ent->transform->position.x, ent->transform->position.y);
-            _window->draw(ent->text->text);
-        }
-
-        if (_debugToggle && ent->collider)
-        {
-            Rect rect = ent->collider->rect;
-            sf::Vertex line[] =
-            {
-                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y)),
-                sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y)),
-                sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y + rect.size.y)),
-                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y + rect.size.y)),
-                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y))
-            };
-            line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Green;
-            if (Physics::checkCollision(mousePos, rect))
-            {
-                line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Red;
-            }
-
-            _window->draw(line, 5, sf::LineStrip);
-        }
+        sDebugDraw();
     }
 
     _window->display();
@@ -158,6 +95,24 @@ void Game::spawnNewBall()
     ball->physics = std::make_shared<CPhysicsBody>(Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel), true);
 }
 
+void Game::spawnWall(Rect rect)
+{
+    std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
+    wall->transform = std::make_shared<CTransform>(rect.pos);
+    wall->collider = std::make_shared<CRectCollider>(rect);
+}
+
+void Game::spawnPlayer(Vector2 pos, int playerNum)
+{
+    auto player = _entities.addEntity("Player");
+    player->transform = std::make_shared<CTransform>(pos);
+    player->sprite = std::make_shared<CSprite>(_paddleTexture);
+    player->collider = std::make_shared<CRectCollider>(Rect(player->sprite->sprite.getTextureRect()));
+    player->physics = std::make_shared<CPhysicsBody>();
+    player->controller = std::make_shared<CPlayerController>(PLAYER_CONTROLS[playerNum][0], PLAYER_CONTROLS[playerNum][1], PLAYER_CONTROLS[playerNum][2], PLAYER_CONTROLS[playerNum][3]);
+    player->input = std::make_shared<CInput>();
+}
+
 bool Game::loadResources()
 {
     if (!_font.loadFromFile("BalooBhaijaan2-VariableFont_wght.ttf"))
@@ -179,6 +134,28 @@ bool Game::loadResources()
     }
 
     return true;
+}
+
+void Game::sInput()
+{
+    for (auto ent : _entities.getEntities("Player"))
+    {
+        if (ent->input && ent->controller)
+        {
+            ent->input->up = sf::Keyboard::isKeyPressed(ent->controller->upKey);
+            ent->input->down = sf::Keyboard::isKeyPressed(ent->controller->downKey);
+            ent->input->left = sf::Keyboard::isKeyPressed(ent->controller->leftKey);
+            ent->input->right = sf::Keyboard::isKeyPressed(ent->controller->rightKey);
+
+            Vector2 vel;
+            if (ent->input->up)     vel.y -= PADDLE_SPEED;
+            if (ent->input->down)   vel.y += PADDLE_SPEED;
+            if (ent->input->left)   vel.x -= PADDLE_SPEED;
+            if (ent->input->right)  vel.x += PADDLE_SPEED;
+
+            ent->physics->velocity = vel;
+        }
+    }
 }
 
 void Game::sPhysics(float dt)
@@ -213,6 +190,66 @@ void Game::sPhysics(float dt)
                     }
                 }
             }
+        }
+    }
+}
+
+void Game::sMovement(float dt)
+{
+    for (auto ent : _entities.getEntities())
+    {
+        if (ent->transform && ent->physics)
+        {
+            ent->transform->position += ent->physics->velocity * dt;
+            if (ent->collider)
+            {
+                ent->collider->rect.pos = ent->transform->position;
+            }
+        }
+    }
+}
+
+void Game::sRender()
+{
+    for (auto ent : _entities.getEntities())
+    {
+        if (ent->sprite)
+        {
+            ent->sprite->sprite.setPosition(ent->transform->position.x, ent->transform->position.y);
+            _window->draw(ent->sprite->sprite);
+        }
+
+        if (ent->text)
+        {
+            ent->text->text.setPosition(ent->transform->position.x, ent->transform->position.y);
+            _window->draw(ent->text->text);
+        }
+    }
+}
+
+void Game::sDebugDraw()
+{
+    Vector2 mousePos = sf::Mouse::getPosition(*_window);
+    for (auto ent : _entities.getEntities())
+    {
+        if (ent->collider)
+        {
+            Rect rect = ent->collider->rect;
+            sf::Vertex line[] =
+            {
+                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y)),
+                sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y)),
+                sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y + rect.size.y)),
+                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y + rect.size.y)),
+                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y))
+            };
+            line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Green;
+            if (Physics::checkCollision(mousePos, rect))
+            {
+                line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Red;
+            }
+
+            _window->draw(line, 5, sf::LineStrip);
         }
     }
 }

@@ -21,18 +21,23 @@ public:
 	void render();
 
 	void notifyBallScored(int playerNum);
-
-	void spawnNewBall();
-
 private:
 	Game() {}
 	bool loadResources();
+	void sInput();
 	void sPhysics(float dt);
+	void sMovement(float dt);
+	void sRender();
+	void sDebugDraw();
+
+	void spawnNewBall();
+	void spawnWall(Rect rect);
+	void spawnPlayer(Vector2 pos, int playerNum);
 
 	sf::RenderWindow * _window = nullptr;
 	sf::Font _font;
 	sf::Texture _ballTexture, _paddleTexture;
-	std::shared_ptr<Entity> _player1Entity, _player2Entity, _player1Score, _player2Score;
+	std::shared_ptr<Entity> _player1Score, _player2Score;
 	EntityManager _entities;
 	bool _debugToggle = false;
 	float _ballTimer = 0;

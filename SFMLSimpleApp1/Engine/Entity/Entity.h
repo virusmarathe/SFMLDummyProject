@@ -5,6 +5,8 @@
 #include "Components/CRectCollider.h"
 #include "Components/CText.h"
 #include "Components/CPhysicsBody.h"
+#include "Components/CInput.h"
+#include "Components/CPlayerController.h"
 
 class Entity
 {
@@ -15,6 +17,8 @@ public:
 	std::shared_ptr<CRectCollider> collider;
 	std::shared_ptr<CText> text;
 	std::shared_ptr<CPhysicsBody> physics;
+	std::shared_ptr<CInput> input;
+	std::shared_ptr<CPlayerController> controller;
 
 	bool operator==(const Entity& rhs) { return _id == rhs._id; }
 	bool operator!=(const Entity& rhs) { return _id != rhs._id; }
