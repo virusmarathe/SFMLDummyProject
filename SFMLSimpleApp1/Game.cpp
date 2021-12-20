@@ -26,7 +26,7 @@ void Game::init(sf::RenderWindow * window)
 
     _player2Score = _entities.addEntity("Score");
     _player2Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
-    _player2Score->text = std::make_shared<CText>("Player 1: 0", _font, 24, sf::Color::Red);
+    _player2Score->text = std::make_shared<CText>("Player 2: 0", _font, 24, sf::Color::Red);
 
     _ballTimer = 10;
 }
@@ -87,11 +87,12 @@ void Game::spawnNewBall()
     int xVel = rand() % 2 == 1 ? 1 : -1;
     int yVel = rand() % 2 == 1 ? 1 : -1;
     std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
-    ball->transform = std::make_shared<CTransform>(Vector2(50.0f + rand() % (_window->getSize().x - 50), 100.0f + rand() % (_window->getSize().y - 100)),
-        Vector2((BALL_SIZE * 2) / _ballTexture.getSize().x, (BALL_SIZE * 2) / _ballTexture.getSize().y));
+    float ballSize = BALL_SIZE * 2 * ((float)(rand() % 3 + 1) / ((float)(rand() % 4 + 1)));
+    ball->transform = std::make_shared<CTransform>(Vector2(400,300),
+        Vector2((ballSize) / _ballTexture.getSize().x, (ballSize) / _ballTexture.getSize().y));
     ball->sprite = std::make_shared<CSprite>(_ballTexture);
     ball->sprite->sprite.setScale(ball->transform->scale.x, ball->transform->scale.y);
-    ball->collider = std::make_shared<CRectCollider>(Rect(ball->transform->position.x, ball->transform->position.y, BALL_SIZE * 2, BALL_SIZE * 2));
+    ball->collider = std::make_shared<CRectCollider>(Rect(ball->transform->position.x, ball->transform->position.y, ballSize, ballSize));
     ball->physics = std::make_shared<CPhysicsBody>(Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel), true);
 }
 
