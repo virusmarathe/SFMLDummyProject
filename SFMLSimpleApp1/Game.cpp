@@ -5,6 +5,7 @@
 #include "Entity/Entity.h"
 #include "Math/Rect.h"
 #include "Physics/Physics.h"
+#include "Resources/Assets.h"
 
 void Game::init(sf::RenderWindow * window)
 {
@@ -22,11 +23,11 @@ void Game::init(sf::RenderWindow * window)
 
     _player1Score = _entities.addEntity("Score");
     _player1Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
-    _player1Score->text = std::make_shared<CText>("Player 1: 0",_font, 24, sf::Color::Blue);
+    _player1Score->text = std::make_shared<CText>("Player 1: 0",_assets->getFont("NormalUIFont"), 24, sf::Color::Blue);
 
     _player2Score = _entities.addEntity("Score");
     _player2Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
-    _player2Score->text = std::make_shared<CText>("Player 2: 0", _font, 24, sf::Color::Red);
+    _player2Score->text = std::make_shared<CText>("Player 2: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Red);
 
     _ballTimer = 10;
 }
@@ -89,8 +90,8 @@ void Game::spawnNewBall()
     std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
     float ballSize = BALL_SIZE * 2 * ((float)(rand() % 3 + 1) / ((float)(rand() % 4 + 1)));
     ball->transform = std::make_shared<CTransform>(Vector2(400,300),
-        Vector2((ballSize) / _ballTexture.getSize().x, (ballSize) / _ballTexture.getSize().y));
-    ball->sprite = std::make_shared<CSprite>(_ballTexture);
+        Vector2((ballSize) / _assets->getTexture("Ball").getSize().x, (ballSize) / _assets->getTexture("Ball").getSize().y));
+    ball->sprite = std::make_shared<CSprite>(_assets->getTexture("Ball"));
     ball->sprite->sprite.setScale(ball->transform->scale.x, ball->transform->scale.y);
     ball->collider = std::make_shared<CRectCollider>(Rect(ball->transform->position.x, ball->transform->position.y, ballSize, ballSize));
     ball->physics = std::make_shared<CPhysicsBody>(Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel), true);
@@ -107,7 +108,7 @@ void Game::spawnPlayer(Vector2 pos, int playerNum)
 {
     auto player = _entities.addEntity("Player");
     player->transform = std::make_shared<CTransform>(pos);
-    player->sprite = std::make_shared<CSprite>(_paddleTexture);
+    player->sprite = std::make_shared<CSprite>(_assets->getTexture("Paddle"));
     player->collider = std::make_shared<CRectCollider>(Rect(player->sprite->sprite.getTextureRect()));
     player->physics = std::make_shared<CPhysicsBody>();
     player->controller = std::make_shared<CPlayerController>(PLAYER_CONTROLS[playerNum][0], PLAYER_CONTROLS[playerNum][1], PLAYER_CONTROLS[playerNum][2], PLAYER_CONTROLS[playerNum][3]);
@@ -116,25 +117,8 @@ void Game::spawnPlayer(Vector2 pos, int playerNum)
 
 bool Game::loadResources()
 {
-    if (!_font.loadFromFile("BalooBhaijaan2-VariableFont_wght.ttf"))
-    {
-        std::cout << "Couldn't find font BalooBhaijaan2-VariableFont_wght.ttf";
-        return false;
-    }
-
-    if (!_ballTexture.loadFromFile("notaBall.png"))
-    {
-        std::cout << "Couldn't find image notaBall.png";
-        return false;
-    }
-
-    if (!_paddleTexture.loadFromFile("paddle.png"))
-    {
-        std::cout << "Couldn't find image notaBall.png";
-        return false;
-    }
-
-    return true;
+    _assets = std::make_shared<Assets>();
+    return _assets->loadAssets("resources/resources.asset");
 }
 
 void Game::sInput()

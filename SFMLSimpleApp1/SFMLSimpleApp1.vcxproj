@@ -145,11 +145,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Resources\Assets.cpp" />
     <ClCompile Include="Engine\Entity\EntityManager.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="SFMLSimpleApp1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Resources\Assets.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Engine\Components\CInput.h" />
     <ClInclude Include="Engine\Components\CPhysicsBody.h" />
