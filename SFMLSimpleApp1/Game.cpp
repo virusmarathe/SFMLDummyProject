@@ -74,12 +74,9 @@ void Game::spawnNewBall()
     int xVel = rand() % 2 == 1 ? 1 : -1;
     int yVel = rand() % 2 == 1 ? 1 : -1;
     std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
-    float ballSize = BALL_SIZE * 2 * ((float)(rand() % 3 + 1) / ((float)(rand() % 4 + 1)));
-    ball->transform = std::make_shared<CTransform>(Vector2(400,300),
-        Vector2((ballSize) / _assets->getTexture("Ball").getSize().x, (ballSize) / _assets->getTexture("Ball").getSize().y));
+    ball->transform = std::make_shared<CTransform>(Vector2(400,300), Vector2(BALL_SIZE, BALL_SIZE));
     ball->sprite = std::make_shared<CSprite>(_assets->getTexture("Ball"));
-    ball->sprite->sprite.setScale(ball->transform->scale.x, ball->transform->scale.y);
-    ball->collider = std::make_shared<CRectCollider>(Rect(ball->transform->position.x, ball->transform->position.y, ballSize, ballSize));
+    ball->collider = std::make_shared<CRectCollider>(Rect(ball->transform->position.x, ball->transform->position.y, BALL_SIZE, BALL_SIZE));
     ball->physics = std::make_shared<CPhysicsBody>(Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel), true);
 }
 

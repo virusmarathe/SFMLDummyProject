@@ -1,9 +1,6 @@
 // SFMLSimpleApp1.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include <iostream>
-#include <SFML/Graphics.hpp>
-#include "Game.h"
 #include "Config.h"
 #include "Engine/Framework/GameEngine.h"
 
