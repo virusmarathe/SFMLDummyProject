@@ -5,27 +5,13 @@
 #include <SFML/Graphics.hpp>
 #include "Game.h"
 #include "Config.h"
+#include "Engine/Framework/GameEngine.h"
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Pong!");
-    window.setFramerateLimit(240);
-    Game::instance().init(&window);
-
-    sf::Clock deltaTimer;
-    while (window.isOpen())
-    {
-        sf::Time deltaTime = deltaTimer.restart();
-
-        // handle events
-        Game::instance().handleInput();
-
-        // update
-        Game::instance().update(deltaTime.asSeconds());
-
-        // render
-        Game::instance().render();
-    }
+    GameEngine engine;
+    engine.init("Pong!", WINDOW_WIDTH, WINDOW_HEIGHT, "resources/resources.asset");
+    engine.run();
 
     return 0;
 }

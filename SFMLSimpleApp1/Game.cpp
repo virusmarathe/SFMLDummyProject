@@ -6,10 +6,12 @@
 #include "Math/Rect.h"
 #include "Physics/Physics.h"
 #include "Resources/Assets.h"
+#include "Framework/GameEngine.h"
 
-void Game::init(sf::RenderWindow * window)
+void Game::init(sf::RenderWindow * window, GameEngine * engine)
 {
-    loadResources();
+    _engine = engine;
+    _assets = _engine->getAssets();
 
     _window = window;
 
@@ -32,26 +34,10 @@ void Game::init(sf::RenderWindow * window)
     _ballTimer = 10;
 }
 
-void Game::handleInput()
-{
-    sf::Event currEvent;
-    while (_window->pollEvent(currEvent))
-    {
-        if (currEvent.type == sf::Event::Closed)
-        {
-            _window->close();
-        }
-        if (currEvent.type == sf::Event::KeyPressed)
-        {
-            if (currEvent.key.code == sf::Keyboard::P) _debugToggle = !_debugToggle;
-        }
-    }
-
-    sInput();
-}
-
 void Game::update(float dt)
 {
+    sInput();
+
     _entities.update();
 
     sPhysics(dt);
@@ -113,12 +99,6 @@ void Game::spawnPlayer(Vector2 pos, int playerNum)
     player->physics = std::make_shared<CPhysicsBody>();
     player->controller = std::make_shared<CPlayerController>(PLAYER_CONTROLS[playerNum][0], PLAYER_CONTROLS[playerNum][1], PLAYER_CONTROLS[playerNum][2], PLAYER_CONTROLS[playerNum][3]);
     player->input = std::make_shared<CInput>();
-}
-
-bool Game::loadResources()
-{
-    _assets = std::make_shared<Assets>();
-    return _assets->loadAssets("resources/resources.asset");
 }
 
 void Game::sInput()
