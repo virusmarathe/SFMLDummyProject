@@ -1,19 +1,11 @@
-#include "Game.h"
-#include <iostream>
-#include "Config.h"
-#include "Math/Vector2.h"
-#include "Entity/Entity.h"
-#include "Math/Rect.h"
-#include "Physics/Physics.h"
-#include "Resources/Assets.h"
+#include "Scene_PhysicsTest.h"
 #include "Framework/GameEngine.h"
+#include "Physics/Physics.h"
+#include "Config.h"
 
-void Game::init(sf::RenderWindow * window, GameEngine * engine)
+void Scene_PhysicsTest::init()
 {
-    _engine = engine;
-    _assets = _engine->getAssets();
-
-    _window = window;
+	_assets = _engine->getAssets();
 
     spawnWall(Rect(0, 0, (float)_window->getSize().x, 50));
     spawnWall(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
@@ -23,18 +15,18 @@ void Game::init(sf::RenderWindow * window, GameEngine * engine)
     spawnPlayer(Vector2(200, 200), 0);
     spawnPlayer(Vector2(800, 400), 1);
 
-    _player1Score = _entities.addEntity("Score");
-    _player1Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
-    _player1Score->text = std::make_shared<CText>("Player 1: 0",_assets->getFont("NormalUIFont"), 24, sf::Color::Blue);
+    auto player1Score = _entities.addEntity("Score");
+    player1Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
+    player1Score->text = std::make_shared<CText>("Player 1: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Blue);
 
-    _player2Score = _entities.addEntity("Score");
-    _player2Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
-    _player2Score->text = std::make_shared<CText>("Player 2: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Red);
+    auto player2Score = _entities.addEntity("Score");
+    player2Score->transform = std::make_shared<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
+    player2Score->text = std::make_shared<CText>("Player 2: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Red);
 
     _ballTimer = 10;
 }
 
-void Game::update(float dt)
+void Scene_PhysicsTest::update(float dt)
 {
     sInput();
 
@@ -51,43 +43,49 @@ void Game::update(float dt)
     }
 }
 
-void Game::render()
+void Scene_PhysicsTest::sDoAction()
 {
-    _window->clear();
+}
 
-    sRender();
-    if (_debugToggle)
+void Scene_PhysicsTest::sRender()
+{
+    for (auto ent : _entities.getEntities())
     {
-        sDebugDraw();
+        if (ent->sprite)
+        {
+            ent->sprite->sprite.setPosition(ent->transform->position.x, ent->transform->position.y);
+            _window->draw(ent->sprite->sprite);
+        }
+
+        if (ent->text)
+        {
+            ent->text->text.setPosition(ent->transform->position.x, ent->transform->position.y);
+            _window->draw(ent->text->text);
+        }
     }
 
-    _window->display();
+    sDebugDraw();
 }
 
-void Game::notifyBallScored(int playerNum)
-{
-    // TODO
-}
-
-void Game::spawnNewBall()
+void Scene_PhysicsTest::spawnNewBall()
 {
     int xVel = rand() % 2 == 1 ? 1 : -1;
     int yVel = rand() % 2 == 1 ? 1 : -1;
     std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
-    ball->transform = std::make_shared<CTransform>(Vector2(400,300), Vector2(BALL_SIZE, BALL_SIZE));
+    ball->transform = std::make_shared<CTransform>(Vector2(400, 300), Vector2(BALL_SIZE, BALL_SIZE));
     ball->sprite = std::make_shared<CSprite>(_assets->getTexture("Ball"));
     ball->collider = std::make_shared<CRectCollider>(Rect(ball->transform->position.x, ball->transform->position.y, BALL_SIZE, BALL_SIZE));
     ball->physics = std::make_shared<CPhysicsBody>(Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel), true);
 }
 
-void Game::spawnWall(Rect rect)
+void Scene_PhysicsTest::spawnWall(Rect rect)
 {
     std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
     wall->transform = std::make_shared<CTransform>(rect.pos);
     wall->collider = std::make_shared<CRectCollider>(rect);
 }
 
-void Game::spawnPlayer(Vector2 pos, int playerNum)
+void Scene_PhysicsTest::spawnPlayer(Vector2 pos, int playerNum)
 {
     auto player = _entities.addEntity("Player");
     player->transform = std::make_shared<CTransform>(pos);
@@ -98,7 +96,7 @@ void Game::spawnPlayer(Vector2 pos, int playerNum)
     player->input = std::make_shared<CInput>();
 }
 
-void Game::sInput()
+void Scene_PhysicsTest::sInput()
 {
     for (auto ent : _entities.getEntities("Player"))
     {
@@ -120,7 +118,7 @@ void Game::sInput()
     }
 }
 
-void Game::sPhysics(float dt)
+void Scene_PhysicsTest::sPhysics(float dt)
 {
     for (auto ent : _entities.getEntities())
     {
@@ -143,7 +141,7 @@ void Game::sPhysics(float dt)
                         if (ent->physics->elastic)
                         {
                             // calculate reflection vector
-                            ent->physics->velocity = (normal * (-1 * ent->physics->velocity.dot(normal)) * 2) + ent->physics->velocity;                     
+                            ent->physics->velocity = (normal * (-1 * ent->physics->velocity.dot(normal)) * 2) + ent->physics->velocity;
                         }
                         else
                         {
@@ -156,7 +154,7 @@ void Game::sPhysics(float dt)
     }
 }
 
-void Game::sMovement(float dt)
+void Scene_PhysicsTest::sMovement(float dt)
 {
     for (auto ent : _entities.getEntities())
     {
@@ -171,25 +169,7 @@ void Game::sMovement(float dt)
     }
 }
 
-void Game::sRender()
-{
-    for (auto ent : _entities.getEntities())
-    {
-        if (ent->sprite)
-        {
-            ent->sprite->sprite.setPosition(ent->transform->position.x, ent->transform->position.y);
-            _window->draw(ent->sprite->sprite);
-        }
-
-        if (ent->text)
-        {
-            ent->text->text.setPosition(ent->transform->position.x, ent->transform->position.y);
-            _window->draw(ent->text->text);
-        }
-    }
-}
-
-void Game::sDebugDraw()
+void Scene_PhysicsTest::sDebugDraw()
 {
     Vector2 mousePos = sf::Mouse::getPosition(*_window);
     for (auto ent : _entities.getEntities())

@@ -1,17 +1,15 @@
 #include "GameEngine.h"
-#include "../Game.h"
 #include "Resources/Assets.h"
+#include "Framework/Scene.h"
 
 void GameEngine::init(std::string gameName, unsigned int windowWidth, unsigned int windowHeight, std::string resourcePath)
 {
     _window.create(sf::VideoMode(windowWidth, windowHeight), gameName);
-    _window.setFramerateLimit(240);
-
+    //_window.setFramerateLimit(240);
+    
     // load resources
     _assets = std::make_shared<Assets>();
     _assets->loadAssets(resourcePath);
-
-    Game::instance().init(&_window, this);
 }
 
 void GameEngine::run()
@@ -29,17 +27,31 @@ void GameEngine::quit()
     _isRunning = false;
 }
 
+void GameEngine::changeScene(std::string name)
+{
+    if (_scenesMap.find(name) != _scenesMap.end())
+    {
+        _currentScene = _scenesMap[name];
+        _currentScene->setEngineRefs(this, &_window);
+        _currentScene->init();
+    }
+}
+
 void GameEngine::update()
 {
+    sf::Time deltaTime = _updateTimer.restart();
+
     // handle events
     sUserInput();
 
-    sf::Time deltaTime = _updateTimer.restart();
-    // update
-    Game::instance().update(deltaTime.asSeconds());
+    if (_currentScene != nullptr)
+    {
+        _currentScene->update(deltaTime.asSeconds());
 
-    // render
-    Game::instance().render();
+        _window.clear();
+        _currentScene->sRender();
+        _window.display();
+    }
 }
 
 void GameEngine::sUserInput()
@@ -51,9 +63,10 @@ void GameEngine::sUserInput()
         {
             quit();
         }
-        /*if (currEvent.type == sf::Event::KeyPressed)
+        if (currEvent.type == sf::Event::KeyPressed)
         {
-            if (currEvent.key.code == sf::Keyboard::P) _debugToggle = !_debugToggle;
-        }*/
+            //if (currEvent.key.code == sf::Keyboard::P) _debugToggle = !_debugToggle;
+            if (currEvent.key.code == sf::Keyboard::Escape) quit();
+        }
     }
 }

@@ -147,8 +147,9 @@
   <ItemGroup>
     <ClCompile Include="Engine\Resources\Assets.cpp" />
     <ClCompile Include="Engine\Entity\EntityManager.cpp" />
-    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Engine\Framework\GameEngine.cpp" />
+    <ClCompile Include="Engine\Framework\Scene.cpp" />
+    <ClCompile Include="Scene_PhysicsTest.cpp" />
     <ClCompile Include="SFMLSimpleApp1.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -166,8 +167,9 @@
     <ClInclude Include="Engine\Math\Vector2.h" />
     <ClInclude Include="Engine\Entity\EntityManager.h" />
     <ClInclude Include="Engine\Physics\Physics.h" />
-    <ClInclude Include="Game.h" />
     <ClInclude Include="Engine\Framework\GameEngine.h" />
+    <ClInclude Include="Engine\Framework\Scene.h" />
+    <ClInclude Include="Scene_PhysicsTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
