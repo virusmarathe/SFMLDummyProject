@@ -1,11 +1,13 @@
 #include "GameEngine.h"
 #include "Resources/Assets.h"
 #include "Framework/Scene.h"
+#include "Framework/Action.h"
 
 void GameEngine::init(std::string gameName, unsigned int windowWidth, unsigned int windowHeight, std::string resourcePath)
 {
     _window.create(sf::VideoMode(windowWidth, windowHeight), gameName);
-    //_window.setFramerateLimit(240);
+    //_window.setFramerateLimit(144);
+    _window.setKeyRepeatEnabled(false);
     
     // load resources
     _assets = std::make_shared<Assets>();
@@ -17,7 +19,12 @@ void GameEngine::run()
     _isRunning = true;
     while (_isRunning)
     {
+        // handle events
+        sUserInput();
+
         update();
+
+        render();
     }
 }
 
@@ -31,6 +38,7 @@ void GameEngine::changeScene(std::string name)
 {
     if (_scenesMap.find(name) != _scenesMap.end())
     {
+        _actionMap.clear();
         _currentScene = _scenesMap[name];
         _currentScene->setEngineRefs(this, &_window);
         _currentScene->init();
@@ -41,16 +49,9 @@ void GameEngine::update()
 {
     sf::Time deltaTime = _updateTimer.restart();
 
-    // handle events
-    sUserInput();
-
     if (_currentScene != nullptr)
     {
         _currentScene->update(deltaTime.asSeconds());
-
-        _window.clear();
-        _currentScene->sRender();
-        _window.display();
     }
 }
 
@@ -63,10 +64,23 @@ void GameEngine::sUserInput()
         {
             quit();
         }
-        if (currEvent.type == sf::Event::KeyPressed)
+        if (currEvent.type == sf::Event::KeyPressed || currEvent.type == sf::Event::KeyReleased)
         {
-            //if (currEvent.key.code == sf::Keyboard::P) _debugToggle = !_debugToggle;
-            if (currEvent.key.code == sf::Keyboard::Escape) quit();
+            if (_actionMap.find(currEvent.key.code) == _actionMap.end()) continue;
+
+            Action::ActionType aType = currEvent.type == sf::Event::KeyPressed ? Action::ActionType::START : Action::ActionType::END;
+
+            _currentScene->sDoAction(Action(_actionMap[currEvent.key.code], aType));
         }
+    }
+}
+
+void GameEngine::render()
+{
+    if (_currentScene != nullptr)
+    {
+        _window.clear();
+        _currentScene->sRender();
+        _window.display();
     }
 }

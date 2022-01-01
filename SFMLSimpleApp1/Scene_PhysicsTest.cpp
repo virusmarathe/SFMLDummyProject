@@ -2,10 +2,13 @@
 #include "Framework/GameEngine.h"
 #include "Physics/Physics.h"
 #include "Config.h"
+#include "Framework/Action.h"
 
 void Scene_PhysicsTest::init()
 {
 	_assets = _engine->getAssets();
+
+    _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
 
     spawnWall(Rect(0, 0, (float)_window->getSize().x, 50));
     spawnWall(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
@@ -43,8 +46,12 @@ void Scene_PhysicsTest::update(float dt)
     }
 }
 
-void Scene_PhysicsTest::sDoAction()
+void Scene_PhysicsTest::sDoAction(const Action& action)
 {
+    if (action.name == "PHYSICS_TOGGLE" && action.type == Action::ActionType::START)
+    {
+        _debugToggle = !_debugToggle;
+    }
 }
 
 void Scene_PhysicsTest::sRender()
@@ -64,7 +71,10 @@ void Scene_PhysicsTest::sRender()
         }
     }
 
-    sDebugDraw();
+    if (_debugToggle)
+    {
+        sDebugDraw();
+    }
 }
 
 void Scene_PhysicsTest::spawnNewBall()

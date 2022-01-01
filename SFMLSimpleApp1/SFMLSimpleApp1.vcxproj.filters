@@ -89,5 +89,8 @@
     <ClInclude Include="Engine\Components\Component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Framework\Action.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Components\Component.h" />
+    <ClInclude Include="Engine\Framework\Action.h" />
     <ClInclude Include="Engine\Resources\Assets.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Engine\Components\CInput.h" />

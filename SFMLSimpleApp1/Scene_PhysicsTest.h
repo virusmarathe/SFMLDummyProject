@@ -10,7 +10,7 @@ public:
 
 	virtual void update(float dt) override;
 
-	virtual void sDoAction() override;
+	virtual void sDoAction(const Action& action) override;
 
 	virtual void sRender() override;
 
