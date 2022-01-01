@@ -8,15 +8,13 @@ void Scene_PhysicsTest::init()
 {
 	_assets = _engine->getAssets();
 
-    _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
-
     spawnWall(Rect(0, 0, (float)_window->getSize().x, 50));
     spawnWall(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
     spawnWall(Rect(0, 0, 50, (float)_window->getSize().y));
     spawnWall(Rect((float)_window->getSize().x - 50, 0, 50, (float)_window->getSize().y));
 
-    spawnPlayer(Vector2(200, 200), 0);
-    spawnPlayer(Vector2(800, 400), 1);
+    _player1Entity = spawnPlayer(Vector2(200, 200), 0);
+    _player2Entity = spawnPlayer(Vector2(800, 400), 1);
 
     auto player1Score = _entities.addEntity("Score");
     player1Score->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
@@ -27,6 +25,18 @@ void Scene_PhysicsTest::init()
     player2Score->addComponent<CText>("Player 2: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Red);
 
     _ballTimer = 10;
+
+    // will eventually be moved to a config file
+    _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
+    _engine->registerAction(sf::Keyboard::W, "P1UP");
+    _engine->registerAction(sf::Keyboard::A, "P1LEFT");
+    _engine->registerAction(sf::Keyboard::S, "P1DOWN");
+    _engine->registerAction(sf::Keyboard::D, "P1RIGHT");
+    _engine->registerAction(sf::Keyboard::Up, "P2UP");
+    _engine->registerAction(sf::Keyboard::Left, "P2LEFT");
+    _engine->registerAction(sf::Keyboard::Right, "P2RIGHT");
+    _engine->registerAction(sf::Keyboard::Down, "P2DOWN");
+
 }
 
 void Scene_PhysicsTest::update(float dt)
@@ -52,6 +62,16 @@ void Scene_PhysicsTest::sDoAction(const Action& action)
     {
         _debugToggle = !_debugToggle;
     }
+
+    if (action.name == "P1UP") _player1Entity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
+    if (action.name == "P1LEFT") _player1Entity->getComponent<CInput>()->left = action.type == Action::ActionType::START;
+    if (action.name == "P1DOWN") _player1Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
+    if (action.name == "P1RIGHT") _player1Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
+    if (action.name == "P2UP") _player2Entity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
+    if (action.name == "P2LEFT") _player2Entity->getComponent<CInput>()->left = action.type == Action::ActionType::START;
+    if (action.name == "P2DOWN") _player2Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
+    if (action.name == "P2RIGHT") _player2Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
+
 }
 
 void Scene_PhysicsTest::sRender()
@@ -95,32 +115,27 @@ void Scene_PhysicsTest::spawnWall(Rect rect)
     wall->addComponent<CRectCollider>(rect);
 }
 
-void Scene_PhysicsTest::spawnPlayer(Vector2 pos, int playerNum)
+std::shared_ptr<Entity> Scene_PhysicsTest::spawnPlayer(Vector2 pos, int playerNum)
 {
     auto player = _entities.addEntity("Player");
     player->addComponent<CTransform>(pos);
     std::shared_ptr<CSprite> sprite = player->addComponent<CSprite>(_assets->getTexture("Paddle"));
     player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
     player->addComponent<CPhysicsBody>();
-    player->addComponent<CPlayerController>(PLAYER_CONTROLS[playerNum][0], PLAYER_CONTROLS[playerNum][1], PLAYER_CONTROLS[playerNum][2], PLAYER_CONTROLS[playerNum][3]);
     player->addComponent<CInput>();
+
+    return player;
 }
 
 void Scene_PhysicsTest::sInput()
 {
     for (auto ent : _entities.getEntities("Player"))
     {
-        if (ent->hasComponent<CInput>() && ent->hasComponent<CPlayerController>() && ent->hasComponent<CPhysicsBody>())
+        if (ent->hasComponent<CInput>() && ent->hasComponent<CPhysicsBody>())
         {
             std::shared_ptr<CInput> input = ent->getComponent<CInput>();
-            std::shared_ptr<CPlayerController> controller = ent->getComponent<CPlayerController>();
-
-            input->up = sf::Keyboard::isKeyPressed(controller->upKey);
-            input->down = sf::Keyboard::isKeyPressed(controller->downKey);
-            input->left = sf::Keyboard::isKeyPressed(controller->leftKey);
-            input->right = sf::Keyboard::isKeyPressed(controller->rightKey);
-
             Vector2 vel;
+
             if (input->up)     vel.y -= PADDLE_SPEED;
             if (input->down)   vel.y += PADDLE_SPEED;
             if (input->left)   vel.x -= PADDLE_SPEED;

@@ -6,7 +6,6 @@
 #include "Components/CText.h"
 #include "Components/CPhysicsBody.h"
 #include "Components/CInput.h"
-#include "Components/CPlayerController.h"
 #include <tuple>
 
 typedef std::tuple<
@@ -14,7 +13,6 @@ typedef std::tuple<
 	std::shared_ptr<CPhysicsBody>,
 	std::shared_ptr<CSprite>,
 	std::shared_ptr<CInput>,
-	std::shared_ptr<CPlayerController>,
 	std::shared_ptr<CRectCollider>,
 	std::shared_ptr<CText>
 > ComponentTuple;

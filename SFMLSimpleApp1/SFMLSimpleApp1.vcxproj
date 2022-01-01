@@ -159,7 +159,6 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Engine\Components\CInput.h" />
     <ClInclude Include="Engine\Components\CPhysicsBody.h" />
-    <ClInclude Include="Engine\Components\CPlayerController.h" />
     <ClInclude Include="Engine\Components\CRectCollider.h" />
     <ClInclude Include="Engine\Components\CSprite.h" />
     <ClInclude Include="Engine\Components\CText.h" />
