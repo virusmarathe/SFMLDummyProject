@@ -1,8 +1,9 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
+#include "Component.h"
 
-class CInput
+class CInput : public Component
 {
 public:
 	bool up;

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/Vector2.h"
+#include "Component.h"
 
-class CPhysicsBody
+class CPhysicsBody : public Component
 {
 public:
 	Vector2 velocity;

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/Rect.h"
+#include "Component.h"
 
-class CRectCollider
+class CRectCollider : public Component
 {
 public:
 	Rect rect;

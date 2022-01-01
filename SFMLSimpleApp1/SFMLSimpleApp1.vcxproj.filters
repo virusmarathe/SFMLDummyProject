@@ -86,5 +86,8 @@
     <ClInclude Include="Scene_PhysicsTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Components\Component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

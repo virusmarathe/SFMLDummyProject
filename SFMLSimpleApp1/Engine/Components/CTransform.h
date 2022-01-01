@@ -1,7 +1,8 @@
 #pragma once
 #include "Math/Vector2.h"
+#include "Component.h"
 
-class CTransform
+class CTransform : public Component
 {
 public:
 	Vector2 position;

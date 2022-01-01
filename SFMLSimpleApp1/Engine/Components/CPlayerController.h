@@ -1,8 +1,9 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
+#include "Component.h"
 
-class CPlayerController
+class CPlayerController : public Component
 {
 public:
 	sf::Keyboard::Key upKey;

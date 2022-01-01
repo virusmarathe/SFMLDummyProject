@@ -1,8 +1,9 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
+#include "Component.h"
 
-class CText
+class CText : public Component
 {
 public:
 	sf::Text text;
