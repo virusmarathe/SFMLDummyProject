@@ -13,7 +13,7 @@ public:
 	virtual void sDoAction(const Action& action) = 0;
 	virtual void sRender() = 0;
 
-	void setEngineRefs(GameEngine* engine, sf::RenderWindow* window) { _engine = engine; _window = window; }
+	void setEngineRefs(GameEngine* engine, sf::RenderWindow* window) { _engine = engine; _window = window; _entities.destroyAll(); }
 
 protected:
 	GameEngine* _engine = nullptr;

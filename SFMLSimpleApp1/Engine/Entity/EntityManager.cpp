@@ -57,3 +57,23 @@ void EntityManager::update()
 	}
 	_entitiesToAdd.clear();
 }
+
+void EntityManager::destroyAll()
+{
+	// destroy all entities
+	auto it = _entityList.begin();
+	while (it != _entityList.end())
+	{
+		auto tagIt = _entityMap[(*it)->tag()].begin();
+		while (tagIt != _entityMap[(*it)->tag()].end())
+		{
+			if ((*tagIt) == (*it))
+			{
+				_entityMap[(*it)->tag()].erase(tagIt);
+				break;
+			}
+			++tagIt;
+		}
+		it = _entityList.erase(it);
+	}
+}

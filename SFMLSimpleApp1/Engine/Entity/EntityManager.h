@@ -20,6 +20,8 @@ public:
 
 	void update();
 
+	void destroyAll();
+
 private:
 	EntityList _entityList, _entitiesToAdd, _entitiesToRemove;
 	EntityMap _entityMap;
