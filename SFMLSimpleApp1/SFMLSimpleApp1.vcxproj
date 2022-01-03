@@ -149,10 +149,13 @@
     <ClCompile Include="Engine\Entity\EntityManager.cpp" />
     <ClCompile Include="Engine\Framework\GameEngine.cpp" />
     <ClCompile Include="Engine\Framework\Scene.cpp" />
+    <ClCompile Include="Scene_AnimationTest.cpp" />
     <ClCompile Include="Scene_PhysicsTest.cpp" />
     <ClCompile Include="SFMLSimpleApp1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Animation\Animation.h" />
+    <ClInclude Include="Engine\Components\CAnimation.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Framework\Action.h" />
     <ClInclude Include="Engine\Resources\Assets.h" />
@@ -170,6 +173,7 @@
     <ClInclude Include="Engine\Physics\Physics.h" />
     <ClInclude Include="Engine\Framework\GameEngine.h" />
     <ClInclude Include="Engine\Framework\Scene.h" />
+    <ClInclude Include="Scene_AnimationTest.h" />
     <ClInclude Include="Scene_PhysicsTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

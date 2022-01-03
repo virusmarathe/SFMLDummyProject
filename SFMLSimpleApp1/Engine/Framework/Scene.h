@@ -3,7 +3,7 @@
 #include "Entity/EntityManager.h"
 
 class GameEngine;
-class Action;
+struct Action;
 
 class Scene
 {

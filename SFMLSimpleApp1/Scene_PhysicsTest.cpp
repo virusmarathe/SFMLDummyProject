@@ -37,6 +37,7 @@ void Scene_PhysicsTest::init()
     _engine->registerAction(sf::Keyboard::Right, "P2RIGHT");
     _engine->registerAction(sf::Keyboard::Down, "P2DOWN");
 
+    _engine->registerAction(sf::Keyboard::Num1, "ANIMATION_SCENE");
 }
 
 void Scene_PhysicsTest::update(float dt)
@@ -72,6 +73,7 @@ void Scene_PhysicsTest::sDoAction(const Action& action)
     if (action.name == "P2DOWN") _player2Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
     if (action.name == "P2RIGHT") _player2Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
 
+    if (action.name == "ANIMATION_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("AnimationTest");
 }
 
 void Scene_PhysicsTest::sRender()

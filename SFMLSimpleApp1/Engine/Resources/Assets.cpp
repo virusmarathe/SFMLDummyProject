@@ -4,21 +4,37 @@
 
 std::string FONT_KEY = "Font";
 std::string TEXTURE_KEY = "Texture";
+std::string ANIMATION_KEY = "Animation";
 
 bool Assets::loadAssets(std::string filePath)
 {
 	std::ifstream fin(filePath);
-	std::string type, name, path;
+	std::string type, name, path, textureName;
+	int numFrames;
+	float duration;
 	bool status = true;
 
 	while (fin >> type)
 	{
-		fin >> name >> path;
-
-		if (type == FONT_KEY) status = addFont(name, path);
+		if (type == FONT_KEY)
+		{
+			fin >> name >> path;
+			status = addFont(name, path);
+		}
 		if (status == false) return false;
 
-		if (type == TEXTURE_KEY) status = addTexture(name, path);
+		if (type == TEXTURE_KEY)
+		{
+			fin >> name >> path;
+			status = addTexture(name, path);
+		}
+		if (status == false) return false;
+
+		if (type == ANIMATION_KEY)
+		{
+			fin >> name >> textureName >> numFrames >> duration;
+			status = addAnimation(name, textureName, numFrames, duration);
+		}
 		if (status == false) return false;
 	}
 
@@ -46,5 +62,12 @@ bool Assets::addFont(std::string name, std::string path)
 		return false;
 	}
 
+	return true;
+}
+
+bool Assets::addAnimation(std::string name, std::string textureName, int numFrames, float duration)
+{
+	sf::Texture& tex = getTexture(textureName);
+	_animations[name] = std::make_shared<Animation>(tex, numFrames, duration);
 	return true;
 }
