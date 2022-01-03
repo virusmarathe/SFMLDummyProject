@@ -15,6 +15,7 @@ void Scene_AnimationTest::init()
     _engine->registerAction(sf::Keyboard::A, "P1LEFT");
     _engine->registerAction(sf::Keyboard::S, "P1DOWN");
     _engine->registerAction(sf::Keyboard::D, "P1RIGHT");
+    _engine->registerAction(sf::Keyboard::LShift, "P1RUN");
 }
 
 void Scene_AnimationTest::update(float dt)
@@ -35,6 +36,7 @@ void Scene_AnimationTest::sDoAction(const Action& action)
     if (action.name == "P1LEFT") _player1Entity->getComponent<CInput>()->left = action.type == Action::ActionType::START;
     if (action.name == "P1DOWN") _player1Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
     if (action.name == "P1RIGHT") _player1Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
+    if (action.name == "P1RUN") _player1Entity->getComponent<CInput>()->run = action.type == Action::ActionType::START;
 }
 
 void Scene_AnimationTest::sRender()
@@ -59,7 +61,7 @@ std::shared_ptr<Entity> Scene_AnimationTest::spawnPlayer()
     player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
     player->addComponent<CPhysicsBody>();
     player->addComponent<CInput>();
-    player->addComponent<CPhysicsAnimator>("ArcherIdle", "ArcherWalk");
+    player->addComponent<CPhysicsAnimator>("ArcherIdle", "ArcherWalk", "ArcherRun", ARCHER_SPEED);
 
     return player;
 
@@ -76,6 +78,8 @@ void Scene_AnimationTest::sAnimation(float dt)
             std::shared_ptr<CPhysicsBody> body = ent->getComponent<CPhysicsBody>();
 
             std::string animToPlay = body->velocity.magnitudeSqr() > 0 ? physicsAnimator->movingAnimName : physicsAnimator->idleAnimName;
+            if (body->velocity.magnitudeSqr() > physicsAnimator->velThreshold * physicsAnimator->velThreshold) animToPlay = physicsAnimator->fastMovingAnimName;
+
             if (physicsAnimator->currentAnimName != animToPlay)
             {
                 physicsAnimator->currentAnimName = animToPlay;
@@ -129,10 +133,12 @@ void Scene_AnimationTest::sInput()
             std::shared_ptr<CInput> input = ent->getComponent<CInput>();
             Vector2 vel;
 
-            if (input->up)     vel.y -= PADDLE_SPEED;
-            if (input->down)   vel.y += PADDLE_SPEED;
-            if (input->left)   vel.x -= PADDLE_SPEED;
-            if (input->right)  vel.x += PADDLE_SPEED;
+            if (input->up)     vel.y -= ARCHER_SPEED;
+            if (input->down)   vel.y += ARCHER_SPEED;
+            if (input->left)   vel.x -= ARCHER_SPEED;
+            if (input->right)  vel.x += ARCHER_SPEED;
+
+            if (input->run) vel *= 2;
 
             ent->getComponent<CPhysicsBody>()->velocity = vel;
         }

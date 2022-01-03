@@ -10,6 +10,7 @@ public:
 	bool down;
 	bool left;
 	bool right;
+	bool run;
 
-	CInput() :up(false), down(false), left(false), right(false) {}
+	CInput() :up(false), down(false), left(false), right(false), run(false) {}
 };

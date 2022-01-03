@@ -2,6 +2,8 @@ Texture Ball resources/sprites/notaBall.png
 Texture Paddle resources/sprites/paddle.png
 Texture ArcherIdle resources/sprites/archer_idle.png
 Texture ArcherWalk resources/sprites/archer_walk.png
+Texture ArcherRun resources/sprites/archer_run.png
 Font NormalUIFont resources/fonts/BalooBhaijaan2-VariableFont_wght.ttf
 Animation ArcherIdle ArcherIdle 12 0.5
-Animation ArcherWalk ArcherWalk 15 0.5
+Animation ArcherWalk ArcherWalk 24 0.5
+Animation ArcherRun ArcherRun 15 0.5

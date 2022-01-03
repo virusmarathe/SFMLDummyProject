@@ -11,3 +11,4 @@ const float BALL_SIZE = 50.0f;
 const float BALL_START_SPEED = 200.0f;
 const float SPEED_GAIN_PER_HIT = 10.0f;
 const int POINTS_PER_SCORE = 10;
+const float ARCHER_SPEED = 200.0f;
