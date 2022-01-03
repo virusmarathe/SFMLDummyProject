@@ -157,6 +157,7 @@
     <ClInclude Include="Engine\Animation\Animation.h" />
     <ClInclude Include="Engine\Components\CAnimation.h" />
     <ClInclude Include="Engine\Components\Component.h" />
+    <ClInclude Include="Engine\Components\CPhysicsAnimator.h" />
     <ClInclude Include="Engine\Framework\Action.h" />
     <ClInclude Include="Engine\Resources\Assets.h" />
     <ClInclude Include="Config.h" />

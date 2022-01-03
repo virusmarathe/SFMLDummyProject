@@ -15,7 +15,8 @@ public:
 private:
 	std::shared_ptr<Entity> spawnPlayer();
 	void sAnimation(float dt);
-
+	void sInput();
+	void sMovement(float dt);
 
 	std::shared_ptr<Assets> _assets;
 	std::shared_ptr<Entity> _player1Entity;

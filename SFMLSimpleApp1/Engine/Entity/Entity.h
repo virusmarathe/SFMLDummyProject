@@ -7,6 +7,7 @@
 #include "Components/CPhysicsBody.h"
 #include "Components/CInput.h"
 #include "Components/CAnimation.h"
+#include "Components/CPhysicsAnimator.h"
 #include <tuple>
 
 typedef std::tuple<
@@ -16,7 +17,8 @@ typedef std::tuple<
 	std::shared_ptr<CInput>,
 	std::shared_ptr<CRectCollider>,
 	std::shared_ptr<CText>,
-	std::shared_ptr<CAnimation>
+	std::shared_ptr<CAnimation>,
+	std::shared_ptr<CPhysicsAnimator>
 > ComponentTuple;
 
 class Entity
