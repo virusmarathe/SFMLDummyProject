@@ -165,14 +165,11 @@ void Scene_PhysicsTest::sPhysics(float dt)
                     std::shared_ptr<CRectCollider> ent2Collider = ent2->getComponent<CRectCollider>();
                     std::shared_ptr<CPhysicsBody> physics = ent->getComponent<CPhysicsBody>();
 
-                    Vector2 halfOffset = (ent1Collider->rect.size / 2.0f);
-                    Vector2 rayPos = ent1Collider->rect.pos + halfOffset;
-                    Rect expandedRect(ent2Collider->rect.pos - halfOffset, ent2Collider->rect.size + ent1Collider->rect.size);
                     Vector2 contactPoint;
                     Vector2 normal;
                     float hitTime;
 
-                    if (Physics::checkCollision(rayPos, physics->velocity * dt, expandedRect, contactPoint, normal, hitTime))
+                    if (Physics::checkCollision(ent1Collider->rect, physics->velocity * dt, ent2Collider->rect, contactPoint, normal, hitTime))
                     {
                         if (physics->elastic)
                         {

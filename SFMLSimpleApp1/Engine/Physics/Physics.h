@@ -23,6 +23,17 @@ public:
 			shape1.pos.y + shape1.size.y > shape2.pos.y);
 	}
 
+	// AABB Rect vs AABB Rect with contact/normal returns
+	static bool checkCollision(const Rect& shape1, const Vector2& dir, const Rect& shape2, Vector2& contactPoint, Vector2& normal, float& tHitNear)
+	{
+		Vector2 halfOffset = (shape1.size / 2.0f);
+		Vector2 rayPos = shape1.pos + halfOffset;
+		Rect expandedRect(shape2.pos - halfOffset, shape2.size + shape1.size);
+
+		return checkCollision(rayPos, dir, expandedRect, contactPoint, normal, tHitNear);
+	}
+
+	// Ray vs AABB Rect
 	static bool checkCollision(const Vector2& origin, const Vector2& dir, const Rect& rect, Vector2& contactPoint, Vector2& normal, float& tHitNear)
 	{
 		if (dir == Vector2(0,0)) return false;
