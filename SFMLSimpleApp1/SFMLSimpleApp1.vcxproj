@@ -116,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SFML_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\SFML-2.5.1\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\SFML-2.5.1\include\;$(ProjectDir)Engine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,7 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SFML_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\SFML-2.5.1\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\SFML-2.5.1\include\;$(ProjectDir)Engine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,19 +145,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Ball.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Paddle.cpp" />
-    <ClCompile Include="Scoreboard.cpp" />
+    <ClCompile Include="Engine\Resources\Assets.cpp" />
+    <ClCompile Include="Engine\Entity\EntityManager.cpp" />
+    <ClCompile Include="Engine\Framework\GameEngine.cpp" />
+    <ClCompile Include="Engine\Framework\Scene.cpp" />
+    <ClCompile Include="Scene_AnimationTest.cpp" />
+    <ClCompile Include="Scene_PhysicsTest.cpp" />
     <ClCompile Include="SFMLSimpleApp1.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ball.h" />
+    <ClInclude Include="Engine\Animation\Animation.h" />
+    <ClInclude Include="Engine\Components\CAnimation.h" />
+    <ClInclude Include="Engine\Components\Component.h" />
+    <ClInclude Include="Engine\Components\CPhysicsAnimator.h" />
+    <ClInclude Include="Engine\Framework\Action.h" />
+    <ClInclude Include="Engine\Resources\Assets.h" />
     <ClInclude Include="Config.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Paddle.h" />
-    <ClInclude Include="Scoreboard.h" />
+    <ClInclude Include="Engine\Components\CInput.h" />
+    <ClInclude Include="Engine\Components\CPhysicsBody.h" />
+    <ClInclude Include="Engine\Components\CRectCollider.h" />
+    <ClInclude Include="Engine\Components\CSprite.h" />
+    <ClInclude Include="Engine\Components\CText.h" />
+    <ClInclude Include="Engine\Components\CTransform.h" />
+    <ClInclude Include="Engine\Entity\Entity.h" />
+    <ClInclude Include="Engine\Math\Rect.h" />
+    <ClInclude Include="Engine\Math\Vector2.h" />
+    <ClInclude Include="Engine\Entity\EntityManager.h" />
+    <ClInclude Include="Engine\Physics\Physics.h" />
+    <ClInclude Include="Engine\Framework\GameEngine.h" />
+    <ClInclude Include="Engine\Framework\Scene.h" />
+    <ClInclude Include="Scene_AnimationTest.h" />
+    <ClInclude Include="Scene_PhysicsTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
