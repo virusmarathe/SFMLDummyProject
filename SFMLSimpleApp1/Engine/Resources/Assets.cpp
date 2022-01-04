@@ -5,6 +5,8 @@
 std::string FONT_KEY = "Font";
 std::string TEXTURE_KEY = "Texture";
 std::string ANIMATION_KEY = "Animation";
+std::string MUSIC_KEY = "Music";
+std::string SOUND_KEY = "Sound";
 
 bool Assets::loadAssets(std::string filePath)
 {
@@ -34,6 +36,20 @@ bool Assets::loadAssets(std::string filePath)
 		{
 			fin >> name >> textureName >> numFrames >> duration;
 			status = addAnimation(name, textureName, numFrames, duration);
+		}
+		if (status == false) return false;
+
+		if (type == MUSIC_KEY)
+		{
+			fin >> name >> path;
+			status = addMusic(name, path);
+		}
+		if (status == false) return false;
+
+		if (type == SOUND_KEY)
+		{
+			fin >> name >> path;
+			status = addSound(name, path);
 		}
 		if (status == false) return false;
 	}
@@ -69,5 +85,28 @@ bool Assets::addAnimation(std::string name, std::string textureName, int numFram
 {
 	sf::Texture& tex = getTexture(textureName);
 	_animations[name] = std::make_shared<Animation>(tex, numFrames, duration);
+	return true;
+}
+
+bool Assets::addMusic(std::string name, std::string path)
+{
+	if (!_music[name].openFromFile(path))
+	{
+		std::cout << "Couldn't find music " << path << std::endl;
+		return false;
+	}
+	_music[name].setLoop(true);
+	_music[name].setVolume(50);
+
+	return true;
+}
+
+bool Assets::addSound(std::string name, std::string path)
+{
+	if (!_sounds[name].loadFromFile(path))
+	{
+		std::cout << "Couldn't find sound " << path << std::endl;
+		return false;
+	}
 	return true;
 }

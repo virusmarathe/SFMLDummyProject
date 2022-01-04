@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
+#include "SFML/Audio.hpp"
 #include <string>
 #include <map>
 
@@ -18,6 +19,8 @@ public:
 	void registerScene(std::string name, std::shared_ptr<Scene> scene) { _scenesMap[name] = scene; }
 	void changeScene(std::string name);
 	void registerAction(int key, std::string name) { _actionMap[key] = name; }
+	void playBGMusic(std::string name);
+	void playSound(std::string name);
 
 	std::shared_ptr<Assets> getAssets() { return _assets; }
 
@@ -34,5 +37,8 @@ private:
 	std::map<std::string, std::shared_ptr<Scene>> _scenesMap;
 	std::shared_ptr<Scene> _currentScene;
 	std::map<int, std::string> _actionMap;
+	sf::Music * _currentMusic;
+	sf::Sound _soundPool[10];
+	int _soundIndex = 0;
 };
 

@@ -16,6 +16,8 @@ void Scene_AnimationTest::init()
     _engine->registerAction(sf::Keyboard::S, "P1DOWN");
     _engine->registerAction(sf::Keyboard::D, "P1RIGHT");
     _engine->registerAction(sf::Keyboard::LShift, "P1RUN");
+
+    _engine->playBGMusic("Level1BG");
 }
 
 void Scene_AnimationTest::update(float dt)

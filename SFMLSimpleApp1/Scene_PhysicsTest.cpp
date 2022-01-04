@@ -38,6 +38,8 @@ void Scene_PhysicsTest::init()
     _engine->registerAction(sf::Keyboard::Down, "P2DOWN");
 
     _engine->registerAction(sf::Keyboard::Num1, "ANIMATION_SCENE");
+
+    _engine->playBGMusic("Level2BG");
 }
 
 void Scene_PhysicsTest::update(float dt)
@@ -176,6 +178,7 @@ void Scene_PhysicsTest::sPhysics(float dt)
                         {
                             // calculate reflection vector
                             physics->velocity = (normal * (-1 * physics->velocity.dot(normal)) * 2) + physics->velocity;
+                            _engine->playSound("BallBounce");
                         }
                         else
                         {

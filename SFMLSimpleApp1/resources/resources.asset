@@ -7,3 +7,6 @@ Font NormalUIFont resources/fonts/BalooBhaijaan2-VariableFont_wght.ttf
 Animation ArcherIdle ArcherIdle 12 0.5
 Animation ArcherWalk ArcherWalk 24 0.5
 Animation ArcherRun ArcherRun 15 0.5
+Music Level1BG resources/audio/archer_bg.wav
+Music Level2BG resources/audio/pong_bg.wav
+Sound BallBounce resources/audio/bounce.wav

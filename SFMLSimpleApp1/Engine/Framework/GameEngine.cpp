@@ -45,6 +45,24 @@ void GameEngine::changeScene(std::string name)
     }
 }
 
+void GameEngine::playBGMusic(std::string name)
+{
+    if (_currentMusic != nullptr)
+    {
+        _currentMusic->stop();
+    }
+    _currentMusic = &_assets->getMusic(name);
+    _currentMusic->play();
+}
+
+void GameEngine::playSound(std::string name)
+{
+    _soundPool[_soundIndex].setBuffer(_assets->getSound(name));
+    _soundPool[_soundIndex].play();
+    _soundIndex++;
+    if (_soundIndex >= 10) _soundIndex = 0;
+}
+
 void GameEngine::update()
 {
     sf::Time deltaTime = _updateTimer.restart();
