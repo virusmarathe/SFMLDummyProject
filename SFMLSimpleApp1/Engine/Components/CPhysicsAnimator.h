@@ -16,4 +16,5 @@ public:
 	std::string movingAnimName;
 	std::string fastMovingAnimName;
 	float velThreshold;
+	bool isMovingRight = true;
 };

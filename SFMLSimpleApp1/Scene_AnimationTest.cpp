@@ -78,6 +78,8 @@ void Scene_AnimationTest::sAnimation(float dt)
         {
             std::shared_ptr<CPhysicsAnimator> physicsAnimator = ent->getComponent<CPhysicsAnimator>();
             std::shared_ptr<CPhysicsBody> body = ent->getComponent<CPhysicsBody>();
+            std::shared_ptr<CAnimation> animComp = ent->getComponent<CAnimation>();
+            std::shared_ptr<CSprite> spriteComp = ent->getComponent<CSprite>();
 
             std::string animToPlay = body->velocity.magnitudeSqr() > 0 ? physicsAnimator->movingAnimName : physicsAnimator->idleAnimName;
             if (body->velocity.magnitudeSqr() > physicsAnimator->velThreshold * physicsAnimator->velThreshold) animToPlay = physicsAnimator->fastMovingAnimName;
@@ -85,11 +87,20 @@ void Scene_AnimationTest::sAnimation(float dt)
             if (physicsAnimator->currentAnimName != animToPlay)
             {
                 physicsAnimator->currentAnimName = animToPlay;
-                std::shared_ptr<CAnimation> animComp = ent->getComponent<CAnimation>();
-                std::shared_ptr<CSprite> spriteComp = ent->getComponent<CSprite>();
                 animComp->currentFrame = -1;
                 animComp->name = animToPlay;
                 spriteComp->sprite.setTexture(_assets->getAnimation(animComp->name)->texture);
+            }
+
+            if (body->velocity.x > 0 && !physicsAnimator->isMovingRight)
+            {
+                animComp->flipX = false;
+                physicsAnimator->isMovingRight = true;
+            }
+            else if (body->velocity.x < 0 && physicsAnimator->isMovingRight)
+            {
+                animComp->flipX = true;
+                physicsAnimator->isMovingRight = false;
             }
         }
 
@@ -120,9 +131,10 @@ void Scene_AnimationTest::sAnimation(float dt)
 
             if (animComp->currentFrame != animCompLastFrame)
             {
-                spriteComp->sprite.setTextureRect(sf::IntRect(animComp->currentFrame * animComp->frameWidth, 0, animComp->frameWidth, animComp->frameHeight));
+                if (animComp->flipX) spriteComp->sprite.setTextureRect(sf::IntRect((animComp->currentFrame+1) * animComp->frameWidth, 0, -animComp->frameWidth, animComp->frameHeight));
+                else spriteComp->sprite.setTextureRect(sf::IntRect(animComp->currentFrame * animComp->frameWidth, 0, animComp->frameWidth, animComp->frameHeight));
             }
-        }
+        }        
     }
 }
 

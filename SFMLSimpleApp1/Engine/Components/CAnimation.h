@@ -15,4 +15,5 @@ public:
 	int numFrames;
 	int frameWidth;
 	int frameHeight;
+	bool flipX = false;
 };
