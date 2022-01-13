@@ -44,11 +44,11 @@ void Scene_PhysicsTest::init()
 
 void Scene_PhysicsTest::update(float dt)
 {
-    sInput();
-
     _entities.update();
 
+    sInput();
     sPhysics(dt);
+    sHandleCollision(dt);
     sMovement(dt);
 
     _ballTimer += dt;
@@ -171,11 +171,14 @@ void Scene_PhysicsTest::sPhysics(float dt)
 
                     if (Physics::checkCollision(ent1Collider->rect, physics->velocity * dt, ent2Collider->rect, contactPoint, normal, hitTime))
                     {
+                        std::shared_ptr<Entity> collisionEntity = _entities.addEntity("CollisionEvent");
+                        collisionEntity->addComponent<CCollisionEvent>(ent, ent2, contactPoint, normal, hitTime);
+                        collisionEntity->destroy(); // auto destroy events at end of frame                        
+                        
                         if (physics->elastic)
                         {
                             // calculate reflection vector
                             physics->velocity = (normal * (-1 * physics->velocity.dot(normal)) * 2) + physics->velocity;
-                            _engine->playSound("BallBounce");
                         }
                         else
                         {
@@ -184,6 +187,19 @@ void Scene_PhysicsTest::sPhysics(float dt)
                     }
                 }
             }
+        }
+    }
+}
+
+void Scene_PhysicsTest::sHandleCollision(float dt)
+{
+    for (auto ent : _entities.getEntities("CollisionEvent"))
+    {
+        std::shared_ptr<CCollisionEvent> cEvent = ent->getComponent<CCollisionEvent>();
+        // handle ball collision with something
+        if (cEvent->ent1->tag() == "Ball")
+        {
+            _engine->playSound("BallBounce");
         }
     }
 }

@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="Engine\Animation\Animation.h" />
     <ClInclude Include="Engine\Components\CAnimation.h" />
+    <ClInclude Include="Engine\Components\CCollisionEvent.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\CPhysicsAnimator.h" />
     <ClInclude Include="Engine\Framework\Action.h" />

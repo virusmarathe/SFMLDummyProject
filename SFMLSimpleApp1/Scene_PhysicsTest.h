@@ -18,6 +18,7 @@ private:
 
 	void sInput();
 	void sPhysics(float dt);
+	void sHandleCollision(float dt);
 	void sMovement(float dt);
 	void sDebugDraw();
 
