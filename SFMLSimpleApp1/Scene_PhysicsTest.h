@@ -12,15 +12,10 @@ public:
 
 	virtual void sDoAction(const Action& action) override;
 
-	virtual void sRender() override;
-
 private:
 
 	void sInput();
-	void sPhysics(float dt);
 	void sHandleCollision(float dt);
-	void sMovement(float dt);
-	void sDebugDraw();
 
 	void spawnNewBall();
 	void spawnWall(Rect rect);

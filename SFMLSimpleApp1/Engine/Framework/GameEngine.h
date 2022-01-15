@@ -4,6 +4,8 @@
 #include "SFML/Audio.hpp"
 #include <string>
 #include <map>
+#include <vector>
+#include "System/System.h"
 
 class Assets;
 class Scene;
@@ -21,14 +23,15 @@ public:
 	void registerAction(int key, std::string name) { _actionMap[key] = name; }
 	void playBGMusic(std::string name);
 	void playSound(std::string name);
+	void registerSystem(std::shared_ptr<System> system) { _systems.push_back(system); }
 
 	std::shared_ptr<Assets> getAssets() { return _assets; }
+	static bool DEBUG_MODE;
 
 private:
 
 	void update();
 	void sUserInput();
-	void render();
 
 	sf::RenderWindow _window;
 	bool _isRunning;
@@ -37,8 +40,9 @@ private:
 	std::map<std::string, std::shared_ptr<Scene>> _scenesMap;
 	std::shared_ptr<Scene> _currentScene;
 	std::map<int, std::string> _actionMap;
-	sf::Music * _currentMusic;
+	sf::Music * _currentMusic = nullptr;
 	sf::Sound _soundPool[10];
 	int _soundIndex = 0;
+	std::vector<std::shared_ptr<System>> _systems;
 };
 

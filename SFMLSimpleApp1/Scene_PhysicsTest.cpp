@@ -3,6 +3,9 @@
 #include "Physics/Physics.h"
 #include "Config.h"
 #include "Framework/Action.h"
+#include "System/SRender.h"
+#include "System/SMovement.h"
+#include "System/SPhysics.h"
 
 void Scene_PhysicsTest::init()
 {
@@ -40,16 +43,15 @@ void Scene_PhysicsTest::init()
     _engine->registerAction(sf::Keyboard::Num1, "ANIMATION_SCENE");
 
     _engine->playBGMusic("Level2BG");
+
+    _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
+    _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
+    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
 }
 
 void Scene_PhysicsTest::update(float dt)
 {
-    _entities.update();
-
-    sInput();
-    sPhysics(dt);
     sHandleCollision(dt);
-    sMovement(dt);
 
     _ballTimer += dt;
     if (_ballTimer >= 10)
@@ -63,6 +65,7 @@ void Scene_PhysicsTest::sDoAction(const Action& action)
 {
     if (action.name == "PHYSICS_TOGGLE" && action.type == Action::ActionType::START)
     {
+        GameEngine::DEBUG_MODE = !GameEngine::DEBUG_MODE;
         _debugToggle = !_debugToggle;
     }
 
@@ -76,29 +79,8 @@ void Scene_PhysicsTest::sDoAction(const Action& action)
     if (action.name == "P2RIGHT") _player2Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
 
     if (action.name == "ANIMATION_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("AnimationTest");
-}
 
-void Scene_PhysicsTest::sRender()
-{
-    for (auto ent : _entities.getEntities())
-    {
-        if (ent->hasComponent<CSprite>())
-        {
-            ent->getComponent<CSprite>()->sprite.setPosition(ent->getComponent<CTransform>()->position.x, ent->getComponent<CTransform>()->position.y);
-            _window->draw(ent->getComponent<CSprite>()->sprite);
-        }
-
-        if (ent->hasComponent<CText>())
-        {
-            ent->getComponent<CText>()->text.setPosition(ent->getComponent<CTransform>()->position.x, ent->getComponent<CTransform>()->position.y);
-            _window->draw(ent->getComponent<CText>()->text);
-        }
-    }
-
-    if (_debugToggle)
-    {
-        sDebugDraw();
-    }
+    sInput();
 }
 
 void Scene_PhysicsTest::spawnNewBall()
@@ -150,47 +132,6 @@ void Scene_PhysicsTest::sInput()
     }
 }
 
-void Scene_PhysicsTest::sPhysics(float dt)
-{
-    for (auto ent : _entities.getEntities())
-    {
-        if (ent->hasComponent<CRectCollider>() && ent->hasComponent<CPhysicsBody>())
-        {
-            for (auto ent2 : _entities.getEntities())
-            {
-                if (ent == ent2) continue;
-                if (ent2->hasComponent<CRectCollider>())
-                {
-                    std::shared_ptr<CRectCollider> ent1Collider = ent->getComponent<CRectCollider>();
-                    std::shared_ptr<CRectCollider> ent2Collider = ent2->getComponent<CRectCollider>();
-                    std::shared_ptr<CPhysicsBody> physics = ent->getComponent<CPhysicsBody>();
-
-                    Vector2 contactPoint;
-                    Vector2 normal;
-                    float hitTime;
-
-                    if (Physics::checkCollision(ent1Collider->rect, physics->velocity * dt, ent2Collider->rect, contactPoint, normal, hitTime))
-                    {
-                        std::shared_ptr<Entity> collisionEntity = _entities.addEntity("CollisionEvent");
-                        collisionEntity->addComponent<CCollisionEvent>(ent, ent2, contactPoint, normal, hitTime);
-                        collisionEntity->destroy(); // auto destroy events at end of frame                        
-                        
-                        if (physics->elastic)
-                        {
-                            // calculate reflection vector
-                            physics->velocity = (normal * (-1 * physics->velocity.dot(normal)) * 2) + physics->velocity;
-                        }
-                        else
-                        {
-                            physics->velocity -= (normal * (physics->velocity * dt * (1 - hitTime)).dot(normal)) / dt;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 void Scene_PhysicsTest::sHandleCollision(float dt)
 {
     for (auto ent : _entities.getEntities("CollisionEvent"))
@@ -200,48 +141,6 @@ void Scene_PhysicsTest::sHandleCollision(float dt)
         if (cEvent->ent1->tag() == "Ball")
         {
             _engine->playSound("BallBounce");
-        }
-    }
-}
-
-void Scene_PhysicsTest::sMovement(float dt)
-{
-    for (auto ent : _entities.getEntities())
-    {
-        if (ent->hasComponent<CTransform>() && ent->hasComponent<CPhysicsBody>())
-        {
-            ent->getComponent<CTransform>()->position += ent->getComponent<CPhysicsBody>()->velocity * dt;
-            if (ent->hasComponent<CRectCollider>())
-            {
-                ent->getComponent<CRectCollider>()->rect.pos = ent->getComponent<CTransform>()->position;
-            }
-        }
-    }
-}
-
-void Scene_PhysicsTest::sDebugDraw()
-{
-    Vector2 mousePos = sf::Mouse::getPosition(*_window);
-    for (auto ent : _entities.getEntities())
-    {
-        if (ent->hasComponent<CRectCollider>())
-        {
-            Rect rect = ent->getComponent<CRectCollider>()->rect;
-            sf::Vertex line[] =
-            {
-                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y)),
-                sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y)),
-                sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y + rect.size.y)),
-                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y + rect.size.y)),
-                sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y))
-            };
-            line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Green;
-            if (Physics::checkCollision(mousePos, rect))
-            {
-                line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Red;
-            }
-
-            _window->draw(line, 5, sf::LineStrip);
         }
     }
 }

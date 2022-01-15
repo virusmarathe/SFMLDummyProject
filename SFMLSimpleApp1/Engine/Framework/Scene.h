@@ -11,7 +11,7 @@ public:
 	virtual void init() = 0;
 	virtual void update(float dt) = 0;
 	virtual void sDoAction(const Action& action) = 0;
-	virtual void sRender() = 0;
+	void updateEntityList() { _entities.update(); }
 
 	void setEngineRefs(GameEngine* engine, sf::RenderWindow* window) { _engine = engine; _window = window; _entities.destroyAll(); }
 

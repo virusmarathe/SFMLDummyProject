@@ -175,6 +175,11 @@
     <ClInclude Include="Engine\Physics\Physics.h" />
     <ClInclude Include="Engine\Framework\GameEngine.h" />
     <ClInclude Include="Engine\Framework\Scene.h" />
+    <ClInclude Include="Engine\System\SAnimation.h" />
+    <ClInclude Include="Engine\System\SMovement.h" />
+    <ClInclude Include="Engine\System\SPhysics.h" />
+    <ClInclude Include="Engine\System\SRender.h" />
+    <ClInclude Include="Engine\System\System.h" />
     <ClInclude Include="Scene_AnimationTest.h" />
     <ClInclude Include="Scene_PhysicsTest.h" />
   </ItemGroup>

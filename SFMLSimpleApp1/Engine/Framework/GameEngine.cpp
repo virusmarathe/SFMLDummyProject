@@ -3,6 +3,8 @@
 #include "Framework/Scene.h"
 #include "Framework/Action.h"
 
+bool GameEngine::DEBUG_MODE = false;
+
 void GameEngine::init(std::string gameName, unsigned int windowWidth, unsigned int windowHeight, std::string resourcePath)
 {
     _window.create(sf::VideoMode(windowWidth, windowHeight), gameName);
@@ -23,8 +25,6 @@ void GameEngine::run()
         sUserInput();
 
         update();
-
-        render();
     }
 }
 
@@ -39,6 +39,7 @@ void GameEngine::changeScene(std::string name)
     if (_scenesMap.find(name) != _scenesMap.end())
     {
         _actionMap.clear();
+        _systems.clear();
         _currentScene = _scenesMap[name];
         _currentScene->setEngineRefs(this, &_window);
         _currentScene->init();
@@ -65,11 +66,16 @@ void GameEngine::playSound(std::string name)
 
 void GameEngine::update()
 {
+    _currentScene->updateEntityList();
     sf::Time deltaTime = _updateTimer.restart();
 
     if (_currentScene != nullptr)
     {
         _currentScene->update(deltaTime.asSeconds());
+        for (auto system : _systems)
+        {
+            system->update(deltaTime.asSeconds());
+        }
     }
 }
 
@@ -90,15 +96,5 @@ void GameEngine::sUserInput()
 
             _currentScene->sDoAction(Action(_actionMap[currEvent.key.code], aType));
         }
-    }
-}
-
-void GameEngine::render()
-{
-    if (_currentScene != nullptr)
-    {
-        _window.clear();
-        _currentScene->sRender();
-        _window.display();
     }
 }
