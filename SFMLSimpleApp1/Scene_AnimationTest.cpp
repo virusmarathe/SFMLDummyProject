@@ -6,6 +6,7 @@
 #include "System/SRender.h"
 #include "System/SMovement.h"
 #include "System/SAnimation.h"
+#include "System/SPhysics.h"
 
 void Scene_AnimationTest::init()
 {
@@ -13,6 +14,12 @@ void Scene_AnimationTest::init()
 
 	_player1Entity = spawnPlayer();
 
+    Rect rect(0, 0, (float)_window->getSize().x, 50);
+    std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
+    wall->addComponent<CTransform>(rect.pos);
+    wall->addComponent<CRectCollider>(rect);
+
+    _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
     _engine->registerAction(sf::Keyboard::Num2, "PHYSICS_SCENE");
     _engine->registerAction(sf::Keyboard::W, "P1UP");
     _engine->registerAction(sf::Keyboard::A, "P1LEFT");
@@ -22,6 +29,7 @@ void Scene_AnimationTest::init()
 
     _engine->playBGMusic("Level1BG");
 
+    _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SAnimation>(&_entities, Priority::UPDATE, _assets));
     _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
@@ -33,6 +41,8 @@ void Scene_AnimationTest::update(float dt)
 
 void Scene_AnimationTest::sDoAction(const Action& action)
 {
+    if (action.name == "PHYSICS_TOGGLE" && action.type == Action::ActionType::START) GameEngine::DEBUG_MODE = !GameEngine::DEBUG_MODE;
+
     if (action.name == "PHYSICS_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("PhysicsTest");
 
     if (action.name == "P1UP") _player1Entity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
@@ -51,7 +61,7 @@ std::shared_ptr<Entity> Scene_AnimationTest::spawnPlayer()
     std::shared_ptr<CSprite> sprite = player->addComponent<CSprite>(_assets->getTexture("ArcherWalk"));
     sprite->sprite.setScale(0.25f, 0.25f);
     std::shared_ptr<CAnimation> anim = player->addComponent<CAnimation>("ArcherWalk");
-    //player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
+    player->addComponent<CRectCollider>(Rect(0,0,70,60), Vector2(20,20));
     player->addComponent<CPhysicsBody>();
     player->addComponent<CInput>();
     player->addComponent<CPhysicsAnimator>("ArcherIdle", "ArcherWalk", "ArcherRun", ARCHER_SPEED);

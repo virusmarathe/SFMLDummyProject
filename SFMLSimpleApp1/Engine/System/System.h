@@ -4,11 +4,11 @@
 
 enum Priority
 {
-	INPUT = 10,
-	PHYSICS = 20,
-	COLLISION = 30,
-	UPDATE = 40,
-	RENDER = 50
+	INPUT = 100,
+	PHYSICS = 200,
+	COLLISION = 300,
+	UPDATE = 400,
+	RENDER = 500
 };
 
 class System

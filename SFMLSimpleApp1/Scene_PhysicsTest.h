@@ -22,7 +22,6 @@ private:
 	std::shared_ptr<Entity> spawnPlayer(Vector2 pos, int playerNum);
 
 	std::shared_ptr<Assets> _assets;
-	bool _debugToggle = false;
 	float _ballTimer = 0;
 	std::shared_ptr<Entity> _player1Entity;
 	std::shared_ptr<Entity> _player2Entity;

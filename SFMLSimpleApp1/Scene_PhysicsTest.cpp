@@ -63,11 +63,7 @@ void Scene_PhysicsTest::update(float dt)
 
 void Scene_PhysicsTest::sDoAction(const Action& action)
 {
-    if (action.name == "PHYSICS_TOGGLE" && action.type == Action::ActionType::START)
-    {
-        GameEngine::DEBUG_MODE = !GameEngine::DEBUG_MODE;
-        _debugToggle = !_debugToggle;
-    }
+    if (action.name == "PHYSICS_TOGGLE" && action.type == Action::ActionType::START) GameEngine::DEBUG_MODE = !GameEngine::DEBUG_MODE;
 
     if (action.name == "P1UP") _player1Entity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
     if (action.name == "P1LEFT") _player1Entity->getComponent<CInput>()->left = action.type == Action::ActionType::START;

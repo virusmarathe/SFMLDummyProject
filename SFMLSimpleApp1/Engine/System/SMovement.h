@@ -16,7 +16,7 @@ public:
                 ent->getComponent<CTransform>()->position += ent->getComponent<CPhysicsBody>()->velocity * dt;
                 if (ent->hasComponent<CRectCollider>())
                 {
-                    ent->getComponent<CRectCollider>()->rect.pos = ent->getComponent<CTransform>()->position;
+                    ent->getComponent<CRectCollider>()->rect.pos = ent->getComponent<CTransform>()->position + ent->getComponent<CRectCollider>()->offset;
                 }
             }
         }
