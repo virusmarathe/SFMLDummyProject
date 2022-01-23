@@ -17,5 +17,6 @@ private:
 
 	std::shared_ptr<Assets> _assets;
 	std::shared_ptr<Entity> _player1Entity;
+	std::shared_ptr<Entity> _camera;
 };
 

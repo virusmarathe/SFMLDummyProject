@@ -27,6 +27,9 @@ void Scene_AnimationTest::init()
     spriteComp->sprite.setScale(scale.x, scale.y);
     spriteComp->sprite.setTextureRect(sf::IntRect(0,0, _window->getSize().x / scale.x, 50 / scale.y));
 
+    _camera = _entities.addEntity("Camera");
+    _camera->addComponent<CTransform>(Vector2(), Vector2(_window->getSize()));
+
     _player1Entity = spawnPlayer();
 
     _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
@@ -36,6 +39,8 @@ void Scene_AnimationTest::init()
     _engine->registerAction(sf::Keyboard::S, "P1DOWN");
     _engine->registerAction(sf::Keyboard::D, "P1RIGHT");
     _engine->registerAction(sf::Keyboard::LShift, "P1RUN");
+    _engine->registerAction(GameEngine::MOUSE_SCROLL_UP, "ZOOM_IN");
+    _engine->registerAction(GameEngine::MOUSE_SCROLL_DOWN, "ZOOM_OUT");
 
     _engine->playBGMusic("Level1BG");
 
@@ -47,6 +52,7 @@ void Scene_AnimationTest::init()
 
 void Scene_AnimationTest::update(float dt)
 {
+    _camera->getComponent<CTransform>()->position = _player1Entity->getComponent<CTransform>()->position;
 }
 
 void Scene_AnimationTest::sDoAction(const Action& action)
@@ -60,6 +66,9 @@ void Scene_AnimationTest::sDoAction(const Action& action)
     if (action.name == "P1DOWN") _player1Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
     if (action.name == "P1RIGHT") _player1Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
     if (action.name == "P1RUN") _player1Entity->getComponent<CInput>()->run = action.type == Action::ActionType::START;
+
+    if (action.name == "ZOOM_IN") _camera->getComponent<CTransform>()->scale /= 1.05f;
+    if (action.name == "ZOOM_OUT") _camera->getComponent<CTransform>()->scale *= 1.05f;
 
     sInput();
 }

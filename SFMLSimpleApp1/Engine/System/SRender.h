@@ -14,6 +14,15 @@ public:
         _window->clear();
         Vector2 mousePos = sf::Mouse::getPosition(*_window);
 
+        // temporary camera movement
+        for (auto ent : _entities->getEntities("Camera"))
+        {
+            auto transform = ent->getComponent<CTransform>();
+            Vector2 startPos = transform->position - transform->scale / 2.0f;
+            sf::View view(sf::FloatRect(startPos.x, startPos.y, transform->scale.x, transform->scale.y));
+            _window->setView(view);
+        }
+
         for (auto ent : _entities->getEntities())
         {
             if (ent->hasComponent<CSprite>())

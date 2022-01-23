@@ -15,6 +15,13 @@ class GameEngine
 public:
 	GameEngine() : _isRunning(false) {}
 
+	enum MouseKeyEvent
+	{
+		MOUSE_INVALID = sf::Keyboard::KeyCount,
+		MOUSE_SCROLL_UP,
+		MOUSE_SCROLL_DOWN
+	};
+
 	void init(std::string gameName, unsigned int windowWidth, unsigned int windowHeight, std::string resourcePath);
 	void run();
 	void quit();

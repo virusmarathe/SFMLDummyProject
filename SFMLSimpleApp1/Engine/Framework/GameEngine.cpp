@@ -96,5 +96,13 @@ void GameEngine::sUserInput()
 
             _currentScene->sDoAction(Action(_actionMap[currEvent.key.code], aType));
         }
+        if (currEvent.type == sf::Event::MouseWheelMoved)
+        {
+            int code = currEvent.mouseWheel.delta > 0 ? MOUSE_SCROLL_UP : MOUSE_SCROLL_DOWN;
+
+            if (_actionMap.find(code) == _actionMap.end()) continue;          
+
+            _currentScene->sDoAction(Action(_actionMap[code], Action::ActionType::START));
+        }
     }
 }
