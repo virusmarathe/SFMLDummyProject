@@ -12,16 +12,22 @@ void Scene_AnimationTest::init()
 {
 	_assets = _engine->getAssets();
 
-	_player1Entity = spawnPlayer();
+    Rect groundRect(-5000, -5000, 10000, 10000);
+    std::shared_ptr<Entity> ground = _entities.addEntity("Ground");
+    ground->addComponent<CTransform>(groundRect.pos);
+    std::shared_ptr<CSprite> groundSpriteComp = ground->addComponent<CSprite>(_assets->getTexture("Ground"));
+    groundSpriteComp->sprite.setTextureRect(sf::IntRect(0, 0, 15000,15000));
 
-    Rect rect(0, 0, (float)_window->getSize().x, 50);
+    Rect wallRect(0, 0, (float)_window->getSize().x, 50);
     std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
-    wall->addComponent<CTransform>(rect.pos);
-    wall->addComponent<CRectCollider>(rect);
+    wall->addComponent<CTransform>(wallRect.pos);
+    wall->addComponent<CRectCollider>(wallRect);
     std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture("Wall"));
-    Vector2 scale(0.4f, 0.4f);
+    Vector2 scale(0.425f, 0.425f);
     spriteComp->sprite.setScale(scale.x, scale.y);
     spriteComp->sprite.setTextureRect(sf::IntRect(0,0, _window->getSize().x / scale.x, 50 / scale.y));
+
+    _player1Entity = spawnPlayer();
 
     _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
     _engine->registerAction(sf::Keyboard::Num2, "PHYSICS_SCENE");
