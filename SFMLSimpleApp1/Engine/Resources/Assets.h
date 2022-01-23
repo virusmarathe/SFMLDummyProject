@@ -18,7 +18,7 @@ public:
 
 private:
 
-	bool addTexture(std::string name, std::string path);
+	bool addTexture(std::string name, std::string path, int repeated);
 	bool addFont(std::string name, std::string path);
 	bool addAnimation(std::string name, std::string textureName, int numFrames, float duration);
 	bool addMusic(std::string name, std::string path);

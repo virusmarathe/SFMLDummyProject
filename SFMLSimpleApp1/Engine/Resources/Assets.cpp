@@ -15,6 +15,7 @@ bool Assets::loadAssets(std::string filePath)
 	int numFrames;
 	float duration;
 	bool status = true;
+	int repeated = 0;
 
 	while (fin >> type)
 	{
@@ -27,8 +28,8 @@ bool Assets::loadAssets(std::string filePath)
 
 		if (type == TEXTURE_KEY)
 		{
-			fin >> name >> path;
-			status = addTexture(name, path);
+			fin >> name >> path >> repeated;
+			status = addTexture(name, path, repeated);
 		}
 		if (status == false) return false;
 
@@ -59,13 +60,15 @@ bool Assets::loadAssets(std::string filePath)
 	return status;
 }
 
-bool Assets::addTexture(std::string name, std::string path)
+bool Assets::addTexture(std::string name, std::string path, int repeated)
 {
 	if (!_textures[name].loadFromFile(path))
 	{
 		std::cout << "Couldn't find image " << name << std::endl;
 		return false;
 	}
+
+	if (repeated == 1) _textures[name].setRepeated(true);
 
 	return true;
 }

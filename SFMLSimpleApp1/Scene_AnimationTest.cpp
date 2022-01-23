@@ -18,6 +18,10 @@ void Scene_AnimationTest::init()
     std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
     wall->addComponent<CTransform>(rect.pos);
     wall->addComponent<CRectCollider>(rect);
+    std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture("Wall"));
+    Vector2 scale(0.4f, 0.4f);
+    spriteComp->sprite.setScale(scale.x, scale.y);
+    spriteComp->sprite.setTextureRect(sf::IntRect(0,0, _window->getSize().x / scale.x, 50 / scale.y));
 
     _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
     _engine->registerAction(sf::Keyboard::Num2, "PHYSICS_SCENE");
@@ -61,7 +65,7 @@ std::shared_ptr<Entity> Scene_AnimationTest::spawnPlayer()
     std::shared_ptr<CSprite> sprite = player->addComponent<CSprite>(_assets->getTexture("ArcherWalk"));
     sprite->sprite.setScale(0.25f, 0.25f);
     std::shared_ptr<CAnimation> anim = player->addComponent<CAnimation>("ArcherWalk");
-    player->addComponent<CRectCollider>(Rect(0,0,70,60), Vector2(20,20));
+    player->addComponent<CRectCollider>(Rect(0,0,70,80), Vector2(20,5));
     player->addComponent<CPhysicsBody>();
     player->addComponent<CInput>();
     player->addComponent<CPhysicsAnimator>("ArcherIdle", "ArcherWalk", "ArcherRun", ARCHER_SPEED);
