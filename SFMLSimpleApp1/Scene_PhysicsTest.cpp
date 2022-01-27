@@ -29,6 +29,9 @@ void Scene_PhysicsTest::init()
 
     _ballTimer = 10;
 
+    auto camera = _entities.addEntity("Camera");
+    camera->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(_window->getSize()));
+
     // will eventually be moved to a config file
     _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
     _engine->registerAction(sf::Keyboard::W, "P1UP");
