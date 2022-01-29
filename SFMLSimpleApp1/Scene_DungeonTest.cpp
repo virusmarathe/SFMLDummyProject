@@ -57,13 +57,13 @@ void Scene_DungeonTest::update(float dt)
 
                 if (Physics::checkCollision(room1Rect, room2Rect))
                 {
-                    int diffs[4] = { abs(room1Rect.pos.x - (room2Rect.pos.x + room2Rect.size.x)),
+                    float diffs[4] = { abs(room1Rect.pos.x - (room2Rect.pos.x + room2Rect.size.x)),
                                 abs((room1Rect.pos.x + room1Rect.size.x) - room2Rect.pos.x),
                                 abs(room1Rect.pos.y - (room2Rect.pos.y + room2Rect.size.y)),
                                 abs((room1Rect.pos.y + room1Rect.size.y) - room2Rect.pos.y) };
 
                     int minIndex = 0;
-                    int minVal = diffs[minIndex];
+                    float minVal = diffs[minIndex];
 
                     for (int i = 1; i < 4; i++)
                     {
@@ -151,6 +151,10 @@ void Scene_DungeonTest::generateRooms(int numRooms)
         _rooms[i]->addComponent<CShapeRect>(_rooms[i]->getComponent<CRectCollider>()->rect);
     }
 
+    // delaunay
+    std::vector<double> coords = { -1, 1, 1, 1, 1, -1, -1, -1 };
+    delaunator::Delaunator d(coords);
+
     _separatedRooms = false;
     _createRoomGraph = false;
 }
@@ -162,7 +166,7 @@ std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
     int height = rand() % 1000 + 300;
     int xOffset = rand() % 1000;
     int yOffset = rand() % 1000;
-    e->addComponent<CTransform>(Vector2(xOffset, yOffset));
-    e->addComponent<CRectCollider>(Rect(xOffset, yOffset, width, height));
+    e->addComponent<CTransform>(Vector2((float)xOffset, (float)yOffset));
+    e->addComponent<CRectCollider>(Rect((float)xOffset, (float)yOffset, (float)width, (float)height));
     return e;
 }

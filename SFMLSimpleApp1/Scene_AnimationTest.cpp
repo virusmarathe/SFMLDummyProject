@@ -25,7 +25,7 @@ void Scene_AnimationTest::init()
     std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture("Wall"));
     Vector2 scale(0.425f, 0.425f);
     spriteComp->sprite.setScale(scale.x, scale.y);
-    spriteComp->sprite.setTextureRect(sf::IntRect(0,0, _window->getSize().x / scale.x, 50 / scale.y));
+    spriteComp->sprite.setTextureRect(sf::IntRect(0,0, (int)(_window->getSize().x / scale.x), (int)(50.0f / scale.y)));
 
     _camera = _entities.addEntity("Camera");
     _camera->addComponent<CTransform>(Vector2(), Vector2(_window->getSize()));
