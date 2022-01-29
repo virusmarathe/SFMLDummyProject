@@ -12,7 +12,8 @@ public:
 	virtual void update(float dt) override
 	{
         _window->clear();
-        Vector2 mousePos = sf::Mouse::getPosition(*_window);
+        sf::Vector2i pixelPos = sf::Mouse::getPosition(*_window);
+        Vector2 mousePos = (*_window).mapPixelToCoords(pixelPos);
 
         // temporary camera movement
         for (auto ent : _entities->getEntities("Camera"))

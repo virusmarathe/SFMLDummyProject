@@ -16,7 +16,13 @@ public:
 
 
 private:
+	
+	void generateRooms(int numRooms);
+	std::shared_ptr<Entity> createRoom();
+
 	std::shared_ptr<Assets> _assets;
 	std::shared_ptr<Entity> _camera;
+
+	bool _separatedRooms = true;
 };
 
