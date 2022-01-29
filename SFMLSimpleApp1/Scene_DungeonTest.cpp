@@ -8,6 +8,7 @@
 #include "System/SAnimation.h"
 #include "System/SPhysics.h"
 #include <iostream>
+#include "Math/delaunator.hpp"
 
 void Scene_DungeonTest::init()
 {
@@ -44,6 +45,7 @@ void Scene_DungeonTest::update(float dt)
     if (!_separatedRooms)
     {
         _separatedRooms = true;
+        _createRoomGraph = true;
         for (auto room1 : _entities.getEntities("Room"))
         {
             for (auto room2 : _entities.getEntities("Room"))
@@ -88,10 +90,18 @@ void Scene_DungeonTest::update(float dt)
                         if (minIndex == 3) room1->getComponent<CRectCollider>()->rect.pos.y -= diffs[minIndex];
                     }
 
+                    room1->getComponent<CTransform>()->position = room1->getComponent<CRectCollider>()->rect.pos;
+                    room2->getComponent<CTransform>()->position = room2->getComponent<CRectCollider>()->rect.pos;
+
                     _separatedRooms = false;
+                    _createRoomGraph = false;
                 }
             }
         }
+    }
+    if (_createRoomGraph)
+    {
+
     }
 }
 
@@ -122,10 +132,27 @@ void Scene_DungeonTest::sDoAction(const Action& action)
 
 void Scene_DungeonTest::generateRooms(int numRooms)
 {
+    _rooms.clear();
+    std::priority_queue<std::shared_ptr<Entity>, std::vector<std::shared_ptr<Entity>>, RoomCompare> rooms;
+
     for (int i = 0; i < numRooms; i++)
     {
-        createRoom();
-    }    
+        rooms.push(createRoom());
+    }
+
+    while (rooms.size() != 0)
+    {
+        _rooms.push_back(rooms.top());
+        rooms.pop();
+    }
+
+    for (int i = 0; i < 15; i++) // 15 biggest rooms
+    {
+        _rooms[i]->addComponent<CShapeRect>(_rooms[i]->getComponent<CRectCollider>()->rect);
+    }
+
+    _separatedRooms = false;
+    _createRoomGraph = false;
 }
 
 std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
@@ -137,6 +164,5 @@ std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
     int yOffset = rand() % 1000;
     e->addComponent<CTransform>(Vector2(xOffset, yOffset));
     e->addComponent<CRectCollider>(Rect(xOffset, yOffset, width, height));
-    _separatedRooms = false;
     return e;
 }

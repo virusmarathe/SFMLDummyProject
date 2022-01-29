@@ -38,6 +38,13 @@ public:
                 _window->draw(ent->getComponent<CText>()->text);
             }
 
+            if (ent->hasComponent<CShapeRect>())
+            {
+                sf::RectangleShape shape = ent->getComponent<CShapeRect>()->rectShape;
+                shape.setPosition(sf::Vector2f(ent->getComponent<CTransform>()->position.x, ent->getComponent<CTransform>()->position.y));
+                _window->draw(shape);
+            }
+
             if (GameEngine::DEBUG_MODE)
             {
                 if (ent->hasComponent<CRectCollider>())

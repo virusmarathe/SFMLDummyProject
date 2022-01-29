@@ -160,7 +160,10 @@
     <ClInclude Include="Engine\Components\CCollisionEvent.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\CPhysicsAnimator.h" />
+    <ClInclude Include="Engine\Components\CShapeRect.h" />
     <ClInclude Include="Engine\Framework\Action.h" />
+    <ClInclude Include="Engine\Math\Circle.h" />
+    <ClInclude Include="Engine\Math\delaunator.hpp" />
     <ClInclude Include="Engine\Resources\Assets.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Engine\Components\CInput.h" />
