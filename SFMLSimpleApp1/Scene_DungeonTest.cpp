@@ -101,7 +101,17 @@ void Scene_DungeonTest::update(float dt)
     }
     if (_createRoomGraph)
     {
+        for (int i = 0; i < 15; i++) // 15 biggest rooms
+        {
+            _rooms[i]->addComponent<CShapeRect>(_rooms[i]->getComponent<CRectCollider>()->rect, sf::Color::Blue);
+            _rooms[i]->addComponent<CShapeLine>(_rooms[i]->getComponent<CRectCollider>()->rect.pos, _rooms[i]->getComponent<CRectCollider>()->rect.pos + _rooms[i]->getComponent<CRectCollider>()->rect.size);
+        }
 
+        // delaunay
+        std::vector<double> coords = { -1, 1, 1, 1, 1, -1, -1, -1 };
+        delaunator::Delaunator d(coords);
+
+        _createRoomGraph = false;
     }
 }
 
@@ -144,16 +154,7 @@ void Scene_DungeonTest::generateRooms(int numRooms)
     {
         _rooms.push_back(rooms.top());
         rooms.pop();
-    }
-
-    for (int i = 0; i < 15; i++) // 15 biggest rooms
-    {
-        _rooms[i]->addComponent<CShapeRect>(_rooms[i]->getComponent<CRectCollider>()->rect);
-    }
-
-    // delaunay
-    std::vector<double> coords = { -1, 1, 1, 1, 1, -1, -1, -1 };
-    delaunator::Delaunator d(coords);
+    }    
 
     _separatedRooms = false;
     _createRoomGraph = false;

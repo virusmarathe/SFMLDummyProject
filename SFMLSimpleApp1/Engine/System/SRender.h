@@ -41,8 +41,17 @@ public:
             if (ent->hasComponent<CShapeRect>())
             {
                 sf::RectangleShape shape = ent->getComponent<CShapeRect>()->rectShape;
+                shape.setFillColor(ent->getComponent<CShapeRect>()->color);
                 shape.setPosition(sf::Vector2f(ent->getComponent<CTransform>()->position.x, ent->getComponent<CTransform>()->position.y));
                 _window->draw(shape);
+            }
+
+            if (ent->hasComponent<CShapeLine>())
+            {
+                sf::Vector2f start(ent->getComponent<CShapeLine>()->start.x, ent->getComponent<CShapeLine>()->start.y);
+                sf::Vector2f end(ent->getComponent<CShapeLine>()->end.x, ent->getComponent<CShapeLine>()->end.y);
+                sf::Vertex line[] = { sf::Vertex(start), sf::Vertex(end) };
+                _window->draw(line, 2, sf::Lines);
             }
 
             if (GameEngine::DEBUG_MODE)

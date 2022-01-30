@@ -137,5 +137,8 @@
     <ClInclude Include="Engine\Components\CShapeRect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Components\CShapeLine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
