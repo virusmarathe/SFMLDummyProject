@@ -6,6 +6,7 @@
 
 typedef std::vector<std::shared_ptr<Entity>> EntityList;
 typedef std::map<std::string, EntityList> EntityMap;
+typedef std::map<size_t, std::shared_ptr<Entity>> EntityIDMap;
 
 class EntityManager
 {
@@ -22,9 +23,12 @@ public:
 
 	void destroyAll();
 
+	std::shared_ptr<Entity> operator[](size_t id) { return _entityIDMap[id]; }
+
 private:
 	EntityList _entityList, _entitiesToAdd, _entitiesToRemove;
 	EntityMap _entityMap;
+	EntityIDMap _entityIDMap;
 	size_t _totalEntities = 0;
 };
 

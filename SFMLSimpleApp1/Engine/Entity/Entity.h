@@ -35,6 +35,7 @@ public:
 	bool operator==(const Entity& rhs) const { return _id == rhs._id; }
 	bool operator!=(const Entity& rhs) const { return _id != rhs._id; }
 	std::string tag() { return _tag; }
+	size_t id() { return _id; }
 	void destroy() { _valid = false; }
 	bool isValid() { return _valid; }
 

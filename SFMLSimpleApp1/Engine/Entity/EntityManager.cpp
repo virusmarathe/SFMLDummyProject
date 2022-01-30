@@ -31,6 +31,7 @@ void EntityManager::update()
 	{
 		if (!(*it)->isValid())
 		{
+			_entityIDMap.erase((*it)->id());
 			auto tagIt = _entityMap[(*it)->tag()].begin();
 			while (tagIt != _entityMap[(*it)->tag()].end())
 			{
@@ -54,6 +55,7 @@ void EntityManager::update()
 	{
 		_entityList.push_back(e);
 		_entityMap[e->tag()].push_back(e);
+		_entityIDMap[e->id()] = e;
 	}
 	_entitiesToAdd.clear();
 }
