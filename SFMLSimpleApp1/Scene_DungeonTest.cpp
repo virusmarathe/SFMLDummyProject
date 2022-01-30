@@ -30,7 +30,6 @@ void Scene_DungeonTest::init()
     _engine->registerAction(sf::Keyboard::S, "P1DOWN");
     _engine->registerAction(sf::Keyboard::D, "P1RIGHT");
     _engine->registerAction(sf::Keyboard::R, "RESET_ROOMS");
-    _engine->registerAction(sf::Keyboard::T, "GENERATION_STEP");
 
     _engine->registerAction(GameEngine::MOUSE_SCROLL_UP, "ZOOM_IN");
     _engine->registerAction(GameEngine::MOUSE_SCROLL_DOWN, "ZOOM_OUT");
@@ -101,16 +100,32 @@ void Scene_DungeonTest::update(float dt)
     }
     if (_createRoomGraph)
     {
+        std::vector<double> coords;
+
         for (int i = 0; i < 15; i++) // 15 biggest rooms
         {
             _rooms[i]->addComponent<CShapeRect>(_rooms[i]->getComponent<CRectCollider>()->rect, sf::Color::Blue);
-            _rooms[i]->addComponent<CShapeLine>(_rooms[i]->getComponent<CRectCollider>()->rect.pos, _rooms[i]->getComponent<CRectCollider>()->rect.pos + _rooms[i]->getComponent<CRectCollider>()->rect.size);
+            //_rooms[i]->addComponent<CShapeLine>(_rooms[i]->getComponent<CRectCollider>()->rect.pos, _rooms[i]->getComponent<CRectCollider>()->rect.pos + _rooms[i]->getComponent<CRectCollider>()->rect.size);
+            Vector2 centerPos = _rooms[i]->getComponent<CRectCollider>()->rect.pos + (_rooms[i]->getComponent<CRectCollider>()->rect.size / 2.0f);
+            coords.push_back(centerPos.x);
+            coords.push_back(centerPos.y);
         }
 
         // delaunay
-        std::vector<double> coords = { -1, 1, 1, 1, 1, -1, -1, -1 };
         delaunator::Delaunator d(coords);
 
+        for (size_t i = 0; i < d.triangles.size(); i += 3) 
+        {
+            Vector2 point1(d.coords[2 * d.triangles[i]], d.coords[2 * d.triangles[i] + 1]);
+            Vector2 point2(d.coords[2 * d.triangles[i + 1]], d.coords[2 * d.triangles[i + 1] + 1]);
+            Vector2 point3(d.coords[2 * d.triangles[i + 2]], d.coords[2 * d.triangles[i + 2] + 1]);
+            auto e1 = _entities.addEntity("Edge");
+            e1->addComponent<CShapeLine>(point1, point2);
+            auto e2 = _entities.addEntity("Edge");
+            e2->addComponent<CShapeLine>(point2, point3);
+            auto e3 = _entities.addEntity("Edge");
+            e3->addComponent<CShapeLine>(point3, point1);
+        }
         _createRoomGraph = false;
     }
 }
@@ -135,9 +150,12 @@ void Scene_DungeonTest::sDoAction(const Action& action)
         {
             room->destroy();
         }
+        for (auto edge : _entities.getEntities("Edge"))
+        {
+            edge->destroy();
+        }
         generateRooms(100);
     }
-    if (action.name == "GENERATION_STEP" && action.type == Action::ActionType::START) _separatedRooms = false;
 }
 
 void Scene_DungeonTest::generateRooms(int numRooms)
