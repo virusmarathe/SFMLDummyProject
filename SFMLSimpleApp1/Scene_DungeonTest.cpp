@@ -164,6 +164,8 @@ void Scene_DungeonTest::update(float dt)
             }
         }*/
 
+        std::vector<Vector2> hallways;
+
         for (auto const& pair : minGraph.getNodes())
         {
             GraphNode curNode = pair.second;
@@ -180,23 +182,48 @@ void Scene_DungeonTest::update(float dt)
                     auto e1 = _entities.addEntity("Edge");
                     float xVal = (point1.x + point2.x) / 2.0f;
                     e1->addComponent<CShapeLine>(Vector2(xVal, point1.y), Vector2(xVal, point2.y));
+                    hallways.push_back(Vector2(xVal, point1.y));
+                    hallways.push_back(Vector2(xVal, point2.y));
                 }
                 else if (abs(point1.y - point2.y) < (ent2->getComponent<CRectCollider>()->rect.size.y / 2.0f + ent->getComponent<CRectCollider>()->rect.size.y / 2.0f))
                 {
                     auto e1 = _entities.addEntity("Edge");
                     float yVal = (point1.y + point2.y) / 2.0f;
                     e1->addComponent<CShapeLine>(Vector2(point1.x, yVal), Vector2(point2.x, yVal));
+                    hallways.push_back(Vector2(point1.x, yVal));
+                    hallways.push_back(Vector2(point2.x, yVal));
                 }
                 else
                 {
                     auto e1 = _entities.addEntity("Edge");
                     e1->addComponent<CShapeLine>(point1, Vector2(point1.x, point2.y));
+                    hallways.push_back(point1);
+                    hallways.push_back(Vector2(point1.x, point2.y));
                     auto e2 = _entities.addEntity("Edge");
                     e2->addComponent<CShapeLine>(point1, Vector2(point2.x, point1.y));
+                    hallways.push_back(point1);
+                    hallways.push_back(Vector2(point2.x, point1.y));
                 }
 
                 //auto e1 = _entities.addEntity("Edge");
                 //e1->addComponent<CShapeLine>(point1, point2);
+            }
+        }
+
+        // enable rooms that overlap with hallways
+        for (size_t i = 0; i < hallways.size(); i+=2)
+        {
+            for (auto room : _entities.getEntities("Room"))
+            {
+                if (room->hasComponent<CShapeRect>()) continue;
+
+                Rect roomRect = room->getComponent<CRectCollider>()->rect;
+                Vector2 contactPoint, normal;
+                float hitTime;
+                if (Physics::checkCollision(hallways[i], hallways[i+1] - hallways[i], roomRect, contactPoint, normal, hitTime))
+                {
+                    room->addComponent<CShapeRect>(room->getComponent<CRectCollider>()->rect, sf::Color::Red);
+                }
             }
         }
         _createRoomGraph = false;
@@ -254,8 +281,8 @@ void Scene_DungeonTest::generateRooms(int numRooms)
 std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
 {
     auto e = _entities.addEntity("Room");
-    int width = rand() % 1000 + 300;
-    int height = rand() % 1000 + 300;
+    int width = rand() % 500 + 500;
+    int height = rand() % 500 + 500;
     int xOffset = rand() % 1000;
     int yOffset = rand() % 1000;
     e->addComponent<CTransform>(Vector2((float)xOffset, (float)yOffset));
