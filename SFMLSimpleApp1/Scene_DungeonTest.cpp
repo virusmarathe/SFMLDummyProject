@@ -108,6 +108,7 @@ void Scene_DungeonTest::update(float dt)
         for (size_t i = 0; i < 15; i++) // 15 biggest rooms
         {
             _rooms[i]->addComponent<CShapeRect>(_rooms[i]->getComponent<CRectCollider>()->rect, sf::Color::Blue);
+            _rooms[i]->addComponent<CText>(std::to_string(_rooms[i]->id()).c_str(), _assets->getFont("NormalUIFont"), 240, sf::Color::Red);
             Vector2 centerPos = _rooms[i]->getComponent<CRectCollider>()->rect.pos + (_rooms[i]->getComponent<CRectCollider>()->rect.size / 2.0f);
             coords.push_back(centerPos.x);
             coords.push_back(centerPos.y);
@@ -120,28 +121,50 @@ void Scene_DungeonTest::update(float dt)
 
         for (size_t i = 0; i < d.triangles.size(); i += 3) 
         {
-            //Vector2 point1(d.coords[2 * d.triangles[i]], d.coords[2 * d.triangles[i] + 1]);
-            //Vector2 point2(d.coords[2 * d.triangles[i + 1]], d.coords[2 * d.triangles[i + 1] + 1]);
-            //Vector2 point3(d.coords[2 * d.triangles[i + 2]], d.coords[2 * d.triangles[i + 2] + 1]);
             std::shared_ptr<Entity> ent1 = _entities[indexToIDMap[d.triangles[i]]];
             std::shared_ptr<Entity> ent2 = _entities[indexToIDMap[d.triangles[i+1]]];
             std::shared_ptr<Entity> ent3 = _entities[indexToIDMap[d.triangles[i+2]]];
-            Vector2 point1(ent1->getComponent<CRectCollider>()->rect.pos.x + (ent1->getComponent<CRectCollider>()->rect.size.x / 2.0f), 
-                ent1->getComponent<CRectCollider>()->rect.pos.y + (ent1->getComponent<CRectCollider>()->rect.size.y / 2.0f));
-            Vector2 point2(ent2->getComponent<CRectCollider>()->rect.pos.x + (ent2->getComponent<CRectCollider>()->rect.size.x / 2.0f),
-                ent2->getComponent<CRectCollider>()->rect.pos.y + (ent2->getComponent<CRectCollider>()->rect.size.y / 2.0f));
-            Vector2 point3(ent3->getComponent<CRectCollider>()->rect.pos.x + (ent3->getComponent<CRectCollider>()->rect.size.x / 2.0f),
-                ent3->getComponent<CRectCollider>()->rect.pos.y + (ent3->getComponent<CRectCollider>()->rect.size.y / 2.0f));
-
-            auto e1 = _entities.addEntity("Edge");
-            e1->addComponent<CShapeLine>(point1, point2);
+            Vector2 point1(ent1->getComponent<CRectCollider>()->rect.pos + (ent1->getComponent<CRectCollider>()->rect.size / 2.0f));
+            Vector2 point2(ent2->getComponent<CRectCollider>()->rect.pos + (ent2->getComponent<CRectCollider>()->rect.size / 2.0f));
+            Vector2 point3(ent3->getComponent<CRectCollider>()->rect.pos + (ent3->getComponent<CRectCollider>()->rect.size / 2.0f));
             g.addEdge(ent1->id(), ent2->id(), Vector2::dist(point1, point2));
-            auto e2 = _entities.addEntity("Edge");
-            e2->addComponent<CShapeLine>(point2, point3);
             g.addEdge(ent2->id(), ent3->id(), Vector2::dist(point2, point3));
-            auto e3 = _entities.addEntity("Edge");
-            e3->addComponent<CShapeLine>(point3, point1);
             g.addEdge(ent3->id(), ent1->id(), Vector2::dist(point3, point1));
+        }
+
+        Graph minGraph = g.getMinSpanTree();
+
+        // Delaunay drawings
+        /*for (auto const& pair : g.getNodes())
+        {
+            GraphNode curNode = pair.second;
+            std::shared_ptr<Entity> ent = _entities[pair.first];
+            Vector2 point1(ent->getComponent<CRectCollider>()->rect.pos + (ent->getComponent<CRectCollider>()->rect.size / 2.0f));
+
+            for (auto const& edge : curNode.adjacencyList)
+            {
+                std::shared_ptr<Entity> ent2 = _entities[edge.node->ID];
+                Vector2 point2(ent2->getComponent<CRectCollider>()->rect.pos + (ent2->getComponent<CRectCollider>()->rect.size / 2.0f));
+
+                auto e1 = _entities.addEntity("Edge");
+                e1->addComponent<CShapeLine>(point1, point2, sf::Color::Red);
+            }
+        }*/
+
+        for (auto const& pair : minGraph.getNodes())
+        {
+            GraphNode curNode = pair.second;
+            std::shared_ptr<Entity> ent = _entities[pair.first];
+            Vector2 point1(ent->getComponent<CRectCollider>()->rect.pos + (ent->getComponent<CRectCollider>()->rect.size / 2.0f));
+
+            for (auto const& edge : curNode.adjacencyList)
+            {
+                std::shared_ptr<Entity> ent2 = _entities[edge.node->ID];
+                Vector2 point2(ent2->getComponent<CRectCollider>()->rect.pos + (ent2->getComponent<CRectCollider>()->rect.size / 2.0f));
+
+                auto e1 = _entities.addEntity("Edge");
+                e1->addComponent<CShapeLine>(point1, point2);
+            }
         }
         _createRoomGraph = false;
         g.printGraph();

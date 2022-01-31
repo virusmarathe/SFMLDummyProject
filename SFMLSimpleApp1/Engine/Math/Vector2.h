@@ -55,15 +55,16 @@ struct Vector2 {
 	}
 	void normalize()
 	{
-		x /= magnitude();
-		y /= magnitude();
+		float mag = magnitude();
+		x /= mag;
+		y /= mag;
 	}
 	static float dist(const Vector2& vecA, const Vector2& vecB)
 	{
-		return Vector2(vecB.x - vecA.x, vecB.y - vecB.y).magnitude();
+		return (vecB - vecA).magnitude();
 	}
 	static float distSqr(const Vector2& vecA, const Vector2& vecB)
 	{
-		return Vector2(vecB.x - vecA.x, vecB.y - vecB.y).magnitudeSqr();
+		return (vecB - vecA).magnitudeSqr();
 	}
 };

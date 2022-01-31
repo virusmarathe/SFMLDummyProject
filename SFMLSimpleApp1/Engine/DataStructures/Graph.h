@@ -32,6 +32,10 @@ public:
 
 	void printGraph();
 
+	std::map<size_t, GraphNode> getNodes() { return _nodesMap; }
+
+	Graph getMinSpanTree();
+
 private:
 	std::map<size_t, GraphNode> _nodesMap;
 };

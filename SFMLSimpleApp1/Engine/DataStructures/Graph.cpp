@@ -1,9 +1,13 @@
 #include "Graph.h"
 #include <iostream>
+#include <queue>
 
 void Graph::addNode(size_t ID)
 {
-	_nodesMap[ID] = GraphNode(ID);
+	if (_nodesMap.find(ID) == _nodesMap.end())
+	{
+		_nodesMap[ID] = GraphNode(ID);
+	}
 }
 
 void Graph::addEdge(size_t startID, size_t endID, float cost)
@@ -31,4 +35,65 @@ void Graph::printGraph()
 		}
 		std::cout << std::endl;
 	}
+}
+
+Graph Graph::getMinSpanTree()
+{
+	Graph minGraph;
+
+	float minEdgeCost = INT_MAX;
+	size_t startNodeID = 0;
+	size_t endNodeID = 0;
+
+	for (auto const& node : _nodesMap)
+	{
+		for (auto const& edgeNode : node.second.adjacencyList)
+		{
+			if (edgeNode.cost < minEdgeCost)
+			{
+				minEdgeCost = edgeNode.cost;
+				startNodeID = node.first;
+				endNodeID = edgeNode.node->ID;
+			}
+		}
+	}
+
+	std::cout << startNodeID << " to " << endNodeID << " has the min cost of : " << minEdgeCost << std::endl;
+
+	std::unordered_set<size_t> idsVisited;
+	idsVisited.insert(startNodeID);
+	idsVisited.insert(endNodeID);
+
+	minGraph.addNode(startNodeID);
+	minGraph.addNode(endNodeID);
+	minGraph.addEdge(startNodeID, endNodeID, minEdgeCost);
+
+	while (idsVisited.size() < _nodesMap.size())
+	{
+		minEdgeCost = INT_MAX;
+		for (auto const& startID : idsVisited)
+		{
+			GraphNode node = _nodesMap[startID];
+			for (auto const& edgeNode : node.adjacencyList)
+			{
+				if (idsVisited.find(edgeNode.node->ID) == idsVisited.end())
+				{
+					if (edgeNode.cost < minEdgeCost)
+					{
+						minEdgeCost = edgeNode.cost;
+						startNodeID = startID;
+						endNodeID = edgeNode.node->ID;
+					}
+				}
+			}
+		}
+
+		idsVisited.insert(startNodeID);
+		idsVisited.insert(endNodeID);
+		minGraph.addNode(startNodeID);
+		minGraph.addNode(endNodeID);
+		minGraph.addEdge(startNodeID, endNodeID, minEdgeCost);
+	}
+
+	return minGraph;
 }

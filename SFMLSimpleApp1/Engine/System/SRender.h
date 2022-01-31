@@ -32,12 +32,6 @@ public:
                 _window->draw(ent->getComponent<CSprite>()->sprite);
             }
 
-            if (ent->hasComponent<CText>())
-            {
-                ent->getComponent<CText>()->text.setPosition(ent->getComponent<CTransform>()->position.x, ent->getComponent<CTransform>()->position.y);
-                _window->draw(ent->getComponent<CText>()->text);
-            }
-
             if (ent->hasComponent<CShapeRect>())
             {
                 sf::RectangleShape shape = ent->getComponent<CShapeRect>()->rectShape;
@@ -51,7 +45,14 @@ public:
                 sf::Vector2f start(ent->getComponent<CShapeLine>()->start.x, ent->getComponent<CShapeLine>()->start.y);
                 sf::Vector2f end(ent->getComponent<CShapeLine>()->end.x, ent->getComponent<CShapeLine>()->end.y);
                 sf::Vertex line[] = { sf::Vertex(start), sf::Vertex(end) };
+                line[0].color = line[1].color = ent->getComponent<CShapeLine>()->color;
                 _window->draw(line, 2, sf::Lines);
+            }
+
+            if (ent->hasComponent<CText>())
+            {
+                ent->getComponent<CText>()->text.setPosition(ent->getComponent<CTransform>()->position.x, ent->getComponent<CTransform>()->position.y);
+                _window->draw(ent->getComponent<CText>()->text);
             }
 
             if (GameEngine::DEBUG_MODE)
