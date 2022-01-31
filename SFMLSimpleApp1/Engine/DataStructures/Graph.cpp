@@ -58,8 +58,6 @@ Graph Graph::getMinSpanTree()
 		}
 	}
 
-	std::cout << startNodeID << " to " << endNodeID << " has the min cost of : " << minEdgeCost << std::endl;
-
 	std::unordered_set<size_t> idsVisited;
 	idsVisited.insert(startNodeID);
 	idsVisited.insert(endNodeID);

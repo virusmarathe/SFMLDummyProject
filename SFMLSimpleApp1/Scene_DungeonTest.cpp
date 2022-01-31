@@ -134,6 +134,19 @@ void Scene_DungeonTest::update(float dt)
 
         Graph minGraph = g.getMinSpanTree();
 
+        // randomly add some edges back in for cycles
+        for (auto const& pair : g.getNodes())
+        {
+            GraphNode curNode = pair.second;
+            for (auto const& edge : curNode.adjacencyList)
+            {
+                if (rand() % 100 < 10) // 10% chance to add a edge back in
+                {
+                    minGraph.addEdge(curNode.ID, edge.node->ID, edge.cost);
+                }
+            }
+        }
+
         // Delaunay drawings
         /*for (auto const& pair : g.getNodes())
         {
@@ -167,7 +180,6 @@ void Scene_DungeonTest::update(float dt)
             }
         }
         _createRoomGraph = false;
-        g.printGraph();
     }
 }
 
