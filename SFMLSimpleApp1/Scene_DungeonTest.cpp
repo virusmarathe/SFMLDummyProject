@@ -40,6 +40,8 @@ void Scene_DungeonTest::init()
     _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
 }
 
+const float HALLWAY_WIDTH_HALF = 150;
+
 void Scene_DungeonTest::update(float dt)
 {
     if (!_separatedRooms)
@@ -99,6 +101,7 @@ void Scene_DungeonTest::update(float dt)
             }
         }
     }
+
     if (_createRoomGraph)
     {
         std::vector<double> coords;
@@ -179,28 +182,47 @@ void Scene_DungeonTest::update(float dt)
 
                 if (abs(point1.x - point2.x) < (ent2->getComponent<CRectCollider>()->rect.size.x / 2.0f + ent->getComponent<CRectCollider>()->rect.size.x / 2.0f))
                 {
-                    auto e1 = _entities.addEntity("Edge");
+                    auto e1 = _entities.addEntity("Room");
                     float xVal = (point1.x + point2.x) / 2.0f;
-                    e1->addComponent<CShapeLine>(Vector2(xVal, point1.y), Vector2(xVal, point2.y));
+                    float minY = point1.y < point2.y ? point1.y : point2.y;
+                    float height = abs(point2.y - point1.y);
+                    e1->addComponent<CTransform>(Vector2(xVal - HALLWAY_WIDTH_HALF, minY));
+                    e1->addComponent<CRectCollider>(Rect(xVal - HALLWAY_WIDTH_HALF, minY, HALLWAY_WIDTH_HALF * 2, height));
+                    e1->addComponent<CShapeRect>(Rect(0, 0, HALLWAY_WIDTH_HALF * 2, height), sf::Color::Red);
                     hallways.push_back(Vector2(xVal, point1.y));
                     hallways.push_back(Vector2(xVal, point2.y));
                 }
                 else if (abs(point1.y - point2.y) < (ent2->getComponent<CRectCollider>()->rect.size.y / 2.0f + ent->getComponent<CRectCollider>()->rect.size.y / 2.0f))
                 {
-                    auto e1 = _entities.addEntity("Edge");
+                    auto e1 = _entities.addEntity("Room");
                     float yVal = (point1.y + point2.y) / 2.0f;
-                    e1->addComponent<CShapeLine>(Vector2(point1.x, yVal), Vector2(point2.x, yVal));
+                    float minX = point1.x < point2.x ? point1.x : point2.x;
+                    float width = abs(point2.x - point1.x);
+                    e1->addComponent<CTransform>(Vector2(minX, yVal - HALLWAY_WIDTH_HALF));
+                    e1->addComponent<CRectCollider>(Rect(minX, yVal - HALLWAY_WIDTH_HALF, width, HALLWAY_WIDTH_HALF * 2));
+                    e1->addComponent<CShapeRect>(Rect(0, 0, width, HALLWAY_WIDTH_HALF * 2), sf::Color::Red);
                     hallways.push_back(Vector2(point1.x, yVal));
                     hallways.push_back(Vector2(point2.x, yVal));
                 }
                 else
                 {
-                    auto e1 = _entities.addEntity("Edge");
-                    e1->addComponent<CShapeLine>(point1, Vector2(point1.x, point2.y));
+                    auto e1 = _entities.addEntity("Room");
+                    float xVal = point1.x;
+                    float minY = point1.y < point2.y ? point1.y - HALLWAY_WIDTH_HALF : point2.y - HALLWAY_WIDTH_HALF;
+                    float height = abs(point2.y - point1.y) + HALLWAY_WIDTH_HALF * 2;
+                    e1->addComponent<CTransform>(Vector2(xVal - HALLWAY_WIDTH_HALF, minY));
+                    e1->addComponent<CRectCollider>(Rect(xVal - HALLWAY_WIDTH_HALF, minY, HALLWAY_WIDTH_HALF * 2, height));
+                    e1->addComponent<CShapeRect>(Rect(0, 0, HALLWAY_WIDTH_HALF * 2, height), sf::Color::Red);
                     hallways.push_back(point1);
                     hallways.push_back(Vector2(point1.x, point2.y));
-                    auto e2 = _entities.addEntity("Edge");
-                    e2->addComponent<CShapeLine>(point1, Vector2(point2.x, point1.y));
+
+                    auto e2 = _entities.addEntity("Room");
+                    float yVal = point1.y;
+                    float minX = point1.x < point2.x ? point1.x - HALLWAY_WIDTH_HALF : point2.x - HALLWAY_WIDTH_HALF;
+                    float width = abs(point2.x - point1.x) + HALLWAY_WIDTH_HALF * 2;
+                    e2->addComponent<CTransform>(Vector2(minX, yVal - HALLWAY_WIDTH_HALF));
+                    e2->addComponent<CRectCollider>(Rect(minX, yVal - HALLWAY_WIDTH_HALF, width, HALLWAY_WIDTH_HALF * 2));
+                    e2->addComponent<CShapeRect>(Rect(0, 0, width, HALLWAY_WIDTH_HALF * 2), sf::Color::Red);
                     hallways.push_back(point1);
                     hallways.push_back(Vector2(point2.x, point1.y));
                 }
@@ -226,6 +248,15 @@ void Scene_DungeonTest::update(float dt)
                 }
             }
         }
+
+        for (auto const& room : _rooms)
+        {
+            if (!room->hasComponent<CShapeRect>())
+            {
+                room->destroy();
+            }
+        }
+
         _createRoomGraph = false;
     }
 }
@@ -281,8 +312,8 @@ void Scene_DungeonTest::generateRooms(int numRooms)
 std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
 {
     auto e = _entities.addEntity("Room");
-    int width = rand() % 500 + 500;
-    int height = rand() % 500 + 500;
+    int width = rand() % 1000 + 300;
+    int height = rand() % 1000 + 300;
     int xOffset = rand() % 1000;
     int yOffset = rand() % 1000;
     e->addComponent<CTransform>(Vector2((float)xOffset, (float)yOffset));
