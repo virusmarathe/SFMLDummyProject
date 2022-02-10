@@ -28,12 +28,14 @@ private:
 	
 	void generateRooms(int numRooms);
 	std::shared_ptr<Entity> createRoom();
+	void createWall(Rect rect, std::string assetName);
 
 	std::shared_ptr<Assets> _assets;
 	std::shared_ptr<Entity> _camera;
 
 	bool _separatedRooms = true;
 	bool _createRoomGraph = false;
+	bool _createBorder = false;
 
 	EntityList _rooms;
 };

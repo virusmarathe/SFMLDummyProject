@@ -26,12 +26,6 @@ public:
 
         for (auto ent : _entities->getEntities())
         {
-            if (ent->hasComponent<CSprite>())
-            {
-                ent->getComponent<CSprite>()->sprite.setPosition(ent->getComponent<CTransform>()->position.x, ent->getComponent<CTransform>()->position.y);
-                _window->draw(ent->getComponent<CSprite>()->sprite);
-            }
-
             if (ent->hasComponent<CShapeRect>())
             {
                 sf::RectangleShape shape = ent->getComponent<CShapeRect>()->rectShape;
@@ -47,6 +41,12 @@ public:
                 sf::Vertex line[] = { sf::Vertex(start), sf::Vertex(end) };
                 line[0].color = line[1].color = ent->getComponent<CShapeLine>()->color;
                 _window->draw(line, 2, sf::Lines);
+            }
+
+            if (ent->hasComponent<CSprite>())
+            {
+                ent->getComponent<CSprite>()->sprite.setPosition(ent->getComponent<CTransform>()->position.x, ent->getComponent<CTransform>()->position.y);
+                _window->draw(ent->getComponent<CSprite>()->sprite);
             }
 
             if (ent->hasComponent<CText>())

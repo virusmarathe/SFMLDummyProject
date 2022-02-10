@@ -36,7 +36,13 @@ public:
 	// Ray vs AABB Rect
 	static bool checkCollision(const Vector2& origin, const Vector2& dir, const Rect& rect, Vector2& contactPoint, Vector2& normal, float& tHitNear)
 	{
-		if (dir == Vector2(0,0)) return false;
+		float tHitFar;
+		return checkCollision(origin, dir, rect, contactPoint, normal, tHitNear, tHitFar);
+	}
+
+	static bool checkCollision(const Vector2& origin, const Vector2& dir, const Rect& rect, Vector2& contactPoint, Vector2& normal, float& tHitNear, float& tHitFar)
+	{
+		if (dir == Vector2(0, 0)) return false;
 
 		Vector2 topLeft = rect.pos;
 		Vector2 bottomRight = topLeft + rect.size;
@@ -54,6 +60,7 @@ public:
 		float farY = closeCheck ? ty2 : ty1;
 
 		tHitNear = std::max(nearX, nearY);
+		tHitFar = std::min(farX, farY);
 		contactPoint = origin + (dir * tHitNear);
 		int xSign = dir.x > 0 ? -1 : 1;
 		int ySign = dir.y > 0 ? -1 : 1;
@@ -64,6 +71,6 @@ public:
 		if (tFar <= 0) return false;
 		if (tHitNear > 1) return false;
 
-		return nearX < farY && nearY < farX;
+		return nearX < farY&& nearY < farX;
 	}
 };

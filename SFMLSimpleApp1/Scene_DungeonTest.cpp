@@ -10,6 +10,7 @@
 #include <iostream>
 #include "Math/delaunator.hpp"
 #include "DataStructures/Graph.h"
+#include "Framework/Primitives.h"
 
 void Scene_DungeonTest::init()
 {
@@ -100,6 +101,29 @@ void Scene_DungeonTest::update(float dt)
                 }
             }
         }
+    }
+
+    if (_createBorder)
+    {
+        Vector2 normal, contactPoint;
+        float tHitNear, tHitFar;
+        for (auto room1 : _entities.getEntities("Room"))
+        {
+            Rect room1Rect = room1->getComponent<CRectCollider>()->rect;
+            Vector2 topLeft = room1Rect.pos - Vector2(0, -1); // offset by 1 pixel up to check collisions
+            Vector2 right(room1Rect.size.x, 0);
+            for (auto room2 : _entities.getEntities("Room"))
+            {
+                if (room1 == room2) continue;
+
+                Rect room2Rect = room2->getComponent<CRectCollider>()->rect;
+                if (Physics::checkCollision(topLeft, right, room2Rect, contactPoint, normal, tHitNear, tHitFar))
+                {
+                    Primitives::DrawLine(topLeft + (right * tHitNear), topLeft + (right * tHitFar));
+                }
+            }
+        }
+        _createBorder = false;
     }
 
     if (_createRoomGraph)
@@ -258,6 +282,7 @@ void Scene_DungeonTest::update(float dt)
         }
 
         _createRoomGraph = false;
+        _createBorder = true;
     }
 }
 
@@ -281,7 +306,7 @@ void Scene_DungeonTest::sDoAction(const Action& action)
         {
             room->destroy();
         }
-        for (auto edge : _entities.getEntities("Edge"))
+        for (auto edge : _entities.getEntities("PrimitiveLine"))
         {
             edge->destroy();
         }
@@ -307,6 +332,7 @@ void Scene_DungeonTest::generateRooms(int numRooms)
 
     _separatedRooms = false;
     _createRoomGraph = false;
+    _createBorder = false;
 }
 
 std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
@@ -319,4 +345,17 @@ std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
     e->addComponent<CTransform>(Vector2((float)xOffset, (float)yOffset));
     e->addComponent<CRectCollider>(Rect((float)xOffset, (float)yOffset, (float)width, (float)height));
     return e;
+}
+
+void Scene_DungeonTest::createWall(Rect wallRect, std::string assetName)
+{
+    float gridSize = 50.0f;
+    std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
+    wall->addComponent<CTransform>(wallRect.pos);
+    wall->addComponent<CRectCollider>(wallRect);
+    std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture(assetName));
+    sf::IntRect texRect = spriteComp->sprite.getTextureRect();
+    Vector2 scale(gridSize / texRect.width, gridSize / texRect.height);
+    spriteComp->sprite.setScale(scale.x, scale.y);
+    spriteComp->sprite.setTextureRect(sf::IntRect(0, 0, (int)(wallRect.size.x / scale.x), (int)(wallRect.size.y / scale.y)));
 }

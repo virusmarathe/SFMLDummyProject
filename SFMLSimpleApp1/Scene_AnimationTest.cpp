@@ -18,14 +18,16 @@ void Scene_AnimationTest::init()
     std::shared_ptr<CSprite> groundSpriteComp = ground->addComponent<CSprite>(_assets->getTexture("Ground"));
     groundSpriteComp->sprite.setTextureRect(sf::IntRect(0, 0, 15000,15000));
 
-    Rect wallRect(0, 0, (float)_window->getSize().x, 50);
+    float gridSize = 50.0f;
+    Rect wallRect(0, 0, (float)_window->getSize().x, gridSize);
     std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
     wall->addComponent<CTransform>(wallRect.pos);
     wall->addComponent<CRectCollider>(wallRect);
     std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture("Wall"));
-    Vector2 scale(0.425f, 0.425f);
+    sf::IntRect texRect = spriteComp->sprite.getTextureRect();
+    Vector2 scale(gridSize / texRect.width, gridSize / texRect.height);
     spriteComp->sprite.setScale(scale.x, scale.y);
-    spriteComp->sprite.setTextureRect(sf::IntRect(0,0, (int)(_window->getSize().x / scale.x), (int)(50.0f / scale.y)));
+    spriteComp->sprite.setTextureRect(sf::IntRect(0,0, (int)(wallRect.size.x / scale.x), (int)(wallRect.size.y / scale.y)));
 
     _camera = _entities.addEntity("Camera");
     _camera->addComponent<CTransform>(Vector2(), Vector2(_window->getSize()));

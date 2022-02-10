@@ -150,6 +150,7 @@
     <ClCompile Include="Engine\Entity\EntityManager.cpp" />
     <ClCompile Include="Engine\Framework\GameEngine.cpp" />
     <ClCompile Include="Engine\Framework\Scene.cpp" />
+    <ClCompile Include="Engine\Framework\Primitives.cpp" />
     <ClCompile Include="Scene_AnimationTest.cpp" />
     <ClCompile Include="Scene_DungeonTest.cpp" />
     <ClCompile Include="Scene_PhysicsTest.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Engine\System\SPhysics.h" />
     <ClInclude Include="Engine\System\SRender.h" />
     <ClInclude Include="Engine\System\System.h" />
+    <ClInclude Include="Engine\Framework\Primitives.h" />
     <ClInclude Include="Scene_AnimationTest.h" />
     <ClInclude Include="Scene_DungeonTest.h" />
     <ClInclude Include="Scene_PhysicsTest.h" />
