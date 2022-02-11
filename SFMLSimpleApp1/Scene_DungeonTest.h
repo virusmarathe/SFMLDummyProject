@@ -29,13 +29,17 @@ private:
 	void generateRooms(int numRooms);
 	std::shared_ptr<Entity> createRoom();
 	void createWall(Rect rect, std::string assetName);
+	std::shared_ptr<Entity> spawnPlayer();
+	void sInput();
 
 	std::shared_ptr<Assets> _assets;
 	std::shared_ptr<Entity> _camera;
+	std::shared_ptr<Entity> _player1Entity;
 
 	bool _separatedRooms = true;
 	bool _createRoomGraph = false;
 	bool _createBorder = false;
+	bool _freeCam = false;
 
 	EntityList _rooms;
 };
