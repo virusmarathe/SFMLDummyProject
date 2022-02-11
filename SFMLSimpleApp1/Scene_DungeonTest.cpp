@@ -18,12 +18,6 @@ void Scene_DungeonTest::init()
 {
     _assets = _engine->getAssets();
 
-    /*Rect groundRect(-5000, -5000, 10000, 10000);
-    std::shared_ptr<Entity> ground = _entities.addEntity("Ground");
-    ground->addComponent<CTransform>(groundRect.pos);
-    std::shared_ptr<CSprite> groundSpriteComp = ground->addComponent<CSprite>(_assets->getTexture("Ground"));
-    groundSpriteComp->sprite.setTextureRect(sf::IntRect(0, 0, 15000, 15000));*/
-
     _camera = _entities.addEntity("Camera");
     _camera->addComponent<CTransform>(Vector2(), Vector2(_window->getSize()));
     _camera->addComponent<CPhysicsBody>();
@@ -499,7 +493,7 @@ void Scene_DungeonTest::generateRooms(int numRooms)
     {
         _rooms.push_back(rooms.top());
         rooms.pop();
-    }    
+    }
 
     _separatedRooms = false;
     _createRoomGraph = false;
@@ -510,9 +504,14 @@ std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
 {
     auto e = _entities.addEntity("Room");
     int width = rand() % 1000 + 300;
+    width = (width / (int)GRID_SIZE) * ((int)GRID_SIZE);
     int height = rand() % 1000 + 300;
+    height = (height / (int)GRID_SIZE) * ((int)GRID_SIZE);
     int xOffset = rand() % 1000;
+    xOffset = (xOffset / (int)GRID_SIZE) * ((int)GRID_SIZE);
     int yOffset = rand() % 1000;
+    yOffset = (yOffset / (int)GRID_SIZE) * ((int)GRID_SIZE);
+
     e->addComponent<CTransform>(Vector2((float)xOffset, (float)yOffset));
     e->addComponent<CRectCollider>(Rect((float)xOffset, (float)yOffset, (float)width, (float)height));
     return e;
