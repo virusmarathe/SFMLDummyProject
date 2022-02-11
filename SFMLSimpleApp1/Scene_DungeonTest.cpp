@@ -42,7 +42,7 @@ void Scene_DungeonTest::init()
     _engine->playBGMusic("Level1BG");
 }
 
-const float HALLWAY_WIDTH_HALF = 150;
+const float HALLWAY_WIDTH_HALF = GRID_SIZE * 3;
 
 void Scene_DungeonTest::update(float dt)
 {
@@ -344,11 +344,15 @@ void Scene_DungeonTest::update(float dt)
             GraphNode curNode = pair.second;
             std::shared_ptr<Entity> ent = _entities[pair.first];
             Vector2 point1(ent->getComponent<CRectCollider>()->rect.pos + (ent->getComponent<CRectCollider>()->rect.size / 2.0f));
+            point1.x = ((int)(point1.x / (GRID_SIZE * 2))) * (GRID_SIZE * 2);
+            point1.y = ((int)(point1.y / (GRID_SIZE * 2))) * (GRID_SIZE * 2);
 
             for (auto const& edge : curNode.adjacencyList)
             {
                 std::shared_ptr<Entity> ent2 = _entities[edge.node->ID];
                 Vector2 point2(ent2->getComponent<CRectCollider>()->rect.pos + (ent2->getComponent<CRectCollider>()->rect.size / 2.0f));
+                point2.x = ((int)(point2.x / (GRID_SIZE * 2))) * (GRID_SIZE * 2);
+                point2.y = ((int)(point2.y / (GRID_SIZE * 2))) * (GRID_SIZE * 2);
 
                 if (abs(point1.x - point2.x) < (ent2->getComponent<CRectCollider>()->rect.size.x / 2.0f + ent->getComponent<CRectCollider>()->rect.size.x / 2.0f))
                 {
@@ -503,13 +507,13 @@ void Scene_DungeonTest::generateRooms(int numRooms)
 std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
 {
     auto e = _entities.addEntity("Room");
-    int width = rand() % 1000 + 300;
+    int width = rand() % ((int)GRID_SIZE * 20) + ((int)GRID_SIZE * 6);
     width = (width / (int)GRID_SIZE) * ((int)GRID_SIZE);
-    int height = rand() % 1000 + 300;
+    int height = rand() % ((int)GRID_SIZE * 20) + ((int)GRID_SIZE * 6);
     height = (height / (int)GRID_SIZE) * ((int)GRID_SIZE);
-    int xOffset = rand() % 1000;
+    int xOffset = rand() % ((int)GRID_SIZE * 20);
     xOffset = (xOffset / (int)GRID_SIZE) * ((int)GRID_SIZE);
-    int yOffset = rand() % 1000;
+    int yOffset = rand() % ((int)GRID_SIZE * 20);
     yOffset = (yOffset / (int)GRID_SIZE) * ((int)GRID_SIZE);
 
     e->addComponent<CTransform>(Vector2((float)xOffset, (float)yOffset));
