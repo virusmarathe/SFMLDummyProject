@@ -12,15 +12,17 @@
 #include "DataStructures/Graph.h"
 #include "Framework/Primitives.h"
 
+const float GRID_SIZE = 50.0f;
+
 void Scene_DungeonTest::init()
 {
     _assets = _engine->getAssets();
 
-    Rect groundRect(-5000, -5000, 10000, 10000);
+    /*Rect groundRect(-5000, -5000, 10000, 10000);
     std::shared_ptr<Entity> ground = _entities.addEntity("Ground");
     ground->addComponent<CTransform>(groundRect.pos);
     std::shared_ptr<CSprite> groundSpriteComp = ground->addComponent<CSprite>(_assets->getTexture("Ground"));
-    groundSpriteComp->sprite.setTextureRect(sf::IntRect(0, 0, 15000, 15000));
+    groundSpriteComp->sprite.setTextureRect(sf::IntRect(0, 0, 15000, 15000));*/
 
     _camera = _entities.addEntity("Camera");
     _camera->addComponent<CTransform>(Vector2(), Vector2(_window->getSize()));
@@ -110,8 +112,15 @@ void Scene_DungeonTest::update(float dt)
         for (auto room1 : _entities.getEntities("Room"))
         {
             Rect room1Rect = room1->getComponent<CRectCollider>()->rect;
-            Vector2 topLeft = room1Rect.pos - Vector2(0, -1); // offset by 1 pixel up to check collisions
+            Vector2 topLeft = room1Rect.pos - Vector2(0, 1); // offset by 1 pixel up to check collisions
+            Vector2 bottomLeft = Vector2(room1Rect.pos.x, room1Rect.pos.y + room1Rect.size.y + 1);
+            Vector2 leftTop = room1Rect.pos - Vector2(1,0);
+            Vector2 rightTop = room1Rect.pos + Vector2(room1Rect.size.x + 1, 0);
             Vector2 right(room1Rect.size.x, 0);
+            Vector2 down(0, room1Rect.size.y);
+            std::map<float, float> topFarValues, bottomFarValues, leftFarValues, rightFarValues;
+            std::set<float> topOrderedList, bottomOrderedList, leftOrderedList, rightOrderedList;
+
             for (auto room2 : _entities.getEntities("Room"))
             {
                 if (room1 == room2) continue;
@@ -119,11 +128,143 @@ void Scene_DungeonTest::update(float dt)
                 Rect room2Rect = room2->getComponent<CRectCollider>()->rect;
                 if (Physics::checkCollision(topLeft, right, room2Rect, contactPoint, normal, tHitNear, tHitFar))
                 {
-                    Primitives::DrawLine(topLeft + (right * tHitNear), topLeft + (right * tHitFar));
+                    topOrderedList.insert(tHitNear);
+                    topFarValues[tHitNear] = tHitFar;
                 }
+
+                if (Physics::checkCollision(bottomLeft, right, room2Rect, contactPoint, normal, tHitNear, tHitFar))
+                {
+                    bottomOrderedList.insert(tHitNear);
+                    bottomFarValues[tHitNear] = tHitFar;
+                }
+
+                if (Physics::checkCollision(leftTop, down, room2Rect, contactPoint, normal, tHitNear, tHitFar))
+                {
+                    leftOrderedList.insert(tHitNear);
+                    leftFarValues[tHitNear] = tHitFar;
+                }
+
+                if (Physics::checkCollision(rightTop, down, room2Rect, contactPoint, normal, tHitNear, tHitFar))
+                {
+                    rightOrderedList.insert(tHitNear);
+                    rightFarValues[tHitNear] = tHitFar;
+                }
+            }
+
+            // top border
+            float startX = topLeft.x;
+            for (auto const& nearVal : topOrderedList)
+            {
+                Vector2 nearPoint(topLeft + (right * nearVal));
+                Vector2 farPoint(topLeft + (right * topFarValues[nearVal]));
+                if (startX < nearPoint.x && nearVal >= 0)
+                {
+                    Vector2 startPoint(startX, topLeft.y + 1);
+                    createWall(Rect(startPoint, Vector2(nearPoint.x - startPoint.x, GRID_SIZE)), "Wall");
+                }
+                
+                if (farPoint.x > startX)
+                {
+                    startX = farPoint.x;
+                }
+                if (topFarValues[nearVal] > 1) break;
+            }
+
+            if (startX < topLeft.x + room1Rect.size.x)
+            {
+                Vector2 startPoint(startX, topLeft.y + 1);
+                Vector2 endPoint(topLeft.x + room1Rect.size.x, topLeft.y);
+                createWall(Rect(startPoint, Vector2(endPoint.x - startPoint.x, GRID_SIZE)), "Wall");
+            }
+
+            // bottom border
+            startX = bottomLeft.x;
+            for (auto const& nearVal : bottomOrderedList)
+            {
+                Vector2 nearPoint(bottomLeft + (right * nearVal));
+                Vector2 farPoint(bottomLeft + (right * bottomFarValues[nearVal]));
+                if (startX < nearPoint.x && nearVal >= 0)
+                {
+                    Vector2 startPoint(startX, bottomLeft.y - GRID_SIZE - 1);
+                    createWall(Rect(startPoint, Vector2(nearPoint.x - startPoint.x, GRID_SIZE)), "Wall");
+                }
+
+                if (farPoint.x > startX)
+                {
+                    startX = farPoint.x;
+                }
+                if (bottomFarValues[nearVal] > 1) break;
+            }
+
+            if (startX < bottomLeft.x + room1Rect.size.x)
+            {
+                Vector2 startPoint(startX, bottomLeft.y - GRID_SIZE - 1);
+                Vector2 endPoint(bottomLeft.x + room1Rect.size.x, bottomLeft.y);
+                createWall(Rect(startPoint, Vector2(endPoint.x - startPoint.x, GRID_SIZE)), "Wall");
+            }
+
+            // left border
+            float startY = leftTop.y;
+            for (auto const& nearVal : leftOrderedList)
+            {
+                Vector2 nearPoint(leftTop + (down * nearVal));
+                Vector2 farPoint(leftTop + (down * leftFarValues[nearVal]));
+                if (startY < nearPoint.y && nearVal >= 0)
+                {
+                    Vector2 startPoint(leftTop.x + 1, startY);
+                    createWall(Rect(startPoint, Vector2(GRID_SIZE, nearPoint.y - startPoint.y)), "Wall");
+                }
+
+                if (farPoint.y > startY)
+                {
+                    startY = farPoint.y;
+                }
+                if (leftFarValues[nearVal] > 1) break;
+            }
+
+            if (startY < leftTop.y + room1Rect.size.y)
+            {
+                Vector2 startPoint(leftTop.x + 1, startY);
+                Vector2 endPoint(leftTop.x, leftTop.y + room1Rect.size.y);
+                createWall(Rect(startPoint, Vector2(GRID_SIZE, endPoint.y - startPoint.y)), "Wall");
+            }
+
+            // right border
+            startY = rightTop.y;
+            for (auto const& nearVal : rightOrderedList)
+            {
+                Vector2 nearPoint(rightTop + (down * nearVal));
+                Vector2 farPoint(rightTop + (down * rightFarValues[nearVal]));
+                if (startY < nearPoint.y && nearVal >= 0)
+                {
+                    Vector2 startPoint(rightTop.x - GRID_SIZE - 1, startY);
+                    createWall(Rect(startPoint, Vector2(GRID_SIZE, nearPoint.y - startPoint.y)), "Wall");
+                }
+
+                if (farPoint.y > startY)
+                {
+                    startY = farPoint.y;
+                }
+                if (rightFarValues[nearVal] > 1) break;
+            }
+
+            if (startY < rightTop.y + room1Rect.size.y)
+            {
+                Vector2 startPoint(rightTop.x - GRID_SIZE - 1, startY);
+                Vector2 endPoint(rightTop.x, rightTop.y + room1Rect.size.y);
+                createWall(Rect(startPoint, Vector2(GRID_SIZE, endPoint.y - startPoint.y)), "Wall");
             }
         }
         _createBorder = false;
+        for (auto room : _entities.getEntities("Room"))
+        {
+            Rect rect = room->getComponent<CRectCollider>()->rect;
+            std::shared_ptr<CSprite> groundSpriteComp = room->addComponent<CSprite>(_assets->getTexture("Ground"));
+            groundSpriteComp->sprite.setTextureRect(sf::IntRect(0, 0, rect.size.x, rect.size.y));
+
+            room->removeComponent<CRectCollider>();
+            room->removeComponent<CShapeRect>();
+        }
     }
 
     if (_createRoomGraph)
@@ -135,7 +276,7 @@ void Scene_DungeonTest::update(float dt)
         for (size_t i = 0; i < 15; i++) // 15 biggest rooms
         {
             _rooms[i]->addComponent<CShapeRect>(_rooms[i]->getComponent<CRectCollider>()->rect, sf::Color::Blue);
-            _rooms[i]->addComponent<CText>(std::to_string(_rooms[i]->id()).c_str(), _assets->getFont("NormalUIFont"), 240, sf::Color::Red);
+            //_rooms[i]->addComponent<CText>(std::to_string(_rooms[i]->id()).c_str(), _assets->getFont("NormalUIFont"), 240, sf::Color::Red);
             Vector2 centerPos = _rooms[i]->getComponent<CRectCollider>()->rect.pos + (_rooms[i]->getComponent<CRectCollider>()->rect.size / 2.0f);
             coords.push_back(centerPos.x);
             coords.push_back(centerPos.y);
@@ -306,9 +447,9 @@ void Scene_DungeonTest::sDoAction(const Action& action)
         {
             room->destroy();
         }
-        for (auto edge : _entities.getEntities("PrimitiveLine"))
+        for (auto room : _entities.getEntities("Wall"))
         {
-            edge->destroy();
+            room->destroy();
         }
         generateRooms(100);
     }
@@ -349,13 +490,12 @@ std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
 
 void Scene_DungeonTest::createWall(Rect wallRect, std::string assetName)
 {
-    float gridSize = 50.0f;
     std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
     wall->addComponent<CTransform>(wallRect.pos);
     wall->addComponent<CRectCollider>(wallRect);
     std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture(assetName));
     sf::IntRect texRect = spriteComp->sprite.getTextureRect();
-    Vector2 scale(gridSize / texRect.width, gridSize / texRect.height);
+    Vector2 scale(GRID_SIZE / texRect.width, GRID_SIZE / texRect.height);
     spriteComp->sprite.setScale(scale.x, scale.y);
     spriteComp->sprite.setTextureRect(sf::IntRect(0, 0, (int)(wallRect.size.x / scale.x), (int)(wallRect.size.y / scale.y)));
 }
