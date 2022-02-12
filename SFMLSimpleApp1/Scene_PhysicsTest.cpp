@@ -13,19 +13,29 @@ void Scene_PhysicsTest::init()
 
     spawnWall(Rect(0, 0, (float)_window->getSize().x, 50));
     spawnWall(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
-    spawnWall(Rect(0, 0, 50, (float)_window->getSize().y));
-    spawnWall(Rect((float)_window->getSize().x - 50, 0, 50, (float)_window->getSize().y));
+
+    _player1Goal = _entities.addEntity("Goal");
+    Rect blueRect(0, 0, 50, (float)_window->getSize().y);
+    _player1Goal->addComponent<CTransform>(blueRect.pos);
+    _player1Goal->addComponent<CRectCollider>(blueRect, true);
+
+    _player2Goal = _entities.addEntity("Goal");
+    Rect redRect((float)_window->getSize().x - 50, 0, 50, (float)_window->getSize().y);
+    _player2Goal->addComponent<CTransform>(redRect.pos);
+    _player2Goal->addComponent<CRectCollider>(redRect, true);
 
     _player1Entity = spawnPlayer(Vector2(200, 200), 0);
     _player2Entity = spawnPlayer(Vector2(800, 400), 1);
 
-    auto player1Score = _entities.addEntity("Score");
-    player1Score->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
-    player1Score->addComponent<CText>("Player 1: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Blue);
+    _player1ScoreBoard = _entities.addEntity("Score");
+    _player1ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
+    _player1ScoreBoard->addComponent<CText>("Player 1: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Blue);
+    _player1Score = 0;
 
-    auto player2Score = _entities.addEntity("Score");
-    player2Score->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
-    player2Score->addComponent<CText>("Player 2: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Red);
+    _player2ScoreBoard = _entities.addEntity("Score");
+    _player2ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
+    _player2ScoreBoard->addComponent<CText>("Player 2: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Red);
+    _player2Score = 0;
 
     _ballTimer = 10;
 
@@ -139,7 +149,25 @@ void Scene_PhysicsTest::sHandleCollision(float dt)
         // handle ball collision with something
         if (cEvent->ent1->tag() == "Ball")
         {
-            _engine->playSound("BallBounce");
+            if (cEvent->ent2->tag() == "Goal")
+            {
+                if (cEvent->ent2 == _player2Goal)
+                {
+                     std::string scoreString = "Player 1: " + std::to_string(++_player1Score);
+                    _player1ScoreBoard->getComponent<CText>()->text.setString(scoreString);
+                }
+                else
+                {
+                    std::string scoreString = "Player 2: " + std::to_string(++_player2Score);
+                    _player2ScoreBoard->getComponent<CText>()->text.setString(scoreString);
+                }
+                cEvent->ent1->destroy();
+                cEvent->ent1->getComponent<CRectCollider>()->enabled = false;
+            }
+            else
+            {
+                _engine->playSound("BallBounce");
+            }
         }
     }
 }

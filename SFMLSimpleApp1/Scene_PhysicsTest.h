@@ -25,5 +25,11 @@ private:
 	float _ballTimer = 0;
 	std::shared_ptr<Entity> _player1Entity;
 	std::shared_ptr<Entity> _player2Entity;
+	std::shared_ptr<Entity> _player1ScoreBoard;
+	std::shared_ptr<Entity> _player2ScoreBoard;
+	std::shared_ptr<Entity> _player1Goal;
+	std::shared_ptr<Entity> _player2Goal;
+	int _player1Score;
+	int _player2Score;
 };
 
