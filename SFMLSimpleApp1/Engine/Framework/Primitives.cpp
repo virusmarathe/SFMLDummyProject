@@ -9,3 +9,12 @@ std::shared_ptr<Entity> Primitives::DrawLine(Vector2 start, Vector2 end, sf::Col
 
 	return e1;
 }
+
+std::shared_ptr<Entity> Primitives::DrawRectShape(Rect rect, sf::Color color)
+{
+	auto e1 = _entities->addEntity("PrimitiveRect");
+	e1->addComponent<CTransform>(rect.pos);
+	e1->addComponent<CShapeRect>(rect, color);
+
+	return e1;
+}

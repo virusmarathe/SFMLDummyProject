@@ -23,6 +23,7 @@ void Scene_DungeonTest::init()
     _camera->addComponent<CPhysicsBody>();
 
     _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
+    _engine->registerAction(sf::Keyboard::Num2, "PHYSICS_SCENE");
     _engine->registerAction(sf::Keyboard::W, "P1UP");
     _engine->registerAction(sf::Keyboard::A, "P1LEFT");
     _engine->registerAction(sf::Keyboard::S, "P1DOWN");
@@ -40,6 +41,8 @@ void Scene_DungeonTest::init()
     _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
 
     _engine->playBGMusic("Level1BG");
+
+    generateRooms(100);
 }
 
 const float HALLWAY_WIDTH_HALF = GRID_SIZE * 3;
@@ -265,10 +268,9 @@ void Scene_DungeonTest::update(float dt)
             room->removeComponent<CShapeRect>();
         }
 
-        if (!_player1Entity)
-        {
-            _player1Entity = spawnPlayer();
-        }
+        if (_player1Entity)
+            _player1Entity->destroy();
+        _player1Entity = spawnPlayer();
         _player1Entity->getComponent<CTransform>()->position = Vector2(_rooms[0]->getComponent<CTransform>()->position) + Vector2(300, 300);
     }
 
@@ -445,6 +447,7 @@ void Scene_DungeonTest::sDoAction(const Action& action)
 {
     if (action.name == "PHYSICS_TOGGLE" && action.type == Action::ActionType::START) GameEngine::DEBUG_MODE = !GameEngine::DEBUG_MODE;
     if (action.name == "CAM_CHANGE" && action.type == Action::ActionType::START) _freeCam = !_freeCam;
+    if (action.name == "PHYSICS_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("PhysicsTest");
 
     float scale = _camera->getComponent<CTransform>()->scale.x / _window->getSize().x;
 

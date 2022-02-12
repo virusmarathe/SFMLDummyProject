@@ -6,34 +6,39 @@
 #include "System/SRender.h"
 #include "System/SMovement.h"
 #include "System/SPhysics.h"
+#include "Framework/Primitives.h"
 
 void Scene_PhysicsTest::init()
 {
 	_assets = _engine->getAssets();
 
-    spawnWall(Rect(0, 0, (float)_window->getSize().x, 50));
-    spawnWall(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
-
     _player1Goal = _entities.addEntity("Goal");
-    Rect blueRect(0, 0, 50, (float)_window->getSize().y);
+    Rect blueRect(0, 0, 30, (float)_window->getSize().y);
     _player1Goal->addComponent<CTransform>(blueRect.pos);
     _player1Goal->addComponent<CRectCollider>(blueRect, true);
+    Primitives::DrawRectShape(blueRect, sf::Color::Blue);
 
     _player2Goal = _entities.addEntity("Goal");
-    Rect redRect((float)_window->getSize().x - 50, 0, 50, (float)_window->getSize().y);
+    Rect redRect((float)_window->getSize().x - 30, 0, 30, (float)_window->getSize().y);
     _player2Goal->addComponent<CTransform>(redRect.pos);
     _player2Goal->addComponent<CRectCollider>(redRect, true);
+    Primitives::DrawRectShape(redRect, sf::Color::Red);
+
+    spawnWall(Rect(0, 0, (float)_window->getSize().x, 50));
+    spawnWall(Rect(0, (float)_window->getSize().y - 50, (float)_window->getSize().x, 50));
+    spawnWall(Rect(-50, 0, 50, (float)_window->getSize().y));
+    spawnWall(Rect((float)_window->getSize().x, 0, 50, (float)_window->getSize().y));
 
     _player1Entity = spawnPlayer(Vector2(200, 200), 0);
     _player2Entity = spawnPlayer(Vector2(800, 400), 1);
 
     _player1ScoreBoard = _entities.addEntity("Score");
-    _player1ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, 20));
+    _player1ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f - 100, 60));
     _player1ScoreBoard->addComponent<CText>("Player 1: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Blue);
     _player1Score = 0;
 
     _player2ScoreBoard = _entities.addEntity("Score");
-    _player2ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, 60));
+    _player2ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f - 100, 100));
     _player2ScoreBoard->addComponent<CText>("Player 2: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Red);
     _player2Score = 0;
 
@@ -53,7 +58,7 @@ void Scene_PhysicsTest::init()
     _engine->registerAction(sf::Keyboard::Right, "P2RIGHT");
     _engine->registerAction(sf::Keyboard::Down, "P2DOWN");
 
-    _engine->registerAction(sf::Keyboard::Num1, "ANIMATION_SCENE");
+    _engine->registerAction(sf::Keyboard::Num1, "DUNGEON_SCENE");
 
     _engine->playBGMusic("Level2BG");
 
@@ -87,7 +92,7 @@ void Scene_PhysicsTest::sDoAction(const Action& action)
     if (action.name == "P2DOWN") _player2Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
     if (action.name == "P2RIGHT") _player2Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
 
-    if (action.name == "ANIMATION_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("AnimationTest");
+    if (action.name == "DUNGEON_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("DungeonTest");
 
     sInput();
 }
@@ -97,7 +102,7 @@ void Scene_PhysicsTest::spawnNewBall()
     int xVel = rand() % 2 == 1 ? 1 : -1;
     int yVel = rand() % 2 == 1 ? 1 : -1;
     std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
-    ball->addComponent<CTransform>(Vector2(400, 300), Vector2(BALL_SIZE, BALL_SIZE));
+    ball->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(BALL_SIZE, BALL_SIZE));
     ball->addComponent<CSprite>(_assets->getTexture("Ball"));
     ball->addComponent<CRectCollider>(Rect(ball->getComponent<CTransform>()->position.x, ball->getComponent<CTransform>()->position.y, BALL_SIZE, BALL_SIZE));
     ball->addComponent<CPhysicsBody>(Vector2(BALL_START_SPEED * xVel, BALL_START_SPEED * yVel), true);
@@ -105,9 +110,15 @@ void Scene_PhysicsTest::spawnNewBall()
 
 void Scene_PhysicsTest::spawnWall(Rect rect)
 {
+    const float GRID_SIZE = 50;
     std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
     wall->addComponent<CTransform>(rect.pos);
     wall->addComponent<CRectCollider>(rect);
+    std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture("Wall"));
+    sf::IntRect texRect = spriteComp->sprite.getTextureRect();
+    Vector2 scale(GRID_SIZE / texRect.width, GRID_SIZE / texRect.height);
+    spriteComp->sprite.setScale(scale.x, scale.y);
+    spriteComp->sprite.setTextureRect(sf::IntRect(0, 0, (int)(rect.size.x / scale.x), (int)(rect.size.y / scale.y)));
 }
 
 std::shared_ptr<Entity> Scene_PhysicsTest::spawnPlayer(Vector2 pos, int playerNum)

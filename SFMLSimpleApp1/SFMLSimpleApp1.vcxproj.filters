@@ -33,9 +33,6 @@
     <ClCompile Include="Scene_PhysicsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene_AnimationTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Scene_DungeonTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,9 +102,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\CAnimation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene_AnimationTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\CPhysicsAnimator.h">
