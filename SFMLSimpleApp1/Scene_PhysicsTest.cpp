@@ -111,14 +111,8 @@ void Scene_PhysicsTest::spawnNewBall()
 void Scene_PhysicsTest::spawnWall(Rect rect)
 {
     const float GRID_SIZE = 50;
-    std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
-    wall->addComponent<CTransform>(rect.pos);
+    std::shared_ptr<Entity> wall = Primitives::TiledSprite(rect, GRID_SIZE, _assets->getTexture("Wall"), "Wall");
     wall->addComponent<CRectCollider>(rect);
-    std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture("Wall"));
-    sf::IntRect texRect = spriteComp->sprite.getTextureRect();
-    Vector2 scale(GRID_SIZE / texRect.width, GRID_SIZE / texRect.height);
-    spriteComp->sprite.setScale(scale.x, scale.y);
-    spriteComp->sprite.setTextureRect(sf::IntRect(0, 0, (int)(rect.size.x / scale.x), (int)(rect.size.y / scale.y)));
 }
 
 std::shared_ptr<Entity> Scene_PhysicsTest::spawnPlayer(Vector2 pos, int playerNum)
