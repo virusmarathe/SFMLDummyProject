@@ -30,7 +30,9 @@ private:
 	std::shared_ptr<Entity> createRoom();
 	void createWall(Rect rect, std::string assetName);
 	std::shared_ptr<Entity> spawnPlayer();
+	void fireBullet(Vector2 mouseLocation);
 	void sInput();
+	void sHandleCollision();
 
 	std::shared_ptr<Assets> _assets;
 	std::shared_ptr<Entity> _camera;

@@ -37,7 +37,7 @@ public:
                             collisionEntity->addComponent<CCollisionEvent>(ent, ent2, contactPoint, normal, hitTime);
                             collisionEntity->destroy(); // auto destroy events at end of frame                        
 
-                            if (!ent2Collider->isTrigger)
+                            if (!ent2Collider->isTrigger && !ent1Collider->isTrigger)
                             {
                                 if (physics->elastic)
                                 {

@@ -31,9 +31,9 @@ void Scene_DungeonTest::init()
     _engine->registerAction(sf::Keyboard::LShift, "P1RUN");
     _engine->registerAction(sf::Keyboard::R, "RESET_ROOMS");
     _engine->registerAction(sf::Keyboard::F, "CAM_CHANGE");
-
     _engine->registerAction(GameEngine::MOUSE_SCROLL_UP, "ZOOM_IN");
     _engine->registerAction(GameEngine::MOUSE_SCROLL_DOWN, "ZOOM_OUT");
+    _engine->registerAction(GameEngine::MOUSE_LEFT_DOWN, "FIRE");
 
     _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
@@ -49,6 +49,8 @@ const float HALLWAY_WIDTH_HALF = GRID_SIZE * 3;
 
 void Scene_DungeonTest::update(float dt)
 {
+    sHandleCollision();
+
     if (!_separatedRooms)
     {
         _separatedRooms = true;
@@ -470,6 +472,11 @@ void Scene_DungeonTest::sDoAction(const Action& action)
     if (action.name == "ZOOM_IN") _camera->getComponent<CTransform>()->scale /= 1.05f;
     if (action.name == "ZOOM_OUT") _camera->getComponent<CTransform>()->scale *= 1.05f;
 
+    if (action.name == "FIRE" && action.type == Action::ActionType::START)
+    {
+        fireBullet(action.pos);
+    }
+
     if (action.name == "RESET_ROOMS" && action.type == Action::ActionType::START)
     {
         for (auto room : _entities.getEntities("Room"))
@@ -551,6 +558,23 @@ std::shared_ptr<Entity> Scene_DungeonTest::spawnPlayer()
     return player;
 }
 
+void Scene_DungeonTest::fireBullet(Vector2 mouseLocation)
+{
+    auto bullet = _entities.addEntity("Bullet");
+    Rect playerRect = _player1Entity->getComponent<CRectCollider>()->rect;
+    Vector2 pos = _player1Entity->getComponent<CTransform>()->position + (playerRect.size / 2.0f);
+    bullet->addComponent<CTransform>(pos);
+    Vector2 vel = (mouseLocation - pos);
+    vel.normalize();
+    vel *= BULLET_SPEED;
+    bullet->addComponent<CPhysicsBody>(vel);
+    std::shared_ptr<CSprite> sprite = bullet->addComponent<CSprite>(_assets->getTexture("Ball"));
+    sprite->sprite.setScale(0.25f, 0.25f);
+    Rect box = Rect(sprite->sprite.getLocalBounds());
+    box.size *= 0.25f;
+    bullet->addComponent<CRectCollider>(box, true);
+}
+
 void Scene_DungeonTest::sInput()
 {
     for (auto ent : _entities.getEntities("Player"))
@@ -568,6 +592,24 @@ void Scene_DungeonTest::sInput()
             if (input->run) vel *= 2;
 
             ent->getComponent<CPhysicsBody>()->velocity = vel;
+        }
+    }
+}
+
+void Scene_DungeonTest::sHandleCollision()
+{
+    for (auto ent : _entities.getEntities("CollisionEvent"))
+    {
+        std::shared_ptr<CCollisionEvent> cEvent = ent->getComponent<CCollisionEvent>();
+        // handle ball collision with something
+        if (cEvent->ent1->tag() == "Bullet")
+        {
+            if (cEvent->ent2->tag() == "Wall")
+            {
+                float distSqr = (_player1Entity->getComponent<CTransform>()->position - cEvent->ent1->getComponent<CTransform>()->position).magnitudeSqr();
+                cEvent->ent1->destroy();
+                if (distSqr < 100000.0f) _engine->playSound("WallImpact");
+            }
         }
     }
 }

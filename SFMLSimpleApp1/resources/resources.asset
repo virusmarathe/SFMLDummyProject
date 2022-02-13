@@ -12,3 +12,4 @@ Animation ArcherRun ArcherRun 15 0.5
 Music Level1BG resources/audio/archer_bg.wav
 Music Level2BG resources/audio/pong_bg.wav
 Sound BallBounce resources/audio/bounce.wav
+Sound WallImpact resources/audio/wall_impact.wav
