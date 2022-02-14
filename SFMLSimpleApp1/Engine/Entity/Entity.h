@@ -11,6 +11,8 @@
 #include "Components/CCollisionEvent.h"
 #include "Components/CShapeRect.h"
 #include "Components/CShapeLine.h"
+#include "Components/CDamage.h"
+#include "Components/CHealth.h"
 #include <tuple>
 
 typedef std::tuple<
@@ -24,7 +26,9 @@ typedef std::tuple<
 	std::shared_ptr<CPhysicsAnimator>,
 	std::shared_ptr<CCollisionEvent>,
 	std::shared_ptr<CShapeRect>,
-	std::shared_ptr<CShapeLine>
+	std::shared_ptr<CShapeLine>,
+	std::shared_ptr<CDamage>,
+	std::shared_ptr<CHealth>
 > ComponentTuple;
 
 class Entity

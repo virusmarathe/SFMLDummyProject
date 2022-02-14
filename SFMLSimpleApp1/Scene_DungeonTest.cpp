@@ -11,8 +11,17 @@
 #include "Math/delaunator.hpp"
 #include "DataStructures/Graph.h"
 #include "Framework/Primitives.h"
+#include "System/SDamage.h"
 
 const float GRID_SIZE = 50.0f;
+
+enum DamageLayer
+{
+    PLAYER = 1,
+    ENEMY = 2,
+    NEUTRAL = 4,
+    ALL = (PLAYER | ENEMY | NEUTRAL)
+};
 
 void Scene_DungeonTest::init()
 {
@@ -36,6 +45,7 @@ void Scene_DungeonTest::init()
     _engine->registerAction(GameEngine::MOUSE_LEFT_DOWN, "FIRE");
 
     _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
+    _engine->registerSystem(std::make_shared<SDamage>(&_entities, Priority::PHYSICS + 1));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SAnimation>(&_entities, Priority::UPDATE, _assets));
     _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
@@ -274,6 +284,9 @@ void Scene_DungeonTest::update(float dt)
             _player1Entity->destroy();
         _player1Entity = spawnPlayer();
         _player1Entity->getComponent<CTransform>()->position = Vector2(_rooms[0]->getComponent<CTransform>()->position) + Vector2(300, 300);
+
+        auto barrel = Primitives::ScaledSprite(Rect(_player1Entity->getComponent<CTransform>()->position + Vector2(100, 100), Vector2(100, 100)), _assets->getTexture("Barrel"), true, "Destructable");
+        barrel->addComponent<CHealth>(100.0f, DamageLayer::ALL);
     }
 
     if (_createRoomGraph)
@@ -573,6 +586,7 @@ void Scene_DungeonTest::fireBullet(Vector2 mouseLocation)
     Rect box = Rect(sprite->sprite.getLocalBounds());
     box.size *= 0.25f;
     bullet->addComponent<CRectCollider>(box, true);
+    bullet->addComponent<CDamage>(10.0f, PLAYER);
 }
 
 void Scene_DungeonTest::sInput()
@@ -604,7 +618,7 @@ void Scene_DungeonTest::sHandleCollision()
         // handle ball collision with something
         if (cEvent->ent1->tag() == "Bullet")
         {
-            if (cEvent->ent2->tag() == "Wall")
+            if (cEvent->ent2->tag() == "Wall" || cEvent->ent2->tag() == "Destructable")
             {
                 float distSqr = (_player1Entity->getComponent<CTransform>()->position - cEvent->ent1->getComponent<CTransform>()->position).magnitudeSqr();
                 cEvent->ent1->destroy();

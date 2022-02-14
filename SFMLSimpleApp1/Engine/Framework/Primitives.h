@@ -11,6 +11,7 @@ public:
 	static std::shared_ptr<Entity> DrawLine(Vector2 start, Vector2 end, sf::Color color = sf::Color::White);
 	static std::shared_ptr<Entity> DrawRectShape(Rect rect, sf::Color color = sf::Color::White);
 	static std::shared_ptr<Entity> TiledSprite(Rect size, float tileSize, sf::Texture& texture, std::string tag = "PrimitiveTiledSprite");
+	static std::shared_ptr<Entity> ScaledSprite(Rect rect, sf::Texture& texture, bool autoCollider = false, std::string tag = "PrimitiveScaledSprite");
     static EntityManager* _entities;
 };
 

@@ -159,6 +159,8 @@
     <ClInclude Include="Engine\Animation\Animation.h" />
     <ClInclude Include="Engine\Components\CAnimation.h" />
     <ClInclude Include="Engine\Components\CCollisionEvent.h" />
+    <ClInclude Include="Engine\Components\CDamage.h" />
+    <ClInclude Include="Engine\Components\CHealth.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\CPhysicsAnimator.h" />
     <ClInclude Include="Engine\Components\CShapeLine.h" />
@@ -183,6 +185,7 @@
     <ClInclude Include="Engine\Framework\GameEngine.h" />
     <ClInclude Include="Engine\Framework\Scene.h" />
     <ClInclude Include="Engine\System\SAnimation.h" />
+    <ClInclude Include="Engine\System\SDamage.h" />
     <ClInclude Include="Engine\System\SMovement.h" />
     <ClInclude Include="Engine\System\SPhysics.h" />
     <ClInclude Include="Engine\System\SRender.h" />
