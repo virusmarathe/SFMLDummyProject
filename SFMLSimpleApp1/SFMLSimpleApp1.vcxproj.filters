@@ -155,5 +155,8 @@
     <ClInclude Include="Engine\System\SDamage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\System\SHealthBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

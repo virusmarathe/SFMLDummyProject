@@ -55,6 +55,18 @@ public:
                 _window->draw(ent->getComponent<CText>()->text);
             }
 
+            if (ent->hasComponent<CHealth>())
+            {
+                if (ent->getComponent<CHealth>()->enabled)
+                {
+                    Vector2 barPosition = ent->getComponent<CTransform>()->position + Vector2(0, -50);
+                    ent->getComponent<CHealth>()->background.setPosition(sf::Vector2f(barPosition.x, barPosition.y));
+                    ent->getComponent<CHealth>()->foreground.setPosition(sf::Vector2f(barPosition.x, barPosition.y));
+                    _window->draw(ent->getComponent<CHealth>()->background);
+                    _window->draw(ent->getComponent<CHealth>()->foreground);
+                }
+            }
+
             if (GameEngine::DEBUG_MODE)
             {
                 if (ent->hasComponent<CRectCollider>())

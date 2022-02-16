@@ -186,6 +186,7 @@
     <ClInclude Include="Engine\Framework\Scene.h" />
     <ClInclude Include="Engine\System\SAnimation.h" />
     <ClInclude Include="Engine\System\SDamage.h" />
+    <ClInclude Include="Engine\System\SHealthBar.h" />
     <ClInclude Include="Engine\System\SMovement.h" />
     <ClInclude Include="Engine\System\SPhysics.h" />
     <ClInclude Include="Engine\System\SRender.h" />

@@ -19,6 +19,7 @@ public:
 
 				if ((healthComponent->hitLayer & damageComponent->layer) > 0)
 				{
+					healthComponent->lastHitTimer = 0;
 					healthComponent->health -= damageComponent->damage;
 					if (healthComponent->health <= 0)
 					{

@@ -8,7 +8,7 @@ bool GameEngine::DEBUG_MODE = false;
 void GameEngine::init(std::string gameName, unsigned int windowWidth, unsigned int windowHeight, std::string resourcePath)
 {
     _window.create(sf::VideoMode(windowWidth, windowHeight), gameName);
-    //_window.setFramerateLimit(144);
+    _window.setFramerateLimit(144);
     _window.setKeyRepeatEnabled(false);
     
     // load resources
