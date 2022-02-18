@@ -153,6 +153,7 @@
     <ClCompile Include="Engine\Framework\Primitives.cpp" />
     <ClCompile Include="Scene_DungeonTest.cpp" />
     <ClCompile Include="Scene_PhysicsTest.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SFMLSimpleApp1.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -170,7 +171,6 @@
     <ClInclude Include="Engine\Math\Circle.h" />
     <ClInclude Include="Engine\Math\delaunator.hpp" />
     <ClInclude Include="Engine\Resources\Assets.h" />
-    <ClInclude Include="Config.h" />
     <ClInclude Include="Engine\Components\CInput.h" />
     <ClInclude Include="Engine\Components\CPhysicsBody.h" />
     <ClInclude Include="Engine\Components\CRectCollider.h" />
@@ -194,6 +194,7 @@
     <ClInclude Include="Engine\Framework\Primitives.h" />
     <ClInclude Include="Scene_DungeonTest.h" />
     <ClInclude Include="Scene_PhysicsTest.h" />
+    <ClInclude Include="Settings.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

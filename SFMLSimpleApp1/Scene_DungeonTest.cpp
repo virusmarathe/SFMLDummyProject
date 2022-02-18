@@ -2,7 +2,7 @@
 #include "Framework/GameEngine.h"
 #include "Resources/Assets.h"
 #include "Framework/Action.h"
-#include "Config.h"
+#include "Settings.h"
 #include "System/SRender.h"
 #include "System/SMovement.h"
 #include "System/SAnimation.h"
@@ -289,7 +289,7 @@ void Scene_DungeonTest::update(float dt)
 
         for (int i = 0; i < 5; i++)
         {
-            auto barrel = Primitives::ScaledSprite(Rect(_player1Entity->getComponent<CTransform>()->position + Vector2(i * 100, 100), Vector2(100, 100)), _assets->getTexture("Barrel"), true, "Destructable");
+            auto barrel = Primitives::ScaledSprite(Rect(_player1Entity->getComponent<CTransform>()->position + Vector2((float)i * 100, 100), Vector2(100, 100)), _assets->getTexture("Barrel"), true, "Destructable");
             barrel->addComponent<CHealth>(100.0f, DamageLayer::ALL);
         }
     }
@@ -571,7 +571,7 @@ std::shared_ptr<Entity> Scene_DungeonTest::spawnPlayer()
     player->addComponent<CRectCollider>(Rect(0, 0, 70, 80), Vector2(20, 5));
     player->addComponent<CPhysicsBody>();
     player->addComponent<CInput>();
-    player->addComponent<CPhysicsAnimator>("ArcherIdle", "ArcherWalk", "ArcherRun", ARCHER_SPEED);
+    player->addComponent<CPhysicsAnimator>("ArcherIdle", "ArcherWalk", "ArcherRun", Settings::ARCHER_SPEED);
 
     return player;
 }
@@ -584,7 +584,7 @@ void Scene_DungeonTest::fireBullet(Vector2 mouseLocation)
     bullet->addComponent<CTransform>(pos);
     Vector2 vel = (mouseLocation - pos);
     vel.normalize();
-    vel *= BULLET_SPEED;
+    vel *= Settings::BULLET_SPEED;
     bullet->addComponent<CPhysicsBody>(vel);
     std::shared_ptr<CSprite> sprite = bullet->addComponent<CSprite>(_assets->getTexture("Ball"));
     sprite->sprite.setScale(0.25f, 0.25f);
@@ -603,10 +603,10 @@ void Scene_DungeonTest::sInput()
             std::shared_ptr<CInput> input = ent->getComponent<CInput>();
             Vector2 vel;
 
-            if (input->up)     vel.y -= ARCHER_SPEED;
-            if (input->down)   vel.y += ARCHER_SPEED;
-            if (input->left)   vel.x -= ARCHER_SPEED;
-            if (input->right)  vel.x += ARCHER_SPEED;
+            if (input->up)     vel.y -= Settings::ARCHER_SPEED;
+            if (input->down)   vel.y += Settings::ARCHER_SPEED;
+            if (input->left)   vel.x -= Settings::ARCHER_SPEED;
+            if (input->right)  vel.x += Settings::ARCHER_SPEED;
 
             if (input->run) vel *= 2;
 
