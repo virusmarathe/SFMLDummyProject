@@ -6,7 +6,7 @@
 #include <map>
 #include <vector>
 #include "System/System.h"
-#include "SFML/Network.hpp"
+#include "NetworkManager.h"
 
 class Assets;
 class Scene;
@@ -58,6 +58,6 @@ private:
 	sf::Sound _soundPool[10];
 	int _soundIndex = 0;
 	std::vector<std::shared_ptr<System>> _systems;
-	sf::UdpSocket _socket;
+	NetworkManager _networkManager;
 };
 

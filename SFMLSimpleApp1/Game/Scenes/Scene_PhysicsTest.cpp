@@ -1,7 +1,7 @@
 #include "Scene_PhysicsTest.h"
 #include "Framework/GameEngine.h"
 #include "Physics/Physics.h"
-#include "Settings.h"
+#include "../Settings.h"
 #include "Framework/Action.h"
 #include "System/SRender.h"
 #include "System/SMovement.h"

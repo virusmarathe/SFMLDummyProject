@@ -152,10 +152,11 @@
     <ClCompile Include="Engine\Framework\GameEngine.cpp" />
     <ClCompile Include="Engine\Framework\Scene.cpp" />
     <ClCompile Include="Engine\Framework\Primitives.cpp" />
-    <ClCompile Include="Scene_DungeonTest.cpp" />
-    <ClCompile Include="Scene_PhysicsTest.cpp" />
-    <ClCompile Include="Settings.cpp" />
-    <ClCompile Include="SFMLSimpleApp1.cpp" />
+    <ClCompile Include="Engine\Framework\NetworkManager.cpp" />
+    <ClCompile Include="Game\Scenes\Scene_DungeonTest.cpp" />
+    <ClCompile Include="Game\Scenes\Scene_PhysicsTest.cpp" />
+    <ClCompile Include="Game\Settings.cpp" />
+    <ClCompile Include="Game\SFMLSimpleApp1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Animation\Animation.h" />
@@ -193,9 +194,10 @@
     <ClInclude Include="Engine\System\SRender.h" />
     <ClInclude Include="Engine\System\System.h" />
     <ClInclude Include="Engine\Framework\Primitives.h" />
-    <ClInclude Include="Scene_DungeonTest.h" />
-    <ClInclude Include="Scene_PhysicsTest.h" />
-    <ClInclude Include="Settings.h" />
+    <ClInclude Include="Engine\Framework\NetworkManager.h" />
+    <ClInclude Include="Game\Scenes\Scene_DungeonTest.h" />
+    <ClInclude Include="Game\Scenes\Scene_PhysicsTest.h" />
+    <ClInclude Include="Game\Settings.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

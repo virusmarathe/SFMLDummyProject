@@ -2,7 +2,7 @@
 #include "Framework/GameEngine.h"
 #include "Resources/Assets.h"
 #include "Framework/Action.h"
-#include "Settings.h"
+#include "../Settings.h"
 #include "System/SRender.h"
 #include "System/SMovement.h"
 #include "System/SAnimation.h"
