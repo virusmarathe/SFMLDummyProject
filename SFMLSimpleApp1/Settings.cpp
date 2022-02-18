@@ -12,7 +12,7 @@ float Settings::BULLET_SPEED = 600.0f;
 std::string Settings::SERVER_IP = "127.0.0.1";
 unsigned short Settings::SERVER_PORT = 6000;
 
-#define LoadSetting(val) if (name == #val) { fin >> val; }
+#define LoadSetting(val) if (name == #val) { fin >> val; continue; }
 
 void Settings::LoadSettingsFile(std::string fileName)
 {
