@@ -11,6 +11,7 @@ float Settings::ARCHER_SPEED = 200.0f;
 float Settings::BULLET_SPEED = 600.0f;
 std::string Settings::SERVER_IP = "127.0.0.1";
 unsigned short Settings::SERVER_PORT = 6000;
+unsigned short Settings::TEST_PORT = 6001;
 
 #define LoadSetting(val) if (name == #val) { fin >> val; continue; }
 
@@ -30,5 +31,6 @@ void Settings::LoadSettingsFile(std::string fileName)
 		LoadSetting(BULLET_SPEED);
 		LoadSetting(SERVER_IP);
 		LoadSetting(SERVER_PORT);
+		LoadSetting(TEST_PORT);
 	}
 }

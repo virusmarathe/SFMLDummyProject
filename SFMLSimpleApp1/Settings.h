@@ -14,6 +14,7 @@ public:
 	static float BULLET_SPEED;
 	static std::string SERVER_IP;
 	static unsigned short SERVER_PORT;
+	static unsigned short TEST_PORT;
 
 	static void LoadSettingsFile(std::string fileName);
 };

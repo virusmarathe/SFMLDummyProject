@@ -2,6 +2,8 @@
 #include "Resources/Assets.h"
 #include "Framework/Scene.h"
 #include "Framework/Action.h"
+#include "../../Settings.h"
+#include <iostream>
 
 bool GameEngine::DEBUG_MODE = false;
 
@@ -14,6 +16,13 @@ void GameEngine::init(std::string gameName, unsigned int windowWidth, unsigned i
     // load resources
     _assets = std::make_shared<Assets>();
     _assets->loadAssets(resourcePath);
+
+    _socket.setBlocking(false);
+    if (_socket.bind(Settings::SERVER_PORT) != sf::Socket::Done)
+    {
+        std::cout << "Error binding to port: " << Settings::SERVER_PORT << ". Trying local test port" << std::endl;
+        _socket.bind(Settings::TEST_PORT);
+    }
 }
 
 void GameEngine::run()
@@ -38,6 +47,12 @@ void GameEngine::changeScene(std::string name)
 {
     if (_scenesMap.find(name) != _scenesMap.end())
     {
+        sf::Packet packet;
+        packet << name;
+        packet << Vector2(100, 30);
+        if (_socket.send(packet, Settings::SERVER_IP, Settings::SERVER_PORT) != sf::Socket::Done) { std::cout << "Error sending packet!"; }
+        if (_socket.send(packet, Settings::SERVER_IP, Settings::TEST_PORT) != sf::Socket::Done) { std::cout << "Error sending packet!"; }
+
         _actionMap.clear();
         _systems.clear();
         _currentScene = _scenesMap[name];
@@ -66,6 +81,20 @@ void GameEngine::playSound(std::string name)
 
 void GameEngine::update()
 {
+    sf::IpAddress sender;
+    unsigned short port;
+    sf::Packet packet;
+    sf::Socket::Status status = _socket.receive(packet, sender, port);
+    if (status == sf::Socket::Done)
+    {
+        std::string sceneName;
+        if (packet >> sceneName) std::cout << sceneName << std::endl;
+        Vector2 val;
+        if (packet >> val) std::cout << val.x << ", " << val.y << std::endl;
+    }
+
+
+
     _currentScene->updateEntityList();
     sf::Time deltaTime = _updateTimer.restart();
 

@@ -2,6 +2,7 @@
 
 #include "math.h"
 #include "SFML/Graphics.hpp"
+#include "SFML/Network.hpp"
 
 struct Vector2 {
 	float x;
@@ -67,4 +68,7 @@ struct Vector2 {
 	{
 		return (vecB - vecA).magnitudeSqr();
 	}
+
+	friend sf::Packet& operator<< (sf::Packet& packet, const Vector2& vec);
+	friend sf::Packet& operator>> (sf::Packet& packet, Vector2& vec);
 };
