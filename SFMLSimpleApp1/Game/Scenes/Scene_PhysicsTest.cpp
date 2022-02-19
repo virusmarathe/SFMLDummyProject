@@ -8,6 +8,7 @@
 #include "System/SPhysics.h"
 #include "Framework/Primitives.h"
 #include "SFML/Network.hpp"
+#include "System/STransformSync.h"
 
 void Scene_PhysicsTest::init()
 {
@@ -58,11 +59,13 @@ void Scene_PhysicsTest::init()
     _engine->registerAction(sf::Keyboard::Left, "P2LEFT");
     _engine->registerAction(sf::Keyboard::Right, "P2RIGHT");
     _engine->registerAction(sf::Keyboard::Down, "P2DOWN");
+    _engine->registerAction(sf::Keyboard::Enter, "START");
 
     _engine->registerAction(sf::Keyboard::Num1, "DUNGEON_SCENE");
 
-    _engine->playBGMusic("Level2BG");
+    //_engine->playBGMusic("Level2BG");
 
+    _engine->registerSystem(std::make_shared<STransformSync>(_engine, &_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
@@ -72,30 +75,12 @@ void Scene_PhysicsTest::update(float dt)
 {
     sHandleCollision(dt);
 
-    _ballTimer += dt;
+   /* _ballTimer += dt;
     if (_ballTimer >= 10)
     {
         spawnNewBall();
         _ballTimer = 0;
-    }
-
-    if (NetworkManager::isServer)
-    {
-        sf::Packet pack;
-        pack << NetworkManager::PacketType::TRANSFORM;
-        Vector2 pos;
-        for (auto ent : _entities.getEntities("Player"))
-        {
-            pos = ent->getComponent<CTransform>()->position;
-            pack << ent->id() << pos;
-            break;
-        }
-        if (!(pos == _lastPosition))
-        {
-            _lastPosition = pos;
-            _engine->sendToAllClients(pack);
-        }
-    }
+    }*/
 }
 
 void Scene_PhysicsTest::sDoAction(const Action& action)
@@ -113,18 +98,50 @@ void Scene_PhysicsTest::sDoAction(const Action& action)
 
     if (action.name == "DUNGEON_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("DungeonTest");
 
+    if (action.name == "START" && action.type == Action::ActionType::START && NetworkManager::isServer) spawnBallServer();
+
     sInput();
 }
 
-void Scene_PhysicsTest::spawnNewBall()
+enum PhysicsSceneNetworkEvents
+{
+    SPAWN_BALL
+};
+
+void Scene_PhysicsTest::handlePacket(sf::Packet& packet)
+{
+    int eventType;
+    packet >> eventType;
+    if (eventType == SPAWN_BALL)
+    {
+        spawnBallClient(packet);
+    }
+}
+
+void Scene_PhysicsTest::spawnBallServer()
 {
     int xVel = rand() % 2 == 1 ? 1 : -1;
     int yVel = rand() % 2 == 1 ? 1 : -1;
     std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
-    ball->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE));
+    std::shared_ptr<CTransform> transform = ball->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE));
     ball->addComponent<CSprite>(_assets->getTexture("Ball"));
     ball->addComponent<CRectCollider>(Rect(ball->getComponent<CTransform>()->position.x, ball->getComponent<CTransform>()->position.y, Settings::BALL_SIZE, Settings::BALL_SIZE));
     ball->addComponent<CPhysicsBody>(Vector2(Settings::BALL_START_SPEED * xVel, Settings::BALL_START_SPEED * yVel), true);
+    ball->addComponent<CNetworkTransform>(transform->position);
+    sf::Packet packet;
+    packet << NetworkManager::PacketType::SCENE_EVENT << SPAWN_BALL << ball->id() << transform->position;
+    _engine->sendToAllClients(packet);
+}
+
+void Scene_PhysicsTest::spawnBallClient(sf::Packet& packet)
+{
+    size_t id;
+    Vector2 pos;
+    packet >> id >> pos;
+    std::shared_ptr<Entity> ball = _entities.addEntity(id, "Ball");
+    ball->addComponent<CTransform>(pos, Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE));
+    ball->addComponent<CSprite>(_assets->getTexture("Ball"));
+    ball->addComponent<CNetworkTransform>(pos);
 }
 
 void Scene_PhysicsTest::spawnWall(Rect rect)

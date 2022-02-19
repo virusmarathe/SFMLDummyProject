@@ -13,6 +13,7 @@
 #include "Components/CShapeLine.h"
 #include "Components/CDamage.h"
 #include "Components/CHealth.h"
+#include "Components/CNetworkTransform.h"
 #include <tuple>
 
 typedef std::tuple<
@@ -28,7 +29,8 @@ typedef std::tuple<
 	std::shared_ptr<CShapeRect>,
 	std::shared_ptr<CShapeLine>,
 	std::shared_ptr<CDamage>,
-	std::shared_ptr<CHealth>
+	std::shared_ptr<CHealth>,
+	std::shared_ptr<CNetworkTransform>
 > ComponentTuple;
 
 class Entity

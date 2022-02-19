@@ -13,6 +13,14 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 	return e;
 }
 
+std::shared_ptr<Entity> EntityManager::addEntity(size_t id, const std::string& tag)
+{
+	auto e = std::shared_ptr<Entity>(new Entity(id, tag));
+	_entitiesToAdd.push_back(e);
+	_totalEntities++;
+	return e;
+}
+
 EntityList& EntityManager::getEntities(const std::string& tag)
 {
 	if (_entityMap.find(tag) != _entityMap.end())

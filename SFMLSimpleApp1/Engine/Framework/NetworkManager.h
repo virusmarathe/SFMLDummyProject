@@ -32,6 +32,7 @@ public:
 	{
 		CONNECT_REQUEST,
 		CONNECT_CONFIRM,
+		SCENE_EVENT,
 		TRANSFORM
 	};	
 

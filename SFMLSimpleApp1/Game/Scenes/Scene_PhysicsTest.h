@@ -12,12 +12,15 @@ public:
 
 	virtual void sDoAction(const Action& action) override;
 
+	virtual void handlePacket(sf::Packet& packet) override;
+
 private:
 
 	void sInput();
 	void sHandleCollision(float dt);
 
-	void spawnNewBall();
+	void spawnBallServer();
+	void spawnBallClient(sf::Packet& packet);
 	void spawnWall(Rect rect);
 	std::shared_ptr<Entity> spawnPlayer(Vector2 pos, int playerNum);
 
@@ -31,6 +34,5 @@ private:
 	std::shared_ptr<Entity> _player2Goal;
 	int _player1Score;
 	int _player2Score;
-	Vector2 _lastPosition;
 };
 

@@ -100,9 +100,13 @@ void NetworkManager::receive()
                 {
                     _engineRef->onClientConnected();
                 }
+                else if (pType == SCENE_EVENT)
+                {
+                    _engineRef->handleScenePacket(packet);
+                }
                 else if (pType == TRANSFORM)
                 {
-                    _engineRef->handlePacket(packet);
+                    _engineRef->handleTransformPacket(packet);
                 }
             }
         }

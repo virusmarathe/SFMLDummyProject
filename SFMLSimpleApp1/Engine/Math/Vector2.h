@@ -18,6 +18,7 @@ struct Vector2 {
 	Vector2 operator-(const Vector2& rhs) const { return Vector2(x - rhs.x, y - rhs.y); }
 	Vector2 operator/(const float scale) const { return Vector2(x / scale, y / scale); }
 	bool operator==(const Vector2& rhs) const { return x == rhs.x && y == rhs.y; }
+	bool operator!=(const Vector2& rhs) const { return x != rhs.x || y != rhs.y; }
 	Vector2& operator+=(const Vector2& rhs) 
 	{
 		x += rhs.x;

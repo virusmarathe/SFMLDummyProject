@@ -85,7 +85,7 @@ void GameEngine::sendToAllClients(sf::Packet& packet)
     _networkManager.sendToAllClients(packet);
 }
 
-void GameEngine::handlePacket(sf::Packet packet)
+void GameEngine::handleTransformPacket(sf::Packet& packet)
 {
     size_t entID;
     Vector2 vec;
@@ -93,8 +93,13 @@ void GameEngine::handlePacket(sf::Packet packet)
     std::shared_ptr<Entity> ent = _currentScene->getEntity(entID);
     if (ent)
     {
-        ent->getComponent<CTransform>()->position = vec;
+        ent->getComponent<CNetworkTransform>()->position = vec;
     }
+}
+
+void GameEngine::handleScenePacket(sf::Packet& packet)
+{
+    _currentScene->handlePacket(packet);
 }
 
 void GameEngine::onClientConnected()

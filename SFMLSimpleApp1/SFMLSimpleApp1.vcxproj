@@ -165,6 +165,7 @@
     <ClInclude Include="Engine\Components\CCollisionEvent.h" />
     <ClInclude Include="Engine\Components\CDamage.h" />
     <ClInclude Include="Engine\Components\CHealth.h" />
+    <ClInclude Include="Engine\Components\CNetworkTransform.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\CPhysicsAnimator.h" />
     <ClInclude Include="Engine\Components\CShapeLine.h" />
@@ -193,6 +194,7 @@
     <ClInclude Include="Engine\System\SMovement.h" />
     <ClInclude Include="Engine\System\SPhysics.h" />
     <ClInclude Include="Engine\System\SRender.h" />
+    <ClInclude Include="Engine\System\STransformSync.h" />
     <ClInclude Include="Engine\System\System.h" />
     <ClInclude Include="Engine\Framework\Primitives.h" />
     <ClInclude Include="Engine\Framework\NetworkManager.h" />
