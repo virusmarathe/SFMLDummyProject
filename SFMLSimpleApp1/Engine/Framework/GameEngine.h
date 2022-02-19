@@ -38,6 +38,8 @@ public:
 	void playBGMusic(std::string name);
 	void playSound(std::string name);
 	void registerSystem(std::shared_ptr<System> system) { _systems.push_back(system); }
+	void host();
+	void connect();
 
 	std::shared_ptr<Assets> getAssets() { return _assets; }
 	static bool DEBUG_MODE;
@@ -59,5 +61,6 @@ private:
 	int _soundIndex = 0;
 	std::vector<std::shared_ptr<System>> _systems;
 	NetworkManager _networkManager;
+	bool _isNetworked = false;
 };
 

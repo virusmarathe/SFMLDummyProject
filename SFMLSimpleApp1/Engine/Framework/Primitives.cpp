@@ -49,3 +49,11 @@ std::shared_ptr<Entity> Primitives::ScaledSprite(Rect rect, sf::Texture& texture
 
 	return e1;
 }
+
+std::shared_ptr<Entity> Primitives::DrawText(const char* text, Vector2 pos, sf::Font& font, float fontSize, sf::Color color)
+{
+	auto ent = _entities->addEntity("PrimitiveText");
+	ent->addComponent<CTransform>(pos);
+	ent->addComponent<CText>(text, font, fontSize, color);
+	return ent;
+}

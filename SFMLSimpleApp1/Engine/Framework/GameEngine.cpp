@@ -16,8 +16,6 @@ void GameEngine::init(std::string gameName, unsigned int windowWidth, unsigned i
     // load resources
     _assets = std::make_shared<Assets>();
     _assets->loadAssets(resourcePath);
-
-    _networkManager.bindSocket();
 }
 
 void GameEngine::run()
@@ -42,11 +40,6 @@ void GameEngine::changeScene(std::string name)
 {
     if (_scenesMap.find(name) != _scenesMap.end())
     {
-        sf::Packet packet;
-        packet << name;
-        packet << Vector2(100, 30);
-        _networkManager.send(packet);
-
         _actionMap.clear();
         _systems.clear();
         _currentScene = _scenesMap[name];
@@ -73,9 +66,21 @@ void GameEngine::playSound(std::string name)
     if (_soundIndex >= 10) _soundIndex = 0;
 }
 
+void GameEngine::host()
+{
+    _networkManager.host();
+    _isNetworked = true;
+}
+
+void GameEngine::connect()
+{
+    _networkManager.connect();
+    _isNetworked = true;
+}
+
 void GameEngine::update()
 {
-    _networkManager.receive();
+    if (_isNetworked) _networkManager.receive();
     _currentScene->updateEntityList();
     sf::Time deltaTime = _updateTimer.restart();
 

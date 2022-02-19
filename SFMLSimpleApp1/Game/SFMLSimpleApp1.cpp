@@ -5,6 +5,7 @@
 #include "Framework/GameEngine.h"
 #include "Scenes/Scene_PhysicsTest.h"
 #include "Scenes/Scene_DungeonTest.h"
+#include "Scenes/Scene_Menu.h"
 
 int main()
 {
@@ -13,7 +14,8 @@ int main()
     engine.init("Rat Engine Tests!", Settings::WINDOW_WIDTH, Settings::WINDOW_HEIGHT, "resources/resources.asset");
     engine.registerScene("PhysicsTest", std::make_shared<Scene_PhysicsTest>());
     engine.registerScene("DungeonTest", std::make_shared<Scene_DungeonTest>());
-    engine.changeScene("DungeonTest");
+    engine.registerScene("Menu", std::make_shared<Scene_Menu>());
+    engine.changeScene("Menu");
     engine.run();
 
     return 0;
