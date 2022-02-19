@@ -12,6 +12,8 @@ public:
 
 	virtual void sDoAction(const Action& action) override;
 
+	virtual void onClientConnected() override;
+
 private:
 
 	std::shared_ptr<Assets> _assets;

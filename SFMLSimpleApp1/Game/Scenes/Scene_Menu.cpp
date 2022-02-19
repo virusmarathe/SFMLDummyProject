@@ -35,6 +35,10 @@ void Scene_Menu::sDoAction(const Action& action)
 	{
 		std::cout << "Joining a game!" << std::endl;
 		_engine->connect();
-		std::cout << "Does this print first?";
 	}
+}
+
+void Scene_Menu::onClientConnected()
+{
+	_engine->changeScene("PhysicsTest");
 }

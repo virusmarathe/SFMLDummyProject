@@ -38,8 +38,15 @@ public:
 	void playBGMusic(std::string name);
 	void playSound(std::string name);
 	void registerSystem(std::shared_ptr<System> system) { _systems.push_back(system); }
+
+	// networking
 	void host();
 	void connect();
+	void sendToAllClients(sf::Packet& packet);
+	void handlePacket(sf::Packet packet);
+
+	// events
+	void onClientConnected();
 
 	std::shared_ptr<Assets> getAssets() { return _assets; }
 	static bool DEBUG_MODE;

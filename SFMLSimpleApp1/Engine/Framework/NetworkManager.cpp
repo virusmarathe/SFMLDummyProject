@@ -2,11 +2,17 @@
 #include "../../Game/Settings.h"
 #include <iostream>
 #include "Math/Vector2.h"
+#include "GameEngine.h"
 
 #define LOCAL_TEST 1
 
 bool NetworkManager::isClient = false;
 bool NetworkManager::isServer = false;
+
+void NetworkManager::init(GameEngine* engineRef)
+{
+    _engineRef = engineRef;
+}
 
 void NetworkManager::host()
 {
@@ -55,6 +61,14 @@ void NetworkManager::sendToClient(sf::Packet packet, Connection& connection)
     if (_serverSocket.send(packet, connection.address, connection.port) != sf::Socket::Done) { std::cout << "Error sending packet!"; }
 }
 
+void NetworkManager::sendToAllClients(sf::Packet& packet)
+{
+    for (int i = 0; i < _clients.size(); i++)
+    {
+        sendToClient(packet, _clients[i]);
+    }
+}
+
 void NetworkManager::receive()
 {
     sf::IpAddress sender;
@@ -67,19 +81,29 @@ void NetworkManager::receive()
         std::string sceneName;
         if (packet >> pType)
         {
-            if (pType == CONNECT_REQUEST && isServer)
+            if (isServer)
             {
-                unsigned short clientPort;
-                packet >> clientPort;
-                std::cout << "Client " << sender.getPublicAddress() << " connected using port " << clientPort << std::endl;
-                _clients.push_back(Connection(sender, clientPort));
-                sf::Packet pack;
-                pack << CONNECT_CONFIRM << sender.getPublicAddress().toString();
-                sendToClient(pack, _clients[_clients.size()-1]);
+                if (pType == CONNECT_REQUEST)
+                {
+                    unsigned short clientPort;
+                    packet >> clientPort;
+                    std::cout << "Client " << sender.getPublicAddress() << " connected using port " << clientPort << std::endl;
+                    _clients.push_back(Connection(sender, clientPort));
+                    sf::Packet pack;
+                    pack << CONNECT_CONFIRM << sender.getPublicAddress().toString();
+                    sendToClient(pack, _clients[_clients.size() - 1]);
+                }
             }
-            else if (pType == CONNECT_CONFIRM && isClient)
+            if (isClient)
             {
-                std::cout << "Successfully connected to server!";
+                if (pType == CONNECT_CONFIRM)
+                {
+                    _engineRef->onClientConnected();
+                }
+                else if (pType == TRANSFORM)
+                {
+                    _engineRef->handlePacket(packet);
+                }
             }
         }
     }

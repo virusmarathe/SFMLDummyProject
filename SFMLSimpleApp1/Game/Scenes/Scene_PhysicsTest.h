@@ -31,5 +31,6 @@ private:
 	std::shared_ptr<Entity> _player2Goal;
 	int _player1Score;
 	int _player2Score;
+	Vector2 _lastPosition;
 };
 

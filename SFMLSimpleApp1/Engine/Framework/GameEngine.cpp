@@ -16,6 +16,8 @@ void GameEngine::init(std::string gameName, unsigned int windowWidth, unsigned i
     // load resources
     _assets = std::make_shared<Assets>();
     _assets->loadAssets(resourcePath);
+
+    _networkManager.init(this);
 }
 
 void GameEngine::run()
@@ -76,6 +78,28 @@ void GameEngine::connect()
 {
     _networkManager.connect();
     _isNetworked = true;
+}
+
+void GameEngine::sendToAllClients(sf::Packet& packet)
+{
+    _networkManager.sendToAllClients(packet);
+}
+
+void GameEngine::handlePacket(sf::Packet packet)
+{
+    size_t entID;
+    Vector2 vec;
+    packet >> entID >> vec;
+    std::shared_ptr<Entity> ent = _currentScene->getEntity(entID);
+    if (ent)
+    {
+        ent->getComponent<CTransform>()->position = vec;
+    }
+}
+
+void GameEngine::onClientConnected()
+{
+    _currentScene->onClientConnected();
 }
 
 void GameEngine::update()

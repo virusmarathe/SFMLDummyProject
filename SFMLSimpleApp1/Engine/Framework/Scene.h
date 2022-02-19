@@ -11,9 +11,12 @@ public:
 	virtual void init() = 0;
 	virtual void update(float dt) = 0;
 	virtual void sDoAction(const Action& action) = 0;
+	virtual void onClientConnected() {}
 	void updateEntityList() { _entities.update(); }
 
 	void setEngineRefs(GameEngine* engine, sf::RenderWindow* window);
+
+	std::shared_ptr<Entity> getEntity(size_t id) { return _entities[id]; }
 
 protected:
 	GameEngine* _engine = nullptr;

@@ -7,6 +7,7 @@
 #include "System/SMovement.h"
 #include "System/SPhysics.h"
 #include "Framework/Primitives.h"
+#include "SFML/Network.hpp"
 
 void Scene_PhysicsTest::init()
 {
@@ -76,6 +77,24 @@ void Scene_PhysicsTest::update(float dt)
     {
         spawnNewBall();
         _ballTimer = 0;
+    }
+
+    if (NetworkManager::isServer)
+    {
+        sf::Packet pack;
+        pack << NetworkManager::PacketType::TRANSFORM;
+        Vector2 pos;
+        for (auto ent : _entities.getEntities("Player"))
+        {
+            pos = ent->getComponent<CTransform>()->position;
+            pack << ent->id() << pos;
+            break;
+        }
+        if (!(pos == _lastPosition))
+        {
+            _lastPosition = pos;
+            _engine->sendToAllClients(pack);
+        }
     }
 }
 

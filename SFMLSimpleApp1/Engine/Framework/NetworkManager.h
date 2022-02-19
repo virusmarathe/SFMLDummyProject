@@ -3,6 +3,8 @@
 #include <map>
 #include <vector>
 
+class GameEngine;
+
 class NetworkManager
 {
 public:
@@ -15,10 +17,12 @@ public:
 		Connection(sf::IpAddress ip, unsigned short port) : address(ip), port(port) {}
 	};
 
+	void init(GameEngine* engineRef);
 	void host();
 	void connect();
 	void sendToServer(sf::Packet packet);
 	void sendToClient(sf::Packet packet, Connection& connection);
+	void sendToAllClients(sf::Packet& packet);
 	void receive();
 
 	static bool isClient;
@@ -27,7 +31,8 @@ public:
 	enum PacketType
 	{
 		CONNECT_REQUEST,
-		CONNECT_CONFIRM
+		CONNECT_CONFIRM,
+		TRANSFORM
 	};	
 
 private:
@@ -35,5 +40,6 @@ private:
 
 	sf::UdpSocket _serverSocket;
 	std::vector<Connection> _clients;
+	GameEngine* _engineRef;
 };
 
