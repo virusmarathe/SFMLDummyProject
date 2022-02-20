@@ -70,6 +70,6 @@ struct Vector2 {
 		return (vecB - vecA).magnitudeSqr();
 	}
 
-	friend sf::Packet& operator<< (sf::Packet& packet, const Vector2& vec);
-	friend sf::Packet& operator>> (sf::Packet& packet, Vector2& vec);
+	friend sf::Packet& operator<< (sf::Packet& packet, const Vector2& vec) { return packet << vec.x << vec.y; }
+	friend sf::Packet& operator>> (sf::Packet& packet, Vector2& vec) { return packet >> vec.x >> vec.y; }
 };

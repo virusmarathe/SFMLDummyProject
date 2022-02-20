@@ -146,7 +146,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine\DataStructures\Graph.cpp" />
-    <ClCompile Include="Engine\Math\Vector2.cpp" />
     <ClCompile Include="Engine\Resources\Assets.cpp" />
     <ClCompile Include="Engine\Entity\EntityManager.cpp" />
     <ClCompile Include="Engine\Framework\GameEngine.cpp" />

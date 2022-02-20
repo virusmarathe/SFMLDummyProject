@@ -45,9 +45,6 @@
     <ClCompile Include="Game\Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Math\Vector2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Framework\NetworkManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
