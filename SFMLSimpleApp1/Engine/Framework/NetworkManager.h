@@ -2,6 +2,7 @@
 #include "SFML/Network.hpp"
 #include <map>
 #include <vector>
+#include "Entity/EntityManager.h"
 
 class GameEngine;
 
@@ -26,12 +27,15 @@ public:
 	void sendToClient(sf::Packet packet, Connection& connection);
 	void sendToAllClients(sf::Packet& packet);
 	void addToUpdatePacket(sf::Packet& packet);
-	void serverDestroyEntity(size_t entID);
+	void serverDestroyEntity(unsigned int netID);
+	std::shared_ptr<Entity> serverCreateEntity(EntityManager* entities, std::string tag);
+	void clientAddNetID(unsigned int netID, std::shared_ptr<Entity> ent) { _netIDToEntityMap[netID] = ent; }
 	void receive();
 	void update(float dt);
 
 	static bool isClient;
 	static bool isServer;
+	static unsigned int nextNetID;
 
 	enum PacketType
 	{
@@ -50,5 +54,6 @@ private:
 	GameEngine* _engineRef;
 	float _networkTimer = 0;
 	sf::Packet _updatePacket;
+	std::map<unsigned int, std::shared_ptr<Entity>> _netIDToEntityMap;
 };
 

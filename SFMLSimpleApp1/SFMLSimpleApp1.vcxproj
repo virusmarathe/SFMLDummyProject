@@ -165,6 +165,7 @@
     <ClInclude Include="Engine\Components\CCollisionEvent.h" />
     <ClInclude Include="Engine\Components\CDamage.h" />
     <ClInclude Include="Engine\Components\CHealth.h" />
+    <ClInclude Include="Engine\Components\CNetID.h" />
     <ClInclude Include="Engine\Components\CNetworkTransform.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\CPhysicsAnimator.h" />

@@ -3,11 +3,13 @@
 #include <iostream>
 #include "Math/Vector2.h"
 #include "GameEngine.h"
+#include "Entity/Entity.h"
 
 #define LOCAL_TEST 1
 
 bool NetworkManager::isClient = false;
 bool NetworkManager::isServer = false;
+unsigned int NetworkManager::nextNetID = 0;
 
 void NetworkManager::init(GameEngine* engineRef)
 {
@@ -74,14 +76,25 @@ void NetworkManager::addToUpdatePacket(sf::Packet& packet)
     _updatePacket.append(packet.getData(), packet.getDataSize());
 }
 
-void NetworkManager::serverDestroyEntity(size_t entID)
+void NetworkManager::serverDestroyEntity(unsigned int netID)
 {
+    _netIDToEntityMap[netID]->destroy();
+    _netIDToEntityMap.erase(netID);
     sf::Packet pack;
-    pack << DESTROY_ENT << entID;
+    pack << DESTROY_ENT << netID;
     sendToAllClients(pack);
     sendToAllClients(pack);
     sendToAllClients(pack);
     // send 3 destroys in case one misses
+}
+
+std::shared_ptr<Entity> NetworkManager::serverCreateEntity(EntityManager* entities, std::string tag)
+{
+    auto ent = entities->addEntity(tag);
+    unsigned int netID = nextNetID++;
+    ent->addComponent<CNetID>(netID);
+    _netIDToEntityMap[netID] = ent;
+    return ent;
 }
 
 void NetworkManager::receive()
@@ -121,13 +134,25 @@ void NetworkManager::receive()
                 }
                 else if (pType == TRANSFORM)
                 {
-                    _engineRef->handleTransformPacket(packet);
+                    unsigned int netID;
+                    Vector2 pos, vel;
+                    packet >> netID >> pos >> vel;
+                    std::shared_ptr<Entity> ent = _netIDToEntityMap[netID];
+                    if (ent)
+                    {
+                        ent->getComponent<CNetworkTransform>()->position = pos;
+                        ent->getComponent<CNetworkTransform>()->velocity = vel;
+                    }
                 }
                 else if (pType == DESTROY_ENT)
                 {
-                    size_t id;
+                    unsigned int id;
                     packet >> id;
-                    _engineRef->networkDestroy(id);
+                    if (_netIDToEntityMap.find(id) != _netIDToEntityMap.end())
+                    {
+                        _netIDToEntityMap[id]->destroy();
+                        _netIDToEntityMap.erase(id);
+                    }
                 }
             }
         }

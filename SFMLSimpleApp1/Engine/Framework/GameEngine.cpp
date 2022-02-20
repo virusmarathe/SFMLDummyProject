@@ -90,27 +90,6 @@ void GameEngine::updatePacket(sf::Packet& packet)
     _networkManager.addToUpdatePacket(packet);
 }
 
-void GameEngine::handleTransformPacket(sf::Packet& packet)
-{
-    size_t entID;
-    Vector2 pos, vel;
-    packet >> entID >> pos >> vel;
-    std::shared_ptr<Entity> ent = _currentScene->getEntity(entID);
-    if (ent)
-    {
-        ent->getComponent<CNetworkTransform>()->position = pos;
-        ent->getComponent<CNetworkTransform>()->velocity = vel;
-    }
-}
-
-void GameEngine::networkDestroy(size_t entID)
-{
-    if (_currentScene->getEntity(entID))
-    {
-        _currentScene->getEntity(entID)->destroy();
-    }
-}
-
 void GameEngine::handleScenePacket(sf::Packet& packet)
 {
     _currentScene->handlePacket(packet);

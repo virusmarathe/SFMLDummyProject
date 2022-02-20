@@ -15,7 +15,6 @@ public:
 	EntityManager();
 
 	std::shared_ptr<Entity> addEntity(const std::string& tag);
-	std::shared_ptr<Entity> addEntity(size_t id, const std::string& tag);
 
 	EntityList& getEntities() { return _entityList; }
 	EntityList& getEntities(const std::string& tag);

@@ -15,13 +15,17 @@ public:
 		{
 			for (auto ent : _entities->getEntities())
 			{
-				if (ent->hasComponent<CNetworkTransform>() && ent->isValid())
+				if (ent->hasComponent<CNetworkTransform>() && ent->hasComponent<CNetID>() && ent->isValid())
 				{
 					std::shared_ptr<CNetworkTransform> netTransform = ent->getComponent<CNetworkTransform>();
 					netTransform->position = ent->getComponent<CTransform>()->position;
 					sf::Packet pack;
-					pack << NetworkManager::PacketType::TRANSFORM << ent->id() << netTransform->position;
-					if (ent->hasComponent<CPhysicsBody>()) pack << ent->getComponent<CPhysicsBody>()->velocity;
+					pack << NetworkManager::PacketType::TRANSFORM << ent->getComponent<CNetID>()->netID << netTransform->position;
+					if (ent->hasComponent<CPhysicsBody>())
+					{
+						netTransform->velocity = ent->getComponent<CPhysicsBody>()->velocity;
+						pack << netTransform->velocity;
+					}
 					else pack << Vector2();
 					_engine->updatePacket(pack);
 				}

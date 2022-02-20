@@ -122,28 +122,30 @@ void Scene_PhysicsTest::spawnBallServer()
 {
     int xVel = rand() % 2 == 1 ? 1 : -1;
     int yVel = rand() % 2 == 1 ? 1 : -1;
-    std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
+    std::shared_ptr<Entity> ball = _engine->getNetManager()->serverCreateEntity(&_entities, "Ball");
     std::shared_ptr<CTransform> transform = ball->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE));
     ball->addComponent<CSprite>(_assets->getTexture("Ball"));
     ball->addComponent<CRectCollider>(Rect(ball->getComponent<CTransform>()->position.x, ball->getComponent<CTransform>()->position.y, Settings::BALL_SIZE, Settings::BALL_SIZE));
     ball->addComponent<CPhysicsBody>(Vector2(Settings::BALL_START_SPEED * xVel, Settings::BALL_START_SPEED * yVel), true);
     ball->addComponent<CNetworkTransform>(transform->position);
     sf::Packet packet;
-    packet << NetworkManager::PacketType::SCENE_EVENT << SPAWN_BALL << ball->id() << transform->position;
+    packet << NetworkManager::PacketType::SCENE_EVENT << SPAWN_BALL << ball->getComponent<CNetID>()->netID << transform->position;
     _engine->sendToAllClients(packet);
 }
 
 void Scene_PhysicsTest::spawnBallClient(sf::Packet& packet)
 {
-    size_t id;
+    unsigned int netID;
     Vector2 pos;
-    packet >> id >> pos;
-    std::shared_ptr<Entity> ball = _entities.addEntity(id, "Ball");
+    packet >> netID >> pos;
+    std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
     ball->addComponent<CTransform>(pos, Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE));
     ball->addComponent<CSprite>(_assets->getTexture("Ball"));
     ball->addComponent<CRectCollider>(Rect(ball->getComponent<CTransform>()->position.x, ball->getComponent<CTransform>()->position.y, Settings::BALL_SIZE, Settings::BALL_SIZE));
     ball->addComponent<CPhysicsBody>(Vector2(), true);
     ball->addComponent<CNetworkTransform>(pos);
+    ball->addComponent<CNetID>(netID);
+    _engine->getNetManager()->clientAddNetID(netID, ball);
 }
 
 void Scene_PhysicsTest::spawnWall(Rect rect)
@@ -161,7 +163,6 @@ std::shared_ptr<Entity> Scene_PhysicsTest::spawnPlayer(Vector2 pos, int playerNu
     player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
     player->addComponent<CPhysicsBody>();
     player->addComponent<CInput>();
-    player->addComponent<CNetworkTransform>(pos);
 
     return player;
 }
@@ -195,18 +196,21 @@ void Scene_PhysicsTest::sHandleCollision(float dt)
         {
             if (cEvent->ent2->tag() == "Goal")
             {
-                if (cEvent->ent2 == _player2Goal)
+                if (NetworkManager::isServer)
                 {
-                     std::string scoreString = "Player 1: " + std::to_string(++_player1Score);
-                    _player1ScoreBoard->getComponent<CText>()->text.setString(scoreString);
+                    if (cEvent->ent2 == _player2Goal)
+                    {
+                        std::string scoreString = "Player 1: " + std::to_string(++_player1Score);
+                        _player1ScoreBoard->getComponent<CText>()->text.setString(scoreString);
+                    }
+                    else
+                    {
+                        std::string scoreString = "Player 2: " + std::to_string(++_player2Score);
+                        _player2ScoreBoard->getComponent<CText>()->text.setString(scoreString);
+                    }
+                    _engine->getNetManager()->serverDestroyEntity(cEvent->ent1->getComponent<CNetID>()->netID);
+                    cEvent->ent1->getComponent<CRectCollider>()->enabled = false;
                 }
-                else
-                {
-                    std::string scoreString = "Player 2: " + std::to_string(++_player2Score);
-                    _player2ScoreBoard->getComponent<CText>()->text.setString(scoreString);
-                }
-                cEvent->ent1->destroy(_engine->getNetManager());
-                cEvent->ent1->getComponent<CRectCollider>()->enabled = false;
             }
             else
             {
