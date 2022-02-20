@@ -85,15 +85,29 @@ void GameEngine::sendToAllClients(sf::Packet& packet)
     _networkManager.sendToAllClients(packet);
 }
 
+void GameEngine::updatePacket(sf::Packet& packet)
+{
+    _networkManager.addToUpdatePacket(packet);
+}
+
 void GameEngine::handleTransformPacket(sf::Packet& packet)
 {
     size_t entID;
-    Vector2 vec;
-    packet >> entID >> vec;
+    Vector2 pos, vel;
+    packet >> entID >> pos >> vel;
     std::shared_ptr<Entity> ent = _currentScene->getEntity(entID);
     if (ent)
     {
-        ent->getComponent<CNetworkTransform>()->position = vec;
+        ent->getComponent<CNetworkTransform>()->position = pos;
+        ent->getComponent<CNetworkTransform>()->velocity = vel;
+    }
+}
+
+void GameEngine::networkDestroy(size_t entID)
+{
+    if (_currentScene->getEntity(entID))
+    {
+        _currentScene->getEntity(entID)->destroy();
     }
 }
 
@@ -109,7 +123,10 @@ void GameEngine::onClientConnected()
 
 void GameEngine::update()
 {
-    if (_isNetworked) _networkManager.receive();
+    if (_isNetworked)
+    {
+        _networkManager.receive();
+    }
     _currentScene->updateEntityList();
     sf::Time deltaTime = _updateTimer.restart();
 
@@ -120,6 +137,11 @@ void GameEngine::update()
         {
             system->update(deltaTime.asSeconds());
         }
+    }
+
+    if (_isNetworked)
+    {
+        _networkManager.update(deltaTime.asSeconds());
     }
 }
 

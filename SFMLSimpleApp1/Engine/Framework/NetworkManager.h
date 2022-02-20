@@ -5,6 +5,8 @@
 
 class GameEngine;
 
+const double NETWORK_SEND_RATE = 0.03;
+
 class NetworkManager
 {
 public:
@@ -23,7 +25,10 @@ public:
 	void sendToServer(sf::Packet packet);
 	void sendToClient(sf::Packet packet, Connection& connection);
 	void sendToAllClients(sf::Packet& packet);
+	void addToUpdatePacket(sf::Packet& packet);
+	void serverDestroyEntity(size_t entID);
 	void receive();
+	void update(float dt);
 
 	static bool isClient;
 	static bool isServer;
@@ -33,7 +38,8 @@ public:
 		CONNECT_REQUEST,
 		CONNECT_CONFIRM,
 		SCENE_EVENT,
-		TRANSFORM
+		TRANSFORM,
+		DESTROY_ENT
 	};	
 
 private:
@@ -42,5 +48,7 @@ private:
 	sf::UdpSocket _serverSocket;
 	std::vector<Connection> _clients;
 	GameEngine* _engineRef;
+	float _networkTimer = 0;
+	sf::Packet _updatePacket;
 };
 

@@ -6,7 +6,7 @@ class CNetworkTransform : public Component
 {
 public:
 	Vector2 position;
-	Vector2 lastPos;
+	Vector2 velocity;
 
-	CNetworkTransform(Vector2 pos) : position(pos), lastPos(pos) { }
+	CNetworkTransform(Vector2 pos) : position(pos) { }
 };

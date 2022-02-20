@@ -69,6 +69,21 @@ void NetworkManager::sendToAllClients(sf::Packet& packet)
     }
 }
 
+void NetworkManager::addToUpdatePacket(sf::Packet& packet)
+{
+    _updatePacket.append(packet.getData(), packet.getDataSize());
+}
+
+void NetworkManager::serverDestroyEntity(size_t entID)
+{
+    sf::Packet pack;
+    pack << DESTROY_ENT << entID;
+    sendToAllClients(pack);
+    sendToAllClients(pack);
+    sendToAllClients(pack);
+    // send 3 destroys in case one misses
+}
+
 void NetworkManager::receive()
 {
     sf::IpAddress sender;
@@ -79,7 +94,7 @@ void NetworkManager::receive()
     {
         int pType;
         std::string sceneName;
-        if (packet >> pType)
+        while (packet >> pType)
         {
             if (isServer)
             {
@@ -108,7 +123,27 @@ void NetworkManager::receive()
                 {
                     _engineRef->handleTransformPacket(packet);
                 }
+                else if (pType == DESTROY_ENT)
+                {
+                    size_t id;
+                    packet >> id;
+                    _engineRef->networkDestroy(id);
+                }
             }
+        }
+    }
+}
+
+void NetworkManager::update(float dt)
+{
+    if (isServer)
+    {
+        _networkTimer += dt;
+        if (_networkTimer >= NETWORK_SEND_RATE)
+        {
+            sendToAllClients(_updatePacket);
+            _updatePacket.clear();
+            _networkTimer = 0;
         }
     }
 }

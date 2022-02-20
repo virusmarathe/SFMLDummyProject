@@ -43,8 +43,11 @@ public:
 	void host();
 	void connect();
 	void sendToAllClients(sf::Packet& packet);
+	void updatePacket(sf::Packet& packet);
 	void handleScenePacket(sf::Packet& packet);
 	void handleTransformPacket(sf::Packet& packet);
+	void networkDestroy(size_t entID);
+	NetworkManager * getNetManager() { return &_networkManager; }
 
 	// events
 	void onClientConnected();

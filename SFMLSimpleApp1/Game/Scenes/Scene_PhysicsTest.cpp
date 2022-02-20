@@ -141,6 +141,8 @@ void Scene_PhysicsTest::spawnBallClient(sf::Packet& packet)
     std::shared_ptr<Entity> ball = _entities.addEntity(id, "Ball");
     ball->addComponent<CTransform>(pos, Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE));
     ball->addComponent<CSprite>(_assets->getTexture("Ball"));
+    ball->addComponent<CRectCollider>(Rect(ball->getComponent<CTransform>()->position.x, ball->getComponent<CTransform>()->position.y, Settings::BALL_SIZE, Settings::BALL_SIZE));
+    ball->addComponent<CPhysicsBody>(Vector2(), true);
     ball->addComponent<CNetworkTransform>(pos);
 }
 
@@ -159,6 +161,7 @@ std::shared_ptr<Entity> Scene_PhysicsTest::spawnPlayer(Vector2 pos, int playerNu
     player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
     player->addComponent<CPhysicsBody>();
     player->addComponent<CInput>();
+    player->addComponent<CNetworkTransform>(pos);
 
     return player;
 }
@@ -202,12 +205,12 @@ void Scene_PhysicsTest::sHandleCollision(float dt)
                     std::string scoreString = "Player 2: " + std::to_string(++_player2Score);
                     _player2ScoreBoard->getComponent<CText>()->text.setString(scoreString);
                 }
-                cEvent->ent1->destroy();
+                cEvent->ent1->destroy(_engine->getNetManager());
                 cEvent->ent1->getComponent<CRectCollider>()->enabled = false;
             }
             else
             {
-                _engine->playSound("BallBounce");
+                //_engine->playSound("BallBounce");
             }
         }
     }

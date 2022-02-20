@@ -15,17 +15,15 @@ public:
 		{
 			for (auto ent : _entities->getEntities())
 			{
-				if (ent->hasComponent<CNetworkTransform>())
+				if (ent->hasComponent<CNetworkTransform>() && ent->isValid())
 				{
 					std::shared_ptr<CNetworkTransform> netTransform = ent->getComponent<CNetworkTransform>();
 					netTransform->position = ent->getComponent<CTransform>()->position;
-					if (netTransform->position != netTransform->lastPos)
-					{
-						sf::Packet pack;
-						pack << NetworkManager::PacketType::TRANSFORM << ent->id() << netTransform->position;
-						_engine->sendToAllClients(pack);
-						netTransform->lastPos = netTransform->position;
-					}
+					sf::Packet pack;
+					pack << NetworkManager::PacketType::TRANSFORM << ent->id() << netTransform->position;
+					if (ent->hasComponent<CPhysicsBody>()) pack << ent->getComponent<CPhysicsBody>()->velocity;
+					else pack << Vector2();
+					_engine->updatePacket(pack);
 				}
 			}
 		}
@@ -33,9 +31,25 @@ public:
 		{
 			for (auto ent : _entities->getEntities())
 			{
-				if (ent->hasComponent<CNetworkTransform>())
+				if (ent->hasComponent<CNetworkTransform>() && ent->isValid())
 				{
-					ent->getComponent<CTransform>()->position = ent->getComponent<CNetworkTransform>()->position;
+					if (ent->hasComponent<CPhysicsBody>())
+					{
+						Vector2 pos = ent->getComponent<CTransform>()->position;
+						Vector2 desiredPos = ent->getComponent<CNetworkTransform>()->position;
+						if ((desiredPos - pos).magnitudeSqr() < 500)
+						{
+							ent->getComponent<CPhysicsBody>()->velocity = ent->getComponent<CNetworkTransform>()->velocity;
+						}
+						else
+						{
+							ent->getComponent<CPhysicsBody>()->velocity = (desiredPos - pos) * 10;
+						}
+					}
+					else
+					{
+						ent->getComponent<CTransform>()->position = ent->getComponent<CNetworkTransform>()->position;
+					}
 				}
 			}
 		}

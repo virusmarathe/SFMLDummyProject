@@ -15,6 +15,7 @@
 #include "Components/CHealth.h"
 #include "Components/CNetworkTransform.h"
 #include <tuple>
+#include "Framework/NetworkManager.h"
 
 typedef std::tuple<
 	std::shared_ptr<CTransform>,
@@ -42,7 +43,14 @@ public:
 	bool operator!=(const Entity& rhs) const { return _id != rhs._id; }
 	std::string tag() { return _tag; }
 	size_t id() { return _id; }
-	void destroy() { _valid = false; }
+	void destroy(NetworkManager * netRef = NULL)
+	{
+		_valid = false;
+		if (netRef)
+		{
+			netRef->serverDestroyEntity(_id);
+		}
+	}
 	bool isValid() { return _valid; }
 
 	template<typename T, typename... TArgs>
