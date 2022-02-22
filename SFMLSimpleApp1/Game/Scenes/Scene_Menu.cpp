@@ -38,7 +38,7 @@ void Scene_Menu::sDoAction(const Action& action)
 	}
 }
 
-void Scene_Menu::onClientConnected()
+void Scene_Menu::onClientReady(int clientID)
 {
 	_engine->changeScene("PhysicsTest");
 }

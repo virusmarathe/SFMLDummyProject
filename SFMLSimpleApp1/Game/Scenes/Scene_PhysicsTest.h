@@ -14,6 +14,9 @@ public:
 
 	virtual void handlePacket(sf::Packet& packet) override;
 
+	virtual void onClientConnectedToServer(int clientID) override;
+
+
 private:
 
 	void sInput();
@@ -22,12 +25,12 @@ private:
 	void spawnBallServer();
 	void spawnBallClient(sf::Packet& packet);
 	void spawnWall(Rect rect);
-	std::shared_ptr<Entity> spawnPlayer(Vector2 pos, int playerNum);
+	void spawnPlayerServer(Vector2 pos, int clientID);
+	void spawnPlayerClient(sf::Packet& packet);
 
 	std::shared_ptr<Assets> _assets;
 	float _ballTimer = 0;
-	std::shared_ptr<Entity> _player1Entity;
-	std::shared_ptr<Entity> _player2Entity;
+	std::shared_ptr<Entity> _playerEntity;
 	std::shared_ptr<Entity> _player1ScoreBoard;
 	std::shared_ptr<Entity> _player2ScoreBoard;
 	std::shared_ptr<Entity> _player1Goal;

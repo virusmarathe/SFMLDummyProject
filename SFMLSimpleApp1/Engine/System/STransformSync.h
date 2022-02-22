@@ -41,13 +41,14 @@ public:
 					{
 						Vector2 pos = ent->getComponent<CTransform>()->position;
 						Vector2 desiredPos = ent->getComponent<CNetworkTransform>()->position;
-						if ((desiredPos - pos).magnitudeSqr() < 500)
+						float distSqr = (desiredPos - pos).magnitudeSqr();
+						if (distSqr < 500)
 						{
 							ent->getComponent<CPhysicsBody>()->velocity = ent->getComponent<CNetworkTransform>()->velocity;
 						}
 						else
 						{
-							ent->getComponent<CPhysicsBody>()->velocity = (desiredPos - pos) * 10;
+							ent->getComponent<CTransform>()->position = ent->getComponent<CNetworkTransform>()->position;
 						}
 					}
 					else

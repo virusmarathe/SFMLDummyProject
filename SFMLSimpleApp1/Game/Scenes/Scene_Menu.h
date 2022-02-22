@@ -12,7 +12,7 @@ public:
 
 	virtual void sDoAction(const Action& action) override;
 
-	virtual void onClientConnected() override;
+	virtual void onClientReady(int clientID) override;
 
 private:
 

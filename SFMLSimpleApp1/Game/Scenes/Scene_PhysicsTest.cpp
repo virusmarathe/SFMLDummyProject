@@ -31,8 +31,10 @@ void Scene_PhysicsTest::init()
     spawnWall(Rect(-50, 0, 50, (float)_window->getSize().y));
     spawnWall(Rect((float)_window->getSize().x, 0, 50, (float)_window->getSize().y));
 
-    _player1Entity = spawnPlayer(Vector2(200, 200), 0);
-    _player2Entity = spawnPlayer(Vector2(800, 400), 1);
+    if (NetworkManager::isServer)
+    {
+        spawnPlayerServer(Vector2(200.0f * (float)(rand() % 8), 200), NetworkManager::clientID);
+    }
 
     _player1ScoreBoard = _entities.addEntity("Score");
     _player1ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f - 100, 60));
@@ -46,19 +48,18 @@ void Scene_PhysicsTest::init()
 
     _ballTimer = 10;
 
+    std::string idText = "Client ID: " + std::to_string(NetworkManager::clientID);
+    Primitives::DrawText(idText.c_str(), Vector2(50,50), _assets->getFont("NormalUIFont"));
+
     auto camera = _entities.addEntity("Camera");
     camera->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(_window->getSize()));
 
     // will eventually be moved to a config file
     _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
-    _engine->registerAction(sf::Keyboard::W, "P1UP");
-    _engine->registerAction(sf::Keyboard::A, "P1LEFT");
-    _engine->registerAction(sf::Keyboard::S, "P1DOWN");
-    _engine->registerAction(sf::Keyboard::D, "P1RIGHT");
-    _engine->registerAction(sf::Keyboard::Up, "P2UP");
-    _engine->registerAction(sf::Keyboard::Left, "P2LEFT");
-    _engine->registerAction(sf::Keyboard::Right, "P2RIGHT");
-    _engine->registerAction(sf::Keyboard::Down, "P2DOWN");
+    _engine->registerAction(sf::Keyboard::W, "UP");
+    _engine->registerAction(sf::Keyboard::A, "LEFT");
+    _engine->registerAction(sf::Keyboard::S, "DOWN");
+    _engine->registerAction(sf::Keyboard::D, "RIGHT");
     _engine->registerAction(sf::Keyboard::Enter, "START");
 
     _engine->registerAction(sf::Keyboard::Num1, "DUNGEON_SCENE");
@@ -69,43 +70,42 @@ void Scene_PhysicsTest::init()
     _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
+
+    if (!NetworkManager::isServer)
+    {
+        sf::Packet packet;
+        packet << NetworkManager::PacketType::LATE_CONNECT_REQUEST << NetworkManager::clientID;
+        _engine->sendToServer(packet);
+    }
 }
 
 void Scene_PhysicsTest::update(float dt)
 {
     sHandleCollision(dt);
-
-   /* _ballTimer += dt;
-    if (_ballTimer >= 10)
-    {
-        spawnNewBall();
-        _ballTimer = 0;
-    }*/
+    sInput();
 }
 
 void Scene_PhysicsTest::sDoAction(const Action& action)
 {
     if (action.name == "PHYSICS_TOGGLE" && action.type == Action::ActionType::START) GameEngine::DEBUG_MODE = !GameEngine::DEBUG_MODE;
 
-    if (action.name == "P1UP") _player1Entity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
-    if (action.name == "P1LEFT") _player1Entity->getComponent<CInput>()->left = action.type == Action::ActionType::START;
-    if (action.name == "P1DOWN") _player1Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
-    if (action.name == "P1RIGHT") _player1Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
-    if (action.name == "P2UP") _player2Entity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
-    if (action.name == "P2LEFT") _player2Entity->getComponent<CInput>()->left = action.type == Action::ActionType::START;
-    if (action.name == "P2DOWN") _player2Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
-    if (action.name == "P2RIGHT") _player2Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
+    if (_playerEntity)
+    {
+        if (action.name == "UP") _playerEntity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
+        if (action.name == "LEFT") _playerEntity->getComponent<CInput>()->left = action.type == Action::ActionType::START;
+        if (action.name == "DOWN") _playerEntity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
+        if (action.name == "RIGHT") _playerEntity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
+    }
 
     if (action.name == "DUNGEON_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("DungeonTest");
 
     if (action.name == "START" && action.type == Action::ActionType::START && NetworkManager::isServer) spawnBallServer();
-
-    sInput();
 }
 
 enum PhysicsSceneNetworkEvents
 {
-    SPAWN_BALL
+    SPAWN_BALL,
+    SPAWN_PLAYER
 };
 
 void Scene_PhysicsTest::handlePacket(sf::Packet& packet)
@@ -116,6 +116,15 @@ void Scene_PhysicsTest::handlePacket(sf::Packet& packet)
     {
         spawnBallClient(packet);
     }
+    else if (eventType == SPAWN_PLAYER)
+    {
+        spawnPlayerClient(packet);
+    }
+}
+
+void Scene_PhysicsTest::onClientConnectedToServer(int clientID)
+{
+    spawnPlayerServer(Vector2(200.0f * (float)(rand() % 8), 500), clientID);
 }
 
 void Scene_PhysicsTest::spawnBallServer()
@@ -155,16 +164,46 @@ void Scene_PhysicsTest::spawnWall(Rect rect)
     wall->addComponent<CRectCollider>(rect);
 }
 
-std::shared_ptr<Entity> Scene_PhysicsTest::spawnPlayer(Vector2 pos, int playerNum)
+void Scene_PhysicsTest::spawnPlayerServer(Vector2 pos, int clientID)
 {
-    auto player = _entities.addEntity("Player");
+    auto player = _engine->getNetManager()->serverCreateEntity(&_entities, "Player");
+    player->getComponent<CNetID>()->ownerID = clientID;
     player->addComponent<CTransform>(pos);
     std::shared_ptr<CSprite> sprite = player->addComponent<CSprite>(_assets->getTexture("Paddle"));
     player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
     player->addComponent<CPhysicsBody>();
+    player->addComponent<CNetworkTransform>(pos);
     player->addComponent<CInput>();
+    if (clientID == NetworkManager::clientID)
+    {
+        _playerEntity = player;
+    }
+    sf::Packet packet;
+    packet << NetworkManager::PacketType::SCENE_EVENT << SPAWN_PLAYER << player->getComponent<CNetID>()->netID << pos << clientID;
+    _engine->sendToAllClients(packet);
+    _engine->addLateConnectPacket(packet);
+}
 
-    return player;
+void Scene_PhysicsTest::spawnPlayerClient(sf::Packet& packet)
+{
+    unsigned int netID;
+    int clientID;
+    Vector2 pos;
+    packet >> netID >> pos >> clientID;
+    if (clientID == NetworkManager::clientID && _playerEntity != nullptr) { return; } // don't spawn yourself twice
+    std::shared_ptr<Entity> player = _entities.addEntity("Player");
+    player->addComponent<CTransform>(pos);
+    std::shared_ptr<CSprite> sprite = player->addComponent<CSprite>(_assets->getTexture("Paddle"));
+    player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
+    player->addComponent<CPhysicsBody>();
+    player->addComponent<CNetID>(netID, clientID);
+    player->addComponent<CNetworkTransform>(pos);
+    if (clientID == NetworkManager::clientID)
+    {
+        player->addComponent<CInput>();
+        _playerEntity = player;
+    }
+    _engine->getNetManager()->clientAddNetID(netID, player);
 }
 
 void Scene_PhysicsTest::sInput()
@@ -176,12 +215,23 @@ void Scene_PhysicsTest::sInput()
             std::shared_ptr<CInput> input = ent->getComponent<CInput>();
             Vector2 vel;
 
-            if (input->up)     vel.y -= Settings::PADDLE_SPEED;
-            if (input->down)   vel.y += Settings::PADDLE_SPEED;
-            if (input->left)   vel.x -= Settings::PADDLE_SPEED;
-            if (input->right)  vel.x += Settings::PADDLE_SPEED;
+            if (input->up)     
+                vel.y -= Settings::PADDLE_SPEED;
+            if (input->down)   
+                vel.y += Settings::PADDLE_SPEED;
+            if (input->left)   
+                vel.x -= Settings::PADDLE_SPEED;
+            if (input->right)  
+                vel.x += Settings::PADDLE_SPEED;
 
             ent->getComponent<CPhysicsBody>()->velocity = vel;
+
+            if (!NetworkManager::isServer)
+            {
+                sf::Packet packet;
+                packet << NetworkManager::PacketType::INPUT_EVENT << ent->getComponent<CNetID>()->netID << input;
+                _engine->sendToServer(packet);
+            }
         }
     }
 }

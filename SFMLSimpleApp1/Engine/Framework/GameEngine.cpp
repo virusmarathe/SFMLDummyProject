@@ -85,9 +85,19 @@ void GameEngine::sendToAllClients(sf::Packet& packet)
     _networkManager.sendToAllClients(packet);
 }
 
+void GameEngine::sendToServer(sf::Packet& packet)
+{
+    _networkManager.addToUpdatePacket(packet);
+}
+
 void GameEngine::updatePacket(sf::Packet& packet)
 {
     _networkManager.addToUpdatePacket(packet);
+}
+
+void GameEngine::addLateConnectPacket(sf::Packet& packet)
+{
+    _networkManager.addToLateConnectPacket(packet);
 }
 
 void GameEngine::handleScenePacket(sf::Packet& packet)
@@ -95,9 +105,15 @@ void GameEngine::handleScenePacket(sf::Packet& packet)
     _currentScene->handlePacket(packet);
 }
 
-void GameEngine::onClientConnected()
+void GameEngine::onClientReady(int id)
 {
-    _currentScene->onClientConnected();
+    _clientID = id;
+    _currentScene->onClientReady(_clientID);
+}
+
+void GameEngine::onClientConnectedToServer(int clientID)
+{
+    _currentScene->onClientConnectedToServer(clientID);
 }
 
 void GameEngine::update()

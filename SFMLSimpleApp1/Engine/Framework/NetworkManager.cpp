@@ -10,6 +10,8 @@
 bool NetworkManager::isClient = false;
 bool NetworkManager::isServer = false;
 unsigned int NetworkManager::nextNetID = 0;
+int NetworkManager::nextClientID = 0;
+int NetworkManager::clientID = -1;
 
 void NetworkManager::init(GameEngine* engineRef)
 {
@@ -20,6 +22,7 @@ void NetworkManager::host()
 {
     isServer = true;
     isClient = true;
+    clientID = nextClientID++;
     bindSocket();
 }
 
@@ -76,6 +79,11 @@ void NetworkManager::addToUpdatePacket(sf::Packet& packet)
     _updatePacket.append(packet.getData(), packet.getDataSize());
 }
 
+void NetworkManager::addToLateConnectPacket(sf::Packet& packet)
+{
+    _lateConnectPacket.append(packet.getData(), packet.getDataSize());
+}
+
 void NetworkManager::serverDestroyEntity(unsigned int netID)
 {
     _netIDToEntityMap[netID]->destroy();
@@ -115,18 +123,46 @@ void NetworkManager::receive()
                 {
                     unsigned short clientPort;
                     packet >> clientPort;
-                    std::cout << "Client " << sender.getPublicAddress() << " connected using port " << clientPort << std::endl;
-                    _clients.push_back(Connection(sender, clientPort));
+                    int id = nextClientID++;
+                    std::cout << "Client ID " << id << " with ip: " << sender.getPublicAddress() << " connected using port " << clientPort << std::endl;
+                    _clients.push_back(Connection(sender, clientPort, id));
                     sf::Packet pack;
-                    pack << CONNECT_CONFIRM << sender.getPublicAddress().toString();
+                    pack << CONNECT_CONFIRM << id;
                     sendToClient(pack, _clients[_clients.size() - 1]);
+                    _engineRef->onClientConnectedToServer(id);
+                }
+                else if (pType == LATE_CONNECT_REQUEST)
+                {
+                    int id;
+                    packet >> id;
+                    for (int i = 0; i < _clients.size(); i++)
+                    {
+                        if (_clients[i].clientID == id)
+                        {
+                            sendToClient(_lateConnectPacket, _clients[i]);
+                        }
+                    }
+                }
+                else if (pType == INPUT_EVENT)
+                {
+                    unsigned int netID;
+                    packet >> netID;
+                    std::shared_ptr<Entity> ent = _netIDToEntityMap[netID];
+                    if (ent)
+                    {
+                        packet >> ent->getComponent<CInput>();
+                    }
                 }
             }
             if (isClient)
             {
                 if (pType == CONNECT_CONFIRM)
                 {
-                    _engineRef->onClientConnected();
+                    if (_connected) break;
+
+                    packet >> clientID;
+                    _engineRef->onClientReady(clientID);
+                    _connected = true;
                 }
                 else if (pType == SCENE_EVENT)
                 {
@@ -161,16 +197,21 @@ void NetworkManager::receive()
 
 void NetworkManager::update(float dt)
 {
-    if (isServer)
-    {
         _networkTimer += dt;
         if (_networkTimer >= NETWORK_SEND_RATE)
         {
-            sendToAllClients(_updatePacket);
-            _updatePacket.clear();
+            if (isServer)
+            {
+                sendToAllClients(_updatePacket);
+                _updatePacket.clear();
+            }
+            else
+            {
+                sendToServer(_updatePacket);
+                _updatePacket.clear();
+            }
             _networkTimer = 0;
         }
-    }
 }
 
 

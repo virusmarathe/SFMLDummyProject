@@ -43,12 +43,15 @@ public:
 	void host();
 	void connect();
 	void sendToAllClients(sf::Packet& packet);
+	void sendToServer(sf::Packet& packet);
 	void updatePacket(sf::Packet& packet);
+	void addLateConnectPacket(sf::Packet& packet);
 	void handleScenePacket(sf::Packet& packet);
 	NetworkManager * getNetManager() { return &_networkManager; }
 
 	// events
-	void onClientConnected();
+	void onClientReady(int id);
+	void onClientConnectedToServer(int clientID);
 
 	std::shared_ptr<Assets> getAssets() { return _assets; }
 	static bool DEBUG_MODE;
@@ -71,5 +74,6 @@ private:
 	std::vector<std::shared_ptr<System>> _systems;
 	NetworkManager _networkManager;
 	bool _isNetworked = false;
+	int _clientID = -1;
 };
 

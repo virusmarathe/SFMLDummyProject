@@ -16,8 +16,9 @@ public:
 	{
 		sf::IpAddress address;
 		unsigned short port;
+		int clientID;
 
-		Connection(sf::IpAddress ip, unsigned short port) : address(ip), port(port) {}
+		Connection(sf::IpAddress ip, unsigned short port, int clientid) : address(ip), port(port), clientID(clientid) {}
 	};
 
 	void init(GameEngine* engineRef);
@@ -27,6 +28,7 @@ public:
 	void sendToClient(sf::Packet packet, Connection& connection);
 	void sendToAllClients(sf::Packet& packet);
 	void addToUpdatePacket(sf::Packet& packet);
+	void addToLateConnectPacket(sf::Packet& packet);
 	void serverDestroyEntity(unsigned int netID);
 	std::shared_ptr<Entity> serverCreateEntity(EntityManager* entities, std::string tag);
 	void clientAddNetID(unsigned int netID, std::shared_ptr<Entity> ent) { _netIDToEntityMap[netID] = ent; }
@@ -36,6 +38,8 @@ public:
 	static bool isClient;
 	static bool isServer;
 	static unsigned int nextNetID;
+	static int nextClientID;
+	static int clientID;
 
 	enum PacketType
 	{
@@ -43,7 +47,9 @@ public:
 		CONNECT_CONFIRM,
 		SCENE_EVENT,
 		TRANSFORM,
-		DESTROY_ENT
+		DESTROY_ENT,
+		LATE_CONNECT_REQUEST,
+		INPUT_EVENT
 	};	
 
 private:
@@ -55,5 +61,7 @@ private:
 	float _networkTimer = 0;
 	sf::Packet _updatePacket;
 	std::map<unsigned int, std::shared_ptr<Entity>> _netIDToEntityMap;
+	bool _connected = false;
+	sf::Packet _lateConnectPacket;
 };
 

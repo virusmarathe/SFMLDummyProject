@@ -12,7 +12,8 @@ public:
 	virtual void init() = 0;
 	virtual void update(float dt) = 0;
 	virtual void sDoAction(const Action& action) = 0;
-	virtual void onClientConnected() {}
+	virtual void onClientReady(int clientID) {} // called on client
+	virtual void onClientConnectedToServer(int clientID) { } // called on server
 	virtual void handlePacket(sf::Packet& packet) { }
 	void updateEntityList() { _entities.update(); }
 
@@ -24,5 +25,6 @@ protected:
 	GameEngine* _engine = nullptr;
 	sf::RenderWindow* _window = nullptr;
 	EntityManager _entities;
+	int _clientID = -1;
 };
 
