@@ -8,8 +8,6 @@ public:
 
 	virtual void init() override;
 
-	virtual void update(float dt) override;
-
 	virtual void sDoAction(const Action& action) override;
 
 	virtual void onClientReady(int clientID) override;

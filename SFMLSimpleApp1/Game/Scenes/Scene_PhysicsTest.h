@@ -8,7 +8,8 @@ public:
 
 	virtual void init() override;
 
-	virtual void update(float dt) override;
+	virtual void preUpdate(float dt) override;
+	virtual void postUpdate(float dt) override;
 
 	virtual void sDoAction(const Action& action) override;
 
@@ -30,12 +31,13 @@ private:
 
 	std::shared_ptr<Assets> _assets;
 	float _ballTimer = 0;
-	std::shared_ptr<Entity> _playerEntity;
-	std::shared_ptr<Entity> _player1ScoreBoard;
-	std::shared_ptr<Entity> _player2ScoreBoard;
-	std::shared_ptr<Entity> _player1Goal;
-	std::shared_ptr<Entity> _player2Goal;
+	Entity _playerEntity;
+	Entity _player1ScoreBoard;
+	Entity _player2ScoreBoard;
+	Entity _player1Goal;
+	Entity _player2Goal;
 	int _player1Score;
 	int _player2Score;
+	bool _spawnedLocalPlayer = false;
 };
 

@@ -10,7 +10,8 @@ class Scene
 {
 public:
 	virtual void init() = 0;
-	virtual void update(float dt) = 0;
+	virtual void preUpdate(float dt) {}
+	virtual void postUpdate(float dt) {}
 	virtual void sDoAction(const Action& action) = 0;
 	virtual void onClientReady(int clientID) {} // called on client
 	virtual void onClientConnectedToServer(int clientID) { } // called on server
@@ -19,7 +20,7 @@ public:
 
 	void setEngineRefs(GameEngine* engine, sf::RenderWindow* window);
 
-	std::shared_ptr<Entity> getEntity(size_t id) { return _entities[id]; }
+	EntityManager* getEntityManager() { return &_entities; }
 
 protected:
 	GameEngine* _engine = nullptr;

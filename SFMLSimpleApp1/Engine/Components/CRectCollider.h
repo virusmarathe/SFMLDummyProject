@@ -8,8 +8,9 @@ class CRectCollider : public Component
 public:
 	Rect rect;
 	Vector2 offset;
-	bool isTrigger;
+	bool isTrigger = false;
 
+	CRectCollider() { }
 	CRectCollider(Rect col) : rect(col), offset(0,0), isTrigger(false) { }
 	CRectCollider(Rect col, Vector2 off) : rect(col), offset(off), isTrigger(false) { }
 	CRectCollider(Rect col, bool trigger) : rect(col), offset(0, 0), isTrigger(trigger) { }

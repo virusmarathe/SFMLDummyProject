@@ -5,12 +5,15 @@
 class CHealth : public Component
 {
 public:
-	float health;
-	int hitLayer;
-	float lastHitTimer;
-	float maxHealth;
+	float health = 0;
+	int hitLayer = 0;
+	float lastHitTimer = 10;
+	float maxHealth = 0;
 	sf::RectangleShape background;
 	sf::RectangleShape foreground;
+	bool rendered = false;
+
+	CHealth() {}
 
 	CHealth(float health, int layer) : health(health), hitLayer(layer), lastHitTimer(10), maxHealth(health)
 	{

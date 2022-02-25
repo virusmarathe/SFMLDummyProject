@@ -6,9 +6,9 @@ class Assets;
 
 struct RoomCompare 
 {
-	bool operator()(const std::shared_ptr<Entity> e1, const std::shared_ptr<Entity> e2)
+	bool operator()(Entity e1, Entity e2)
 	{
-		return e2->getComponent<CRectCollider>()->rect > e1->getComponent<CRectCollider>()->rect;
+		return e2.getComponent<CRectCollider>().rect > e1.getComponent<CRectCollider>().rect;
 	}
 };
 
@@ -19,7 +19,8 @@ public:
 	// Inherited via Scene
 	virtual void init() override;
 
-	virtual void update(float dt) override;
+	virtual void preUpdate(float dt) override;
+	virtual void postUpdate(float dt) override;
 
 	virtual void sDoAction(const Action& action) override;
 
@@ -27,16 +28,16 @@ public:
 private:
 	
 	void generateRooms(int numRooms);
-	std::shared_ptr<Entity> createRoom();
+	Entity createRoom();
 	void createWall(Rect rect, std::string assetName);
-	std::shared_ptr<Entity> spawnPlayer();
+	Entity spawnPlayer();
 	void fireBullet(Vector2 mouseLocation);
 	void sInput();
 	void sHandleCollision();
 
 	std::shared_ptr<Assets> _assets;
-	std::shared_ptr<Entity> _camera;
-	std::shared_ptr<Entity> _player1Entity;
+	Entity _camera;
+	Entity _player1Entity;
 
 	bool _separatedRooms = true;
 	bool _createRoomGraph = false;

@@ -11,12 +11,12 @@ public:
 	{
 		for (auto ent : _entities->getEntities())
 		{
-			if (ent->hasComponent<CHealth>())
+			if (ent.hasComponent<CHealth>())
 			{
-				ent->getComponent<CHealth>()->enabled = ent->getComponent<CHealth>()->lastHitTimer < 3.0f;
-				float ratio = ent->getComponent<CHealth>()->health / ent->getComponent<CHealth>()->maxHealth;
-				ent->getComponent<CHealth>()->foreground.setScale(sf::Vector2f(ratio, 1));
-				ent->getComponent<CHealth>()->lastHitTimer += dt;
+				ent.getComponent<CHealth>().rendered = ent.getComponent<CHealth>().lastHitTimer < 3.0f;
+				float ratio = ent.getComponent<CHealth>().health / ent.getComponent<CHealth>().maxHealth;
+				ent.getComponent<CHealth>().foreground.setScale(sf::Vector2f(ratio, 1));
+				ent.getComponent<CHealth>().lastHitTimer += dt;
 			}
 		}
 	}

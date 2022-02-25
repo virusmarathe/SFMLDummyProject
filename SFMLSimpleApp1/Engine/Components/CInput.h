@@ -14,6 +14,6 @@ public:
 
 	CInput() :up(false), down(false), left(false), right(false), run(false) {}
 
-	friend sf::Packet& operator<< (sf::Packet& packet, const std::shared_ptr<CInput> input) { return packet << input->up << input->down << input->left << input->right << input->run; }
-	friend sf::Packet& operator>> (sf::Packet& packet, std::shared_ptr<CInput> input) { return packet >> input->up >> input->down >> input->left >> input->right >> input->run; }
+	friend sf::Packet& operator<< (sf::Packet& packet, const CInput& input) { return packet << input.up << input.down << input.left << input.right << input.run; }
+	friend sf::Packet& operator>> (sf::Packet& packet, CInput& input) { return packet >> input.up >> input.down >> input.left >> input.right >> input.run; }
 };

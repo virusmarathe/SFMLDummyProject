@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine\DataStructures\Graph.cpp" />
+    <ClCompile Include="Engine\Entity\EntityMemoryPool.cpp" />
     <ClCompile Include="Engine\Resources\Assets.cpp" />
     <ClCompile Include="Engine\Entity\EntityManager.cpp" />
     <ClCompile Include="Engine\Framework\GameEngine.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Engine\Components\CShapeLine.h" />
     <ClInclude Include="Engine\Components\CShapeRect.h" />
     <ClInclude Include="Engine\DataStructures\Graph.h" />
+    <ClInclude Include="Engine\Entity\EntityMemoryPool.h" />
     <ClInclude Include="Engine\Framework\Action.h" />
     <ClInclude Include="Engine\Math\Circle.h" />
     <ClInclude Include="Engine\Math\delaunator.hpp" />

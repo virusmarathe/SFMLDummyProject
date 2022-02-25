@@ -51,6 +51,9 @@
     <ClCompile Include="Game\Scenes\Scene_Menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Entity\EntityMemoryPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Math\Vector2.h">
@@ -180,6 +183,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\CNetID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Entity\EntityMemoryPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

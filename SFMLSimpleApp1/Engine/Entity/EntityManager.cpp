@@ -1,81 +1,47 @@
 #include "EntityManager.h"
+#include "EntityMemoryPool.h"
 
 static EntityList emptyList;
 
 EntityManager::EntityManager()
 {
-}
-
-std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
-{
-	auto e = std::shared_ptr<Entity>(new Entity(_totalEntities++, tag));
-	_entitiesToAdd.push_back(e);
-	return e;
-}
-
-EntityList& EntityManager::getEntities(const std::string& tag)
-{
-	if (_entityMap.find(tag) != _entityMap.end())
+	for (size_t i = 0; i < MAX_ENTITIES; i++)
 	{
-		return _entityMap[tag];
+		_entityList.push_back(Entity(i));
 	}
+}
 
-	return emptyList;
+Entity EntityManager::addEntity(const std::string& tag)
+{
+	size_t index = EntityMemoryPool::Instance().addEntity(tag);
+	return Entity(index);
+}
+
+EntityList EntityManager::getEntities()
+{
+	EntityList list;
+	for (Entity ent : _entityList)
+	{
+		if (ent.isValid()) list.push_back(ent);
+	}
+	return list;
+}
+
+EntityList EntityManager::getEntities(std::string tag)
+{
+	EntityList list;
+	for (Entity ent : _entityList)
+	{
+		if (ent.isValid() && ent.tag() == tag) list.push_back(ent);
+	}
+	return list;
 }
 
 void EntityManager::update()
 {
-	// remove destroyed entities
-	auto it = _entityList.begin();
-	while (it != _entityList.end())
-	{
-		if (!(*it)->isValid())
-		{
-			_entityIDMap.erase((*it)->id());
-			auto tagIt = _entityMap[(*it)->tag()].begin();
-			while (tagIt != _entityMap[(*it)->tag()].end())
-			{
-				if ((*tagIt) == (*it))
-				{
-					_entityMap[(*it)->tag()].erase(tagIt);
-					break;
-				}
-				++tagIt;
-			}
-			it = _entityList.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	// add new entities
-	for (auto e : _entitiesToAdd)
-	{
-		_entityList.push_back(e);
-		_entityMap[e->tag()].push_back(e);
-		_entityIDMap[e->id()] = e;
-	}
-	_entitiesToAdd.clear();
 }
 
 void EntityManager::destroyAll()
 {
-	// destroy all entities
-	auto it = _entityList.begin();
-	while (it != _entityList.end())
-	{
-		auto tagIt = _entityMap[(*it)->tag()].begin();
-		while (tagIt != _entityMap[(*it)->tag()].end())
-		{
-			if ((*tagIt) == (*it))
-			{
-				_entityMap[(*it)->tag()].erase(tagIt);
-				break;
-			}
-			++tagIt;
-		}
-		it = _entityList.erase(it);
-	}
+	EntityMemoryPool::Instance().resetPool();
 }

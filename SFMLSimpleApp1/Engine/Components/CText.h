@@ -9,6 +9,7 @@ public:
 	sf::Text text;
 	sf::Color textColor;
 
+	CText() {}
 	CText(const char * textString, sf::Font& font, unsigned int fontSize, sf::Color color) : text(sf::String(textString), font, fontSize)
 	{
 		text.setFillColor(color);

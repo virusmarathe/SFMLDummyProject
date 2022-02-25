@@ -11,22 +11,25 @@ public:
 	{
 		for (auto ent : _entities->getEntities("CollisionEvent"))
 		{
-			std::shared_ptr<CCollisionEvent> cEvent = ent->getComponent<CCollisionEvent>();
-			if (cEvent->ent1->hasComponent<CDamage>() && cEvent->ent2->hasComponent<CHealth>())
-			{
-				std::shared_ptr<CDamage> damageComponent = cEvent->ent1->getComponent<CDamage>();
-				std::shared_ptr<CHealth> healthComponent = cEvent->ent2->getComponent<CHealth>();
+			auto& cEvent = ent.getComponent<CCollisionEvent>();
+			Entity ent1 = (*_entities)[cEvent.ent1];
+			Entity ent2 = (*_entities)[cEvent.ent2];
 
-				if ((healthComponent->hitLayer & damageComponent->layer) > 0)
+			if (ent1.hasComponent<CDamage>() && ent2.hasComponent<CHealth>())
+			{
+				auto& damageComponent = ent1.getComponent<CDamage>();
+				auto& healthComponent = ent2.getComponent<CHealth>();
+
+				if ((healthComponent.hitLayer & damageComponent.layer) > 0)
 				{
-					healthComponent->lastHitTimer = 0;
-					healthComponent->health -= damageComponent->damage;
-					if (healthComponent->health <= 0)
+					healthComponent.lastHitTimer = 0;
+					healthComponent.health -= damageComponent.damage;
+					if (healthComponent.health <= 0)
 					{
-						cEvent->ent2->destroy();
+						ent2.destroy();
 					}
 				}
-			}
+			}			
 		}
 	}
 };

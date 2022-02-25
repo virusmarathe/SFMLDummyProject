@@ -30,8 +30,8 @@ public:
 	void addToUpdatePacket(sf::Packet& packet);
 	void addToLateConnectPacket(sf::Packet& packet);
 	void serverDestroyEntity(unsigned int netID);
-	std::shared_ptr<Entity> serverCreateEntity(EntityManager* entities, std::string tag);
-	void clientAddNetID(unsigned int netID, std::shared_ptr<Entity> ent) { _netIDToEntityMap[netID] = ent; }
+	Entity serverCreateEntity(EntityManager* entities, std::string tag);
+	void clientAddNetID(unsigned int netID, Entity ent) { _netIDToEntityMap[netID] = ent; }
 	void receive();
 	void update(float dt);
 
@@ -60,7 +60,7 @@ private:
 	GameEngine* _engineRef;
 	float _networkTimer = 0;
 	sf::Packet _updatePacket;
-	std::map<unsigned int, std::shared_ptr<Entity>> _netIDToEntityMap;
+	std::map<unsigned int, Entity> _netIDToEntityMap;
 	bool _connected = false;
 	sf::Packet _lateConnectPacket;
 };

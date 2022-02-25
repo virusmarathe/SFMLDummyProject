@@ -29,8 +29,10 @@ void Scene_DungeonTest::init()
     _assets = _engine->getAssets();
 
     _camera = _entities.addEntity("Camera");
-    _camera->addComponent<CTransform>(Vector2(), Vector2(_window->getSize()));
-    _camera->addComponent<CPhysicsBody>();
+    auto& transform = _camera.addComponent<CTransform>();
+    transform.position = Vector2();
+    transform.scale = Vector2(_window->getSize());
+    _camera.addComponent<CPhysicsBody>();
 
     _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
     _engine->registerAction(sf::Keyboard::Num2, "PHYSICS_SCENE");
@@ -59,10 +61,8 @@ void Scene_DungeonTest::init()
 
 const float HALLWAY_WIDTH_HALF = GRID_SIZE * 3;
 
-void Scene_DungeonTest::update(float dt)
+void Scene_DungeonTest::preUpdate(float dt)
 {
-    sHandleCollision();
-
     if (!_separatedRooms)
     {
         _separatedRooms = true;
@@ -73,8 +73,8 @@ void Scene_DungeonTest::update(float dt)
             {
                 if (room1 == room2) continue;
 
-                Rect room1Rect = room1->getComponent<CRectCollider>()->rect;
-                Rect room2Rect = room2->getComponent<CRectCollider>()->rect;
+                Rect room1Rect = room1.getComponent<CRectCollider>().rect;
+                Rect room2Rect = room2.getComponent<CRectCollider>().rect;
 
                 if (Physics::checkCollision(room1Rect, room2Rect))
                 {
@@ -98,21 +98,21 @@ void Scene_DungeonTest::update(float dt)
                     int randTry = rand() % 2;
                     if (randTry == 0)
                     {
-                        if (minIndex == 0) room2->getComponent<CRectCollider>()->rect.pos.x -= diffs[minIndex];
-                        if (minIndex == 1) room2->getComponent<CRectCollider>()->rect.pos.x += diffs[minIndex];
-                        if (minIndex == 2) room2->getComponent<CRectCollider>()->rect.pos.y -= diffs[minIndex];
-                        if (minIndex == 3) room2->getComponent<CRectCollider>()->rect.pos.y += diffs[minIndex];
+                        if (minIndex == 0) room2.getComponent<CRectCollider>().rect.pos.x -= diffs[minIndex];
+                        if (minIndex == 1) room2.getComponent<CRectCollider>().rect.pos.x += diffs[minIndex];
+                        if (minIndex == 2) room2.getComponent<CRectCollider>().rect.pos.y -= diffs[minIndex];
+                        if (minIndex == 3) room2.getComponent<CRectCollider>().rect.pos.y += diffs[minIndex];
                     }
                     else
                     {
-                        if (minIndex == 0) room1->getComponent<CRectCollider>()->rect.pos.x += diffs[minIndex];
-                        if (minIndex == 1) room1->getComponent<CRectCollider>()->rect.pos.x -= diffs[minIndex];
-                        if (minIndex == 2) room1->getComponent<CRectCollider>()->rect.pos.y += diffs[minIndex];
-                        if (minIndex == 3) room1->getComponent<CRectCollider>()->rect.pos.y -= diffs[minIndex];
+                        if (minIndex == 0) room1.getComponent<CRectCollider>().rect.pos.x += diffs[minIndex];
+                        if (minIndex == 1) room1.getComponent<CRectCollider>().rect.pos.x -= diffs[minIndex];
+                        if (minIndex == 2) room1.getComponent<CRectCollider>().rect.pos.y += diffs[minIndex];
+                        if (minIndex == 3) room1.getComponent<CRectCollider>().rect.pos.y -= diffs[minIndex];
                     }
 
-                    room1->getComponent<CTransform>()->position = room1->getComponent<CRectCollider>()->rect.pos;
-                    room2->getComponent<CTransform>()->position = room2->getComponent<CRectCollider>()->rect.pos;
+                    room1.getComponent<CTransform>().position = room1.getComponent<CRectCollider>().rect.pos;
+                    room2.getComponent<CTransform>().position = room2.getComponent<CRectCollider>().rect.pos;
 
                     _separatedRooms = false;
                     _createRoomGraph = false;
@@ -127,7 +127,7 @@ void Scene_DungeonTest::update(float dt)
         float tHitNear, tHitFar;
         for (auto room1 : _entities.getEntities("Room"))
         {
-            Rect room1Rect = room1->getComponent<CRectCollider>()->rect;
+            Rect room1Rect = room1.getComponent<CRectCollider>().rect;
             Vector2 topLeft = room1Rect.pos - Vector2(0, 1); // offset by 1 pixel up to check collisions
             Vector2 bottomLeft = Vector2(room1Rect.pos.x, room1Rect.pos.y + room1Rect.size.y + 1);
             Vector2 leftTop = room1Rect.pos - Vector2(1,0);
@@ -141,7 +141,7 @@ void Scene_DungeonTest::update(float dt)
             {
                 if (room1 == room2) continue;
 
-                Rect room2Rect = room2->getComponent<CRectCollider>()->rect;
+                Rect room2Rect = room2.getComponent<CRectCollider>().rect;
                 if (Physics::checkCollision(topLeft, right, room2Rect, contactPoint, normal, tHitNear, tHitFar))
                 {
                     topOrderedList.insert(tHitNear);
@@ -274,23 +274,30 @@ void Scene_DungeonTest::update(float dt)
         _createBorder = false;
         for (auto room : _entities.getEntities("Room"))
         {
-            Rect rect = room->getComponent<CRectCollider>()->rect;
-            std::shared_ptr<CSprite> groundSpriteComp = room->addComponent<CSprite>(_assets->getTexture("Ground"));
-            groundSpriteComp->sprite.setTextureRect(sf::IntRect(0, 0, (int)rect.size.x, (int)rect.size.y));
+            Rect rect = room.getComponent<CRectCollider>().rect;
+            auto& groundSpriteComp = room.addComponent<CSprite>();
+            groundSpriteComp.sprite = sf::Sprite(_assets->getTexture("Ground"));
+            groundSpriteComp.sprite.setTextureRect(sf::IntRect(0, 0, (int)rect.size.x, (int)rect.size.y));
 
-            room->removeComponent<CRectCollider>();
-            room->removeComponent<CShapeRect>();
+            room.removeComponent<CRectCollider>();
+            room.removeComponent<CShapeRect>();
         }
 
-        if (_player1Entity)
-            _player1Entity->destroy();
+        _player1Entity.destroy();
         _player1Entity = spawnPlayer();
-        _player1Entity->getComponent<CTransform>()->position = Vector2(_rooms[0]->getComponent<CTransform>()->position) + Vector2(300, 300);
+        _player1Entity.getComponent<CTransform>().position = Vector2(_rooms[0].getComponent<CTransform>().position) + Vector2(300, 300);
 
         for (int i = 0; i < 5; i++)
         {
-            auto barrel = Primitives::ScaledSprite(Rect(_player1Entity->getComponent<CTransform>()->position + Vector2((float)i * 100, 100), Vector2(100, 100)), _assets->getTexture("Barrel"), true, "Destructable");
-            barrel->addComponent<CHealth>(100.0f, DamageLayer::ALL);
+            auto barrel = Primitives::ScaledSprite(Rect(_player1Entity.getComponent<CTransform>().position + Vector2((float)i * 100, 100), Vector2(100, 100)), _assets->getTexture("Barrel"), true, "Destructable");
+            auto& healthComp = barrel.addComponent<CHealth>();
+            healthComp.health = 100.0f;
+            healthComp.maxHealth = 100.0f;
+            healthComp.hitLayer = DamageLayer::ALL;
+            healthComp.background.setSize(sf::Vector2f(100, 10));
+            healthComp.background.setFillColor(sf::Color::Red);
+            healthComp.foreground.setSize(sf::Vector2f(100, 10));
+            healthComp.foreground.setFillColor(sf::Color::Green);
         }
     }
 
@@ -302,29 +309,31 @@ void Scene_DungeonTest::update(float dt)
 
         for (size_t i = 0; i < 15; i++) // 15 biggest rooms
         {
-            _rooms[i]->addComponent<CShapeRect>(_rooms[i]->getComponent<CRectCollider>()->rect, sf::Color::Blue);
+            auto& rectShape = _rooms[i].addComponent<CShapeRect>();
+            rectShape.rectShape = sf::RectangleShape(sf::Vector2f(_rooms[i].getComponent<CRectCollider>().rect.size.x, _rooms[i].getComponent<CRectCollider>().rect.size.y));
+            rectShape.color = sf::Color::Blue;
             //_rooms[i]->addComponent<CText>(std::to_string(_rooms[i]->id()).c_str(), _assets->getFont("NormalUIFont"), 240, sf::Color::Red);
-            Vector2 centerPos = _rooms[i]->getComponent<CRectCollider>()->rect.pos + (_rooms[i]->getComponent<CRectCollider>()->rect.size / 2.0f);
+            Vector2 centerPos = _rooms[i].getComponent<CRectCollider>().rect.pos + (_rooms[i].getComponent<CRectCollider>().rect.size / 2.0f);
             coords.push_back(centerPos.x);
             coords.push_back(centerPos.y);
-            indexToIDMap[i] = _rooms[i]->id();
-            g.addNode(_rooms[i]->id());
+            indexToIDMap[i] = _rooms[i].id;
+            g.addNode(_rooms[i].id);
         }
 
         // delaunay
         delaunator::Delaunator d(coords);
 
         for (size_t i = 0; i < d.triangles.size(); i += 3) 
-        {
-            std::shared_ptr<Entity> ent1 = _entities[indexToIDMap[d.triangles[i]]];
-            std::shared_ptr<Entity> ent2 = _entities[indexToIDMap[d.triangles[i+1]]];
-            std::shared_ptr<Entity> ent3 = _entities[indexToIDMap[d.triangles[i+2]]];
-            Vector2 point1(ent1->getComponent<CRectCollider>()->rect.pos + (ent1->getComponent<CRectCollider>()->rect.size / 2.0f));
-            Vector2 point2(ent2->getComponent<CRectCollider>()->rect.pos + (ent2->getComponent<CRectCollider>()->rect.size / 2.0f));
-            Vector2 point3(ent3->getComponent<CRectCollider>()->rect.pos + (ent3->getComponent<CRectCollider>()->rect.size / 2.0f));
-            g.addEdge(ent1->id(), ent2->id(), Vector2::dist(point1, point2));
-            g.addEdge(ent2->id(), ent3->id(), Vector2::dist(point2, point3));
-            g.addEdge(ent3->id(), ent1->id(), Vector2::dist(point3, point1));
+        {   
+            Entity ent1 = _entities[indexToIDMap[d.triangles[i]]];
+            Entity ent2 = _entities[indexToIDMap[d.triangles[i+1]]];
+            Entity ent3 = _entities[indexToIDMap[d.triangles[i+2]]];
+            Vector2 point1(ent1.getComponent<CRectCollider>().rect.pos + (ent1.getComponent<CRectCollider>().rect.size / 2.0f));
+            Vector2 point2(ent2.getComponent<CRectCollider>().rect.pos + (ent2.getComponent<CRectCollider>().rect.size / 2.0f));
+            Vector2 point3(ent3.getComponent<CRectCollider>().rect.pos + (ent3.getComponent<CRectCollider>().rect.size / 2.0f));
+            g.addEdge(ent1.id, ent2.id, Vector2::dist(point1, point2));
+            g.addEdge(ent2.id, ent3.id, Vector2::dist(point2, point3));
+            g.addEdge(ent3.id, ent1.id, Vector2::dist(point3, point1));
         }
 
         Graph minGraph = g.getMinSpanTree();
@@ -347,12 +356,12 @@ void Scene_DungeonTest::update(float dt)
         {
             GraphNode curNode = pair.second;
             std::shared_ptr<Entity> ent = _entities[pair.first];
-            Vector2 point1(ent->getComponent<CRectCollider>()->rect.pos + (ent->getComponent<CRectCollider>()->rect.size / 2.0f));
+            Vector2 point1(ent.getComponent<CRectCollider>()->rect.pos + (ent.getComponent<CRectCollider>()->rect.size / 2.0f));
 
             for (auto const& edge : curNode.adjacencyList)
             {
                 std::shared_ptr<Entity> ent2 = _entities[edge.node->ID];
-                Vector2 point2(ent2->getComponent<CRectCollider>()->rect.pos + (ent2->getComponent<CRectCollider>()->rect.size / 2.0f));
+                Vector2 point2(ent2.getComponent<CRectCollider>()->rect.pos + (ent2.getComponent<CRectCollider>()->rect.size / 2.0f));
 
                 auto e1 = _entities.addEntity("Edge");
                 e1->addComponent<CShapeLine>(point1, point2, sf::Color::Red);
@@ -364,39 +373,47 @@ void Scene_DungeonTest::update(float dt)
         for (auto const& pair : minGraph.getNodes())
         {
             GraphNode curNode = pair.second;
-            std::shared_ptr<Entity> ent = _entities[pair.first];
-            Vector2 point1(ent->getComponent<CRectCollider>()->rect.pos + (ent->getComponent<CRectCollider>()->rect.size / 2.0f));
+            Entity ent = _entities[pair.first];
+            Vector2 point1(ent.getComponent<CRectCollider>().rect.pos + (ent.getComponent<CRectCollider>().rect.size / 2.0f));
             point1.x = ((int)(point1.x / (GRID_SIZE * 2))) * (GRID_SIZE * 2);
             point1.y = ((int)(point1.y / (GRID_SIZE * 2))) * (GRID_SIZE * 2);
 
             for (auto const& edge : curNode.adjacencyList)
             {
-                std::shared_ptr<Entity> ent2 = _entities[edge.node->ID];
-                Vector2 point2(ent2->getComponent<CRectCollider>()->rect.pos + (ent2->getComponent<CRectCollider>()->rect.size / 2.0f));
+                Entity ent2 = _entities[edge.node->ID];
+                Vector2 point2(ent2.getComponent<CRectCollider>().rect.pos + (ent2.getComponent<CRectCollider>().rect.size / 2.0f));
                 point2.x = ((int)(point2.x / (GRID_SIZE * 2))) * (GRID_SIZE * 2);
                 point2.y = ((int)(point2.y / (GRID_SIZE * 2))) * (GRID_SIZE * 2);
 
-                if (abs(point1.x - point2.x) < (ent2->getComponent<CRectCollider>()->rect.size.x / 2.0f + ent->getComponent<CRectCollider>()->rect.size.x / 2.0f))
+                if (abs(point1.x - point2.x) < (ent2.getComponent<CRectCollider>().rect.size.x / 2.0f + ent.getComponent<CRectCollider>().rect.size.x / 2.0f))
                 {
                     auto e1 = _entities.addEntity("Room");
                     float xVal = (point1.x + point2.x) / 2.0f;
                     float minY = point1.y < point2.y ? point1.y : point2.y;
                     float height = abs(point2.y - point1.y);
-                    e1->addComponent<CTransform>(Vector2(xVal - HALLWAY_WIDTH_HALF, minY));
-                    e1->addComponent<CRectCollider>(Rect(xVal - HALLWAY_WIDTH_HALF, minY, HALLWAY_WIDTH_HALF * 2, height));
-                    e1->addComponent<CShapeRect>(Rect(0, 0, HALLWAY_WIDTH_HALF * 2, height), sf::Color::Red);
+                    auto& transform = e1.addComponent<CTransform>();
+                    transform.position = Vector2(xVal - HALLWAY_WIDTH_HALF, minY);
+                    auto& rectCollider = e1.addComponent<CRectCollider>();
+                    rectCollider.rect = Rect(xVal - HALLWAY_WIDTH_HALF, minY, HALLWAY_WIDTH_HALF * 2, height);
+                    auto& shapeRect = e1.addComponent<CShapeRect>();
+                    shapeRect.rectShape = sf::RectangleShape(sf::Vector2f(HALLWAY_WIDTH_HALF * 2, height));
+                    shapeRect.color = sf::Color::Red;
                     hallways.push_back(Vector2(xVal, point1.y));
                     hallways.push_back(Vector2(xVal, point2.y));
                 }
-                else if (abs(point1.y - point2.y) < (ent2->getComponent<CRectCollider>()->rect.size.y / 2.0f + ent->getComponent<CRectCollider>()->rect.size.y / 2.0f))
+                else if (abs(point1.y - point2.y) < (ent2.getComponent<CRectCollider>().rect.size.y / 2.0f + ent.getComponent<CRectCollider>().rect.size.y / 2.0f))
                 {
                     auto e1 = _entities.addEntity("Room");
                     float yVal = (point1.y + point2.y) / 2.0f;
                     float minX = point1.x < point2.x ? point1.x : point2.x;
                     float width = abs(point2.x - point1.x);
-                    e1->addComponent<CTransform>(Vector2(minX, yVal - HALLWAY_WIDTH_HALF));
-                    e1->addComponent<CRectCollider>(Rect(minX, yVal - HALLWAY_WIDTH_HALF, width, HALLWAY_WIDTH_HALF * 2));
-                    e1->addComponent<CShapeRect>(Rect(0, 0, width, HALLWAY_WIDTH_HALF * 2), sf::Color::Red);
+                    auto& transform = e1.addComponent<CTransform>();
+                    transform.position = Vector2(minX, yVal - HALLWAY_WIDTH_HALF);
+                    auto& rectCollider = e1.addComponent<CRectCollider>();
+                    rectCollider.rect = Rect(minX, yVal - HALLWAY_WIDTH_HALF, width, HALLWAY_WIDTH_HALF * 2);
+                    auto& shapeRect = e1.addComponent<CShapeRect>();
+                    shapeRect.rectShape = sf::RectangleShape(sf::Vector2f(width, HALLWAY_WIDTH_HALF * 2));
+                    shapeRect.color = sf::Color::Red;
                     hallways.push_back(Vector2(point1.x, yVal));
                     hallways.push_back(Vector2(point2.x, yVal));
                 }
@@ -406,9 +423,13 @@ void Scene_DungeonTest::update(float dt)
                     float xVal = point1.x;
                     float minY = point1.y < point2.y ? point1.y - HALLWAY_WIDTH_HALF : point2.y - HALLWAY_WIDTH_HALF;
                     float height = abs(point2.y - point1.y) + HALLWAY_WIDTH_HALF * 2;
-                    e1->addComponent<CTransform>(Vector2(xVal - HALLWAY_WIDTH_HALF, minY));
-                    e1->addComponent<CRectCollider>(Rect(xVal - HALLWAY_WIDTH_HALF, minY, HALLWAY_WIDTH_HALF * 2, height));
-                    e1->addComponent<CShapeRect>(Rect(0, 0, HALLWAY_WIDTH_HALF * 2, height), sf::Color::Red);
+                    auto& transform = e1.addComponent<CTransform>();
+                    transform.position = Vector2(xVal - HALLWAY_WIDTH_HALF, minY);
+                    auto& rectCollider = e1.addComponent<CRectCollider>();
+                    rectCollider.rect = Rect(xVal - HALLWAY_WIDTH_HALF, minY, HALLWAY_WIDTH_HALF * 2, height);
+                    auto& shapeRect = e1.addComponent<CShapeRect>();
+                    shapeRect.rectShape = sf::RectangleShape(sf::Vector2f(HALLWAY_WIDTH_HALF * 2, height));
+                    shapeRect.color = sf::Color::Red;
                     hallways.push_back(point1);
                     hallways.push_back(Vector2(point1.x, point2.y));
 
@@ -416,9 +437,13 @@ void Scene_DungeonTest::update(float dt)
                     float yVal = point1.y;
                     float minX = point1.x < point2.x ? point1.x - HALLWAY_WIDTH_HALF : point2.x - HALLWAY_WIDTH_HALF;
                     float width = abs(point2.x - point1.x) + HALLWAY_WIDTH_HALF * 2;
-                    e2->addComponent<CTransform>(Vector2(minX, yVal - HALLWAY_WIDTH_HALF));
-                    e2->addComponent<CRectCollider>(Rect(minX, yVal - HALLWAY_WIDTH_HALF, width, HALLWAY_WIDTH_HALF * 2));
-                    e2->addComponent<CShapeRect>(Rect(0, 0, width, HALLWAY_WIDTH_HALF * 2), sf::Color::Red);
+                    auto& transform2 = e2.addComponent<CTransform>();
+                    transform2.position = Vector2(minX, yVal - HALLWAY_WIDTH_HALF);
+                    auto& rectCollider2 = e2.addComponent<CRectCollider>();
+                    rectCollider2.rect = Rect(minX, yVal - HALLWAY_WIDTH_HALF, width, HALLWAY_WIDTH_HALF * 2);
+                    auto& shapeRect2 = e2.addComponent<CShapeRect>();
+                    shapeRect2.rectShape = sf::RectangleShape(sf::Vector2f(width, HALLWAY_WIDTH_HALF * 2));
+                    shapeRect2.color = sf::Color::Red;
                     hallways.push_back(point1);
                     hallways.push_back(Vector2(point2.x, point1.y));
                 }
@@ -433,23 +458,25 @@ void Scene_DungeonTest::update(float dt)
         {
             for (auto room : _entities.getEntities("Room"))
             {
-                if (room->hasComponent<CShapeRect>()) continue;
+                if (room.hasComponent<CShapeRect>()) continue;
 
-                Rect roomRect = room->getComponent<CRectCollider>()->rect;
+                Rect roomRect = room.getComponent<CRectCollider>().rect;
                 Vector2 contactPoint, normal;
                 float hitTime;
                 if (Physics::checkCollision(hallways[i], hallways[i+1] - hallways[i], roomRect, contactPoint, normal, hitTime))
                 {
-                    room->addComponent<CShapeRect>(room->getComponent<CRectCollider>()->rect, sf::Color::Red);
+                    auto& shapeRect = room.addComponent<CShapeRect>();
+                    shapeRect.rectShape = sf::RectangleShape(sf::Vector2f(room.getComponent<CRectCollider>().rect.size.x, room.getComponent<CRectCollider>().rect.size.y));
+                    shapeRect.color = sf::Color::Red;
                 }
             }
         }
 
-        for (auto const& room : _rooms)
+        for (auto& room : _rooms)
         {
-            if (!room->hasComponent<CShapeRect>())
+            if (!room.hasComponent<CShapeRect>())
             {
-                room->destroy();
+                room.destroy();
             }
         }
 
@@ -457,9 +484,9 @@ void Scene_DungeonTest::update(float dt)
         _createBorder = true;
     }
 
-    if (!_freeCam && _player1Entity)
+    if (!_freeCam && _player1Entity.id < MAX_ENTITIES)
     {
-        _camera->getComponent<CTransform>()->position = _player1Entity->getComponent<CTransform>()->position;
+        _camera.getComponent<CTransform>().position = _player1Entity.getComponent<CTransform>().position;
     }
 }
 
@@ -469,41 +496,43 @@ void Scene_DungeonTest::sDoAction(const Action& action)
     if (action.name == "CAM_CHANGE" && action.type == Action::ActionType::START) _freeCam = !_freeCam;
     if (action.name == "PHYSICS_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("PhysicsTest");
 
-    float scale = _camera->getComponent<CTransform>()->scale.x / _window->getSize().x;
+    float scale = _camera.getComponent<CTransform>().scale.x / _window->getSize().x;
 
     if (_freeCam)
     {
-        if (action.name == "P1UP") _camera->getComponent<CPhysicsBody>()->velocity.y = action.type == Action::ActionType::START ? -200 * scale : 0;
-        if (action.name == "P1LEFT") _camera->getComponent<CPhysicsBody>()->velocity.x = action.type == Action::ActionType::START ? -200 * scale : 0;
-        if (action.name == "P1DOWN") _camera->getComponent<CPhysicsBody>()->velocity.y = action.type == Action::ActionType::START ? 200 * scale : 0;
-        if (action.name == "P1RIGHT") _camera->getComponent<CPhysicsBody>()->velocity.x = action.type == Action::ActionType::START ? 200 * scale : 0;
+        if (action.name == "P1UP") _camera.getComponent<CPhysicsBody>().velocity.y = action.type == Action::ActionType::START ? -200 * scale : 0;
+        if (action.name == "P1LEFT") _camera.getComponent<CPhysicsBody>().velocity.x = action.type == Action::ActionType::START ? -200 * scale : 0;
+        if (action.name == "P1DOWN") _camera.getComponent<CPhysicsBody>().velocity.y = action.type == Action::ActionType::START ? 200 * scale : 0;
+        if (action.name == "P1RIGHT") _camera.getComponent<CPhysicsBody>().velocity.x = action.type == Action::ActionType::START ? 200 * scale : 0;
     }
     else
     {
-        if (action.name == "P1UP") _player1Entity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
-        if (action.name == "P1LEFT") _player1Entity->getComponent<CInput>()->left = action.type == Action::ActionType::START;
-        if (action.name == "P1DOWN") _player1Entity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
-        if (action.name == "P1RIGHT") _player1Entity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
-        if (action.name == "P1RUN") _player1Entity->getComponent<CInput>()->run = action.type == Action::ActionType::START;
+        if (_player1Entity.id < MAX_ENTITIES)
+        {
+            if (action.name == "P1UP") _player1Entity.getComponent<CInput>().up = action.type == Action::ActionType::START;
+            if (action.name == "P1LEFT") _player1Entity.getComponent<CInput>().left = action.type == Action::ActionType::START;
+            if (action.name == "P1DOWN") _player1Entity.getComponent<CInput>().down = action.type == Action::ActionType::START;
+            if (action.name == "P1RIGHT") _player1Entity.getComponent<CInput>().right = action.type == Action::ActionType::START;
+            if (action.name == "P1RUN") _player1Entity.getComponent<CInput>().run = action.type == Action::ActionType::START;
+            if (action.name == "FIRE" && action.type == Action::ActionType::START)
+            {
+                fireBullet(action.pos);
+            }
+        }
     }
 
-    if (action.name == "ZOOM_IN") _camera->getComponent<CTransform>()->scale /= 1.05f;
-    if (action.name == "ZOOM_OUT") _camera->getComponent<CTransform>()->scale *= 1.05f;
-
-    if (action.name == "FIRE" && action.type == Action::ActionType::START)
-    {
-        fireBullet(action.pos);
-    }
+    if (action.name == "ZOOM_IN") _camera.getComponent<CTransform>().scale /= 1.05f;
+    if (action.name == "ZOOM_OUT") _camera.getComponent<CTransform>().scale *= 1.05f;
 
     if (action.name == "RESET_ROOMS" && action.type == Action::ActionType::START)
     {
         for (auto room : _entities.getEntities("Room"))
         {
-            room->destroy();
+            room.destroy();
         }
         for (auto room : _entities.getEntities("Wall"))
         {
-            room->destroy();
+            room.destroy();
         }
         generateRooms(100);
     }
@@ -511,10 +540,15 @@ void Scene_DungeonTest::sDoAction(const Action& action)
     sInput();
 }
 
+void Scene_DungeonTest::postUpdate(float dt)
+{
+    sHandleCollision();
+}
+
 void Scene_DungeonTest::generateRooms(int numRooms)
 {
     _rooms.clear();
-    std::priority_queue<std::shared_ptr<Entity>, std::vector<std::shared_ptr<Entity>>, RoomCompare> rooms;
+    std::priority_queue<Entity, std::vector<Entity>, RoomCompare> rooms;
 
     for (int i = 0; i < numRooms; i++)
     {
@@ -532,7 +566,7 @@ void Scene_DungeonTest::generateRooms(int numRooms)
     _createBorder = false;
 }
 
-std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
+Entity Scene_DungeonTest::createRoom()
 {
     auto e = _entities.addEntity("Room");
     int width = rand() % ((int)GRID_SIZE * 20) + ((int)GRID_SIZE * 6);
@@ -544,34 +578,48 @@ std::shared_ptr<Entity> Scene_DungeonTest::createRoom()
     int yOffset = rand() % ((int)GRID_SIZE * 20);
     yOffset = (yOffset / (int)GRID_SIZE) * ((int)GRID_SIZE);
 
-    e->addComponent<CTransform>(Vector2((float)xOffset, (float)yOffset));
-    e->addComponent<CRectCollider>(Rect((float)xOffset, (float)yOffset, (float)width, (float)height));
+    auto& transform = e.addComponent<CTransform>();
+    transform.position = Vector2((float)xOffset, (float)yOffset);
+    auto& rectCollider = e.addComponent<CRectCollider>();
+    rectCollider.rect = Rect((float)xOffset, (float)yOffset, (float)width, (float)height);
     return e;
 }
 
 void Scene_DungeonTest::createWall(Rect wallRect, std::string assetName)
 {
-    std::shared_ptr<Entity> wall = _entities.addEntity("Wall");
-    wall->addComponent<CTransform>(wallRect.pos);
-    wall->addComponent<CRectCollider>(wallRect);
-    std::shared_ptr<CSprite> spriteComp = wall->addComponent<CSprite>(_assets->getTexture(assetName));
-    sf::IntRect texRect = spriteComp->sprite.getTextureRect();
+    Entity wall = _entities.addEntity("Wall");
+    auto& transform = wall.addComponent<CTransform>();
+    transform.position = wallRect.pos;
+    auto& rectCollider = wall.addComponent<CRectCollider>();
+    rectCollider.rect = wallRect;
+    auto& spriteComp = wall.addComponent<CSprite>();
+    spriteComp.sprite = sf::Sprite(_assets->getTexture(assetName));
+    sf::IntRect texRect = spriteComp.sprite.getTextureRect();
     Vector2 scale(GRID_SIZE / texRect.width, GRID_SIZE / texRect.height);
-    spriteComp->sprite.setScale(scale.x, scale.y);
-    spriteComp->sprite.setTextureRect(sf::IntRect(0, 0, (int)(wallRect.size.x / scale.x), (int)(wallRect.size.y / scale.y)));
+    spriteComp.sprite.setScale(scale.x, scale.y);
+    spriteComp.sprite.setTextureRect(sf::IntRect(0, 0, (int)(wallRect.size.x / scale.x), (int)(wallRect.size.y / scale.y)));
 }
 
-std::shared_ptr<Entity> Scene_DungeonTest::spawnPlayer()
+Entity Scene_DungeonTest::spawnPlayer()
 {
     auto player = _entities.addEntity("Player");
-    player->addComponent<CTransform>(Vector2(200, 200));
-    std::shared_ptr<CSprite> sprite = player->addComponent<CSprite>(_assets->getTexture("ArcherWalk"));
-    sprite->sprite.setScale(0.25f, 0.25f);
-    std::shared_ptr<CAnimation> anim = player->addComponent<CAnimation>("ArcherWalk");
-    player->addComponent<CRectCollider>(Rect(0, 0, 70, 80), Vector2(20, 5));
-    player->addComponent<CPhysicsBody>();
-    player->addComponent<CInput>();
-    player->addComponent<CPhysicsAnimator>("ArcherIdle", "ArcherWalk", "ArcherRun", Settings::ARCHER_SPEED);
+    auto& transform = player.addComponent<CTransform>();
+    transform.position = Vector2(200, 200);
+    auto& sprite = player.addComponent<CSprite>();
+    sprite.sprite = sf::Sprite(_assets->getTexture("ArcherWalk"));
+    sprite.sprite.setScale(0.25f, 0.25f);
+    auto& anim = player.addComponent<CAnimation>();
+    anim.name = "ArcherWalk";
+    auto& rectCollider = player.addComponent<CRectCollider>();
+    rectCollider.rect = Rect(0, 0, 70, 80);
+    rectCollider.offset = Vector2(20, 5);
+    player.addComponent<CPhysicsBody>();
+    player.addComponent<CInput>();
+    auto& animator = player.addComponent<CPhysicsAnimator>();
+    animator.idleAnimName = "ArcherIdle";
+    animator.movingAnimName = "ArcherWalk";
+    animator.fastMovingAnimName = "ArcherRun";
+    animator.velThreshold = Settings::ARCHER_SPEED;
 
     return player;
 }
@@ -579,38 +627,45 @@ std::shared_ptr<Entity> Scene_DungeonTest::spawnPlayer()
 void Scene_DungeonTest::fireBullet(Vector2 mouseLocation)
 {
     auto bullet = _entities.addEntity("Bullet");
-    Rect playerRect = _player1Entity->getComponent<CRectCollider>()->rect;
-    Vector2 pos = _player1Entity->getComponent<CTransform>()->position + (playerRect.size / 2.0f);
-    bullet->addComponent<CTransform>(pos);
+    Rect playerRect = _player1Entity.getComponent<CRectCollider>().rect;
+    Vector2 pos = _player1Entity.getComponent<CTransform>().position + (playerRect.size / 2.0f);
+    auto& transform = bullet.addComponent<CTransform>();
+    transform.position = pos;
     Vector2 vel = (mouseLocation - pos);
     vel.normalize();
     vel *= Settings::BULLET_SPEED;
-    bullet->addComponent<CPhysicsBody>(vel);
-    std::shared_ptr<CSprite> sprite = bullet->addComponent<CSprite>(_assets->getTexture("Ball"));
-    sprite->sprite.setScale(0.25f, 0.25f);
-    Rect box = Rect(sprite->sprite.getLocalBounds());
+    auto& physics = bullet.addComponent<CPhysicsBody>();
+    physics.velocity = vel;
+    auto& sprite = bullet.addComponent<CSprite>();
+    sprite.sprite = sf::Sprite(_assets->getTexture("Ball"));
+    sprite.sprite.setScale(0.25f, 0.25f);
+    Rect box = Rect(sprite.sprite.getLocalBounds());
     box.size *= 0.25f;
-    bullet->addComponent<CRectCollider>(box, true);
-    bullet->addComponent<CDamage>(10.0f, PLAYER);
+    auto& rectCollider = bullet.addComponent<CRectCollider>();
+    rectCollider.rect = box;
+    rectCollider.isTrigger = true;
+    auto& damage = bullet.addComponent<CDamage>();
+    damage.damage = 10.0f;
+    damage.layer = PLAYER;
 }
 
 void Scene_DungeonTest::sInput()
 {
     for (auto ent : _entities.getEntities("Player"))
     {
-        if (ent->hasComponent<CInput>() && ent->hasComponent<CPhysicsBody>())
+        if (ent.hasComponent<CInput>() && ent.hasComponent<CPhysicsBody>())
         {
-            std::shared_ptr<CInput> input = ent->getComponent<CInput>();
+            auto& input = ent.getComponent<CInput>();
             Vector2 vel;
 
-            if (input->up)     vel.y -= Settings::ARCHER_SPEED;
-            if (input->down)   vel.y += Settings::ARCHER_SPEED;
-            if (input->left)   vel.x -= Settings::ARCHER_SPEED;
-            if (input->right)  vel.x += Settings::ARCHER_SPEED;
+            if (input.up)     vel.y -= Settings::ARCHER_SPEED;
+            if (input.down)   vel.y += Settings::ARCHER_SPEED;
+            if (input.left)   vel.x -= Settings::ARCHER_SPEED;
+            if (input.right)  vel.x += Settings::ARCHER_SPEED;
 
-            if (input->run) vel *= 2;
+            if (input.run) vel *= 2;
 
-            ent->getComponent<CPhysicsBody>()->velocity = vel;
+            ent.getComponent<CPhysicsBody>().velocity = vel;
         }
     }
 }
@@ -619,15 +674,17 @@ void Scene_DungeonTest::sHandleCollision()
 {
     for (auto ent : _entities.getEntities("CollisionEvent"))
     {
-        std::shared_ptr<CCollisionEvent> cEvent = ent->getComponent<CCollisionEvent>();
+        auto& cEvent = ent.getComponent<CCollisionEvent>();
+        Entity ent1 = _entities[cEvent.ent1];
+        Entity ent2 = _entities[cEvent.ent2];
         // handle ball collision with something
-        if (cEvent->ent1->tag() == "Bullet")
+        if (ent1.tag() == "Bullet")
         {
-            if (cEvent->ent2->tag() == "Wall" || cEvent->ent2->tag() == "Destructable")
+            if (ent2.tag() == "Wall" || ent2.tag() == "Destructable")
             {
-                float distSqr = (_player1Entity->getComponent<CTransform>()->position - cEvent->ent1->getComponent<CTransform>()->position).magnitudeSqr();
-                cEvent->ent1->getComponent<CRectCollider>()->enabled = false;
-                cEvent->ent1->destroy();
+                float distSqr = (_player1Entity.getComponent<CTransform>().position - ent1.getComponent<CTransform>().position).magnitudeSqr();
+                ent1.getComponent<CRectCollider>().enabled = false;
+                ent1.destroy();
                 if (distSqr < 100000.0f) _engine->playSound("WallImpact");
             }
         }

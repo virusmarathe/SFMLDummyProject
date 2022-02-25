@@ -1,93 +1,61 @@
 #pragma once
 
-#include "Components/CTransform.h"
-#include "Components/CSprite.h"
-#include "Components/CRectCollider.h"
-#include "Components/CText.h"
-#include "Components/CPhysicsBody.h"
-#include "Components/CInput.h"
-#include "Components/CAnimation.h"
-#include "Components/CPhysicsAnimator.h"
-#include "Components/CCollisionEvent.h"
-#include "Components/CShapeRect.h"
-#include "Components/CShapeLine.h"
-#include "Components/CDamage.h"
-#include "Components/CHealth.h"
-#include "Components/CNetworkTransform.h"
-#include <tuple>
-#include "Components/CNetID.h"
-
-typedef std::tuple<
-	std::shared_ptr<CTransform>,
-	std::shared_ptr<CPhysicsBody>,
-	std::shared_ptr<CSprite>,
-	std::shared_ptr<CInput>,
-	std::shared_ptr<CRectCollider>,
-	std::shared_ptr<CText>,
-	std::shared_ptr<CAnimation>,
-	std::shared_ptr<CPhysicsAnimator>,
-	std::shared_ptr<CCollisionEvent>,
-	std::shared_ptr<CShapeRect>,
-	std::shared_ptr<CShapeLine>,
-	std::shared_ptr<CDamage>,
-	std::shared_ptr<CHealth>,
-	std::shared_ptr<CNetworkTransform>,
-	std::shared_ptr<CNetID>
-> ComponentTuple;
+#include "EntityMemoryPool.h"
 
 class Entity
 {
 
 public:
+	size_t id = MAX_ENTITIES+1; // init to value outside of scope
 
-	bool operator==(const Entity& rhs) const { return _id == rhs._id; }
-	bool operator!=(const Entity& rhs) const { return _id != rhs._id; }
-	std::string tag() { return _tag; }
-	size_t id() { return _id; }
-	void destroy() { _valid = false; }
-	bool isValid() { return _valid; }
+	bool operator==(const Entity& rhs) const { return id == rhs.id; }
+	bool operator!=(const Entity& rhs) const { return id != rhs.id; }
+	void operator=(const Entity& rhs) { id = rhs.id; }
+
+	std::string tag() 
+	{
+		return EntityMemoryPool::Instance().getTag(id);
+	}
+	void destroy() 
+	{
+		EntityMemoryPool::Instance().destroy(id);
+	}
+	bool isValid() 
+	{
+		return EntityMemoryPool::Instance().isActive(id);
+	}
 
 	template<typename T, typename... TArgs>
-	std::shared_ptr<T> addComponent(TArgs&& ...args)
+	T& addComponent()
 	{
-		std::get<std::shared_ptr<T>>(_components) = std::make_shared<T>(std::forward<TArgs>(args)...);
-		std::shared_ptr<T> component = getComponent<T>();
-		component->has = true;
-		return component;
+		T& comp = EntityMemoryPool::Instance().addComponent<T>(id);
+		return comp;
 	}
 
 	template<typename T>
-	std::shared_ptr<T> getComponent()
+	T& getComponent()
 	{
-		return std::get<std::shared_ptr<T>>(_components);
+		return EntityMemoryPool::Instance().getComponent<T>(id);
 	}
 
 	template<typename T>
 	void removeComponent()
 	{
-		std::shared_ptr<T> component = getComponent<T>();
-		if (component)
-		{
-			component->has = false;
-		}
+		EntityMemoryPool::Instance().removeComponent<T>(id);
 	}
 
 	template<typename T>
 	bool hasComponent()
 	{
-		if (getComponent<T>() == nullptr) return false;
-
-		return getComponent<T>()->has;
+		return EntityMemoryPool::Instance().hasComponent<T>(id);
 	}
+
+	Entity() : id(MAX_ENTITIES + 1) { }
 
 private:
 
-	Entity(const size_t id, const std::string& tag) : _id(id), _tag(tag) { }
-
-	const size_t _id = 0;
-	const std::string _tag = "Default";
-	bool _valid = true;
-	ComponentTuple _components;
+	Entity(size_t id) : id(id) { }
 
 	friend class EntityManager;
+	friend class EntityMemoryPool;
 };

@@ -7,5 +7,6 @@ class CSprite : public Component
 public:
 	sf::Sprite sprite;
 
+	CSprite() {}
 	CSprite(sf::Texture& texture) : sprite(texture) { }
 };

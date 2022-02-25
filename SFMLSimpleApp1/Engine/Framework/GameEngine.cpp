@@ -10,7 +10,7 @@ bool GameEngine::DEBUG_MODE = false;
 void GameEngine::init(std::string gameName, unsigned int windowWidth, unsigned int windowHeight, std::string resourcePath)
 {
     _window.create(sf::VideoMode(windowWidth, windowHeight), gameName);
-    _window.setFramerateLimit(144);
+    //_window.setFramerateLimit(144);
     _window.setKeyRepeatEnabled(false);
     
     // load resources
@@ -127,16 +127,23 @@ void GameEngine::update()
 
     if (_currentScene != nullptr)
     {
-        _currentScene->update(deltaTime.asSeconds());
+        _currentScene->preUpdate(deltaTime.asSeconds());
         for (auto system : _systems)
         {
             system->update(deltaTime.asSeconds());
         }
+
+        if (_isNetworked)
+        {
+            _networkManager.update(deltaTime.asSeconds());
+        }
+
+        _currentScene->postUpdate(deltaTime.asSeconds());
     }
 
-    if (_isNetworked)
+    for (auto ent : _currentScene->getEntityManager()->getEntities("CollisionEvent"))
     {
-        _networkManager.update(deltaTime.asSeconds());
+        ent.destroy();
     }
 }
 

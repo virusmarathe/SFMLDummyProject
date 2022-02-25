@@ -16,14 +16,20 @@ void Scene_PhysicsTest::init()
 
     _player1Goal = _entities.addEntity("Goal");
     Rect blueRect(0, 0, 30, (float)_window->getSize().y);
-    _player1Goal->addComponent<CTransform>(blueRect.pos);
-    _player1Goal->addComponent<CRectCollider>(blueRect, true);
+    auto& p1GoalTransform = _player1Goal.addComponent<CTransform>();
+    p1GoalTransform.position = blueRect.pos;
+    auto& p1GoalrectCollider = _player1Goal.addComponent<CRectCollider>();
+    p1GoalrectCollider.rect = blueRect;
+    p1GoalrectCollider.isTrigger = true;
     Primitives::DrawRectShape(blueRect, sf::Color::Blue);
 
     _player2Goal = _entities.addEntity("Goal");
     Rect redRect((float)_window->getSize().x - 30, 0, 30, (float)_window->getSize().y);
-    _player2Goal->addComponent<CTransform>(redRect.pos);
-    _player2Goal->addComponent<CRectCollider>(redRect, true);
+    auto& p2GoalTransform = _player2Goal.addComponent<CTransform>();
+    p2GoalTransform.position = redRect.pos;
+    auto& p2GoalRectCollider = _player2Goal.addComponent<CRectCollider>();
+    p2GoalRectCollider.rect = redRect;
+    p2GoalRectCollider.isTrigger = true;
     Primitives::DrawRectShape(redRect, sf::Color::Red);
 
     spawnWall(Rect(0, 0, (float)_window->getSize().x, 50));
@@ -37,13 +43,19 @@ void Scene_PhysicsTest::init()
     }
 
     _player1ScoreBoard = _entities.addEntity("Score");
-    _player1ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f - 100, 60));
-    _player1ScoreBoard->addComponent<CText>("Player 1: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Blue);
+    auto& p1ScoreTransform = _player1ScoreBoard.addComponent<CTransform>();
+    p1ScoreTransform.position = Vector2(_window->getSize().x / 2.0f - 100, 60);
+    auto& p1ScoreTextComp = _player1ScoreBoard.addComponent<CText>();
+    p1ScoreTextComp.text = sf::Text(sf::String("Player 1: 0"), _assets->getFont("NormalUIFont"), 24);
+    p1ScoreTextComp.textColor = sf::Color::Blue;
     _player1Score = 0;
 
     _player2ScoreBoard = _entities.addEntity("Score");
-    _player2ScoreBoard->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f - 100, 100));
-    _player2ScoreBoard->addComponent<CText>("Player 2: 0", _assets->getFont("NormalUIFont"), 24, sf::Color::Red);
+    auto& p2ScoreTransform = _player2ScoreBoard.addComponent<CTransform>();
+    p2ScoreTransform.position = Vector2(_window->getSize().x / 2.0f - 100, 100);
+    auto& p2ScoreTextComp = _player2ScoreBoard.addComponent<CText>();
+    p2ScoreTextComp.text = sf::Text(sf::String("Player 2: 0"), _assets->getFont("NormalUIFont"), 24);
+    p2ScoreTextComp.textColor = sf::Color::Red;
     _player2Score = 0;
 
     _ballTimer = 10;
@@ -52,7 +64,9 @@ void Scene_PhysicsTest::init()
     Primitives::DrawText(idText.c_str(), Vector2(50,50), _assets->getFont("NormalUIFont"));
 
     auto camera = _entities.addEntity("Camera");
-    camera->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(_window->getSize()));
+    auto& cameraTransform = camera.addComponent<CTransform>();
+    cameraTransform.position = Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f);
+    cameraTransform.scale = Vector2(_window->getSize());
 
     // will eventually be moved to a config file
     _engine->registerAction(sf::Keyboard::P, "PHYSICS_TOGGLE");
@@ -79,23 +93,24 @@ void Scene_PhysicsTest::init()
     }
 }
 
-void Scene_PhysicsTest::update(float dt)
+void Scene_PhysicsTest::preUpdate(float dt)
+{
+    sInput();
+}
+
+void Scene_PhysicsTest::postUpdate(float dt)
 {
     sHandleCollision(dt);
-    sInput();
 }
 
 void Scene_PhysicsTest::sDoAction(const Action& action)
 {
     if (action.name == "PHYSICS_TOGGLE" && action.type == Action::ActionType::START) GameEngine::DEBUG_MODE = !GameEngine::DEBUG_MODE;
 
-    if (_playerEntity)
-    {
-        if (action.name == "UP") _playerEntity->getComponent<CInput>()->up = action.type == Action::ActionType::START;
-        if (action.name == "LEFT") _playerEntity->getComponent<CInput>()->left = action.type == Action::ActionType::START;
-        if (action.name == "DOWN") _playerEntity->getComponent<CInput>()->down = action.type == Action::ActionType::START;
-        if (action.name == "RIGHT") _playerEntity->getComponent<CInput>()->right = action.type == Action::ActionType::START;
-    }
+    if (action.name == "UP") _playerEntity.getComponent<CInput>().up = action.type == Action::ActionType::START;
+    if (action.name == "LEFT") _playerEntity.getComponent<CInput>().left = action.type == Action::ActionType::START;
+    if (action.name == "DOWN") _playerEntity.getComponent<CInput>().down = action.type == Action::ActionType::START;
+    if (action.name == "RIGHT") _playerEntity.getComponent<CInput>().right = action.type == Action::ActionType::START;
 
     if (action.name == "DUNGEON_SCENE" && action.type == Action::ActionType::START) _engine->changeScene("DungeonTest");
 
@@ -131,14 +146,21 @@ void Scene_PhysicsTest::spawnBallServer()
 {
     int xVel = rand() % 2 == 1 ? 1 : -1;
     int yVel = rand() % 2 == 1 ? 1 : -1;
-    std::shared_ptr<Entity> ball = _engine->getNetManager()->serverCreateEntity(&_entities, "Ball");
-    std::shared_ptr<CTransform> transform = ball->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE));
-    ball->addComponent<CSprite>(_assets->getTexture("Ball"));
-    ball->addComponent<CRectCollider>(Rect(ball->getComponent<CTransform>()->position.x, ball->getComponent<CTransform>()->position.y, Settings::BALL_SIZE, Settings::BALL_SIZE));
-    ball->addComponent<CPhysicsBody>(Vector2(Settings::BALL_START_SPEED * xVel, Settings::BALL_START_SPEED * yVel), true);
-    ball->addComponent<CNetworkTransform>(transform->position);
+    Entity ball = _engine->getNetManager()->serverCreateEntity(&_entities, "Ball");
+    auto& transform = ball.addComponent<CTransform>();
+    transform.position = Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f);
+    transform.scale = Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE);
+    auto& sprite = ball.addComponent<CSprite>();
+    sprite.sprite = sf::Sprite(_assets->getTexture("Ball"));
+    auto& rectCollider = ball.addComponent<CRectCollider>();
+    rectCollider.rect = Rect(ball.getComponent<CTransform>().position.x, ball.getComponent<CTransform>().position.y, Settings::BALL_SIZE, Settings::BALL_SIZE);
+    auto& physics = ball.addComponent<CPhysicsBody>();
+    physics.velocity = Vector2(Settings::BALL_START_SPEED * xVel, Settings::BALL_START_SPEED * yVel);
+    physics.elastic = true;
+    auto& netTransform = ball.addComponent<CNetworkTransform>();
+    netTransform.position = transform.position;
     sf::Packet packet;
-    packet << NetworkManager::PacketType::SCENE_EVENT << SPAWN_BALL << ball->getComponent<CNetID>()->netID << transform->position;
+    packet << NetworkManager::PacketType::SCENE_EVENT << SPAWN_BALL << ball.getComponent<CNetID>().netID << transform.position;
     _engine->sendToAllClients(packet);
 }
 
@@ -147,39 +169,52 @@ void Scene_PhysicsTest::spawnBallClient(sf::Packet& packet)
     unsigned int netID;
     Vector2 pos;
     packet >> netID >> pos;
-    std::shared_ptr<Entity> ball = _entities.addEntity("Ball");
-    ball->addComponent<CTransform>(pos, Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE));
-    ball->addComponent<CSprite>(_assets->getTexture("Ball"));
-    ball->addComponent<CRectCollider>(Rect(ball->getComponent<CTransform>()->position.x, ball->getComponent<CTransform>()->position.y, Settings::BALL_SIZE, Settings::BALL_SIZE));
-    ball->addComponent<CPhysicsBody>(Vector2(), true);
-    ball->addComponent<CNetworkTransform>(pos);
-    ball->addComponent<CNetID>(netID);
+    Entity ball = _entities.addEntity("Ball");
+    auto& transform = ball.addComponent<CTransform>();
+    transform.position = pos;
+    transform.scale = Vector2(Settings::BALL_SIZE, Settings::BALL_SIZE);
+    auto& sprite = ball.addComponent<CSprite>();
+    sprite.sprite = sf::Sprite(_assets->getTexture("Ball"));
+    auto& rectCollider = ball.addComponent<CRectCollider>();
+    rectCollider.rect = Rect(ball.getComponent<CTransform>().position.x, ball.getComponent<CTransform>().position.y, Settings::BALL_SIZE, Settings::BALL_SIZE);
+    auto& physics = ball.addComponent<CPhysicsBody>();
+    physics.elastic = true;
+    auto& netTrans = ball.addComponent<CNetworkTransform>();
+    netTrans.position = pos;
+    auto& netIDComp = ball.addComponent<CNetID>();
+    netIDComp.netID = netID;
     _engine->getNetManager()->clientAddNetID(netID, ball);
 }
 
 void Scene_PhysicsTest::spawnWall(Rect rect)
 {
     const float GRID_SIZE = 50;
-    std::shared_ptr<Entity> wall = Primitives::TiledSprite(rect, GRID_SIZE, _assets->getTexture("Wall"), "Wall");
-    wall->addComponent<CRectCollider>(rect);
+    Entity wall = Primitives::TiledSprite(rect, GRID_SIZE, _assets->getTexture("Wall"), "Wall");
+    auto& rectCollider = wall.addComponent<CRectCollider>();
+    rectCollider.rect = rect;
 }
 
 void Scene_PhysicsTest::spawnPlayerServer(Vector2 pos, int clientID)
 {
     auto player = _engine->getNetManager()->serverCreateEntity(&_entities, "Player");
-    player->getComponent<CNetID>()->ownerID = clientID;
-    player->addComponent<CTransform>(pos);
-    std::shared_ptr<CSprite> sprite = player->addComponent<CSprite>(_assets->getTexture("Paddle"));
-    player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
-    player->addComponent<CPhysicsBody>();
-    player->addComponent<CNetworkTransform>(pos);
-    player->addComponent<CInput>();
+    player.getComponent<CNetID>().ownerID = clientID;
+    auto& transform = player.addComponent<CTransform>();
+    transform.position = pos;
+    auto& sprite = player.addComponent<CSprite>();
+    sprite.sprite = sf::Sprite(_assets->getTexture("Paddle"));
+    auto& rectCollider = player.addComponent<CRectCollider>();
+    rectCollider.rect = Rect(sprite.sprite.getTextureRect());
+    player.addComponent<CPhysicsBody>();
+    auto& netTransform = player.addComponent<CNetworkTransform>();
+    netTransform.position = pos;
+    player.addComponent<CInput>();
     if (clientID == NetworkManager::clientID)
     {
         _playerEntity = player;
+        _spawnedLocalPlayer = true;
     }
     sf::Packet packet;
-    packet << NetworkManager::PacketType::SCENE_EVENT << SPAWN_PLAYER << player->getComponent<CNetID>()->netID << pos << clientID;
+    packet << NetworkManager::PacketType::SCENE_EVENT << SPAWN_PLAYER << player.getComponent<CNetID>().netID << pos << clientID;
     _engine->sendToAllClients(packet);
     _engine->addLateConnectPacket(packet);
 }
@@ -190,18 +225,25 @@ void Scene_PhysicsTest::spawnPlayerClient(sf::Packet& packet)
     int clientID;
     Vector2 pos;
     packet >> netID >> pos >> clientID;
-    if (clientID == NetworkManager::clientID && _playerEntity != nullptr) { return; } // don't spawn yourself twice
-    std::shared_ptr<Entity> player = _entities.addEntity("Player");
-    player->addComponent<CTransform>(pos);
-    std::shared_ptr<CSprite> sprite = player->addComponent<CSprite>(_assets->getTexture("Paddle"));
-    player->addComponent<CRectCollider>(Rect(sprite->sprite.getTextureRect()));
-    player->addComponent<CPhysicsBody>();
-    player->addComponent<CNetID>(netID, clientID);
-    player->addComponent<CNetworkTransform>(pos);
+    if (clientID == NetworkManager::clientID && _spawnedLocalPlayer) { return; } // don't spawn yourself twice
+    Entity player = _entities.addEntity("Player");
+    auto& transform = player.addComponent<CTransform>();
+    transform.position = pos;
+    auto& sprite = player.addComponent<CSprite>();
+    sprite.sprite = sf::Sprite(_assets->getTexture("Paddle"));
+    auto& rectCollider = player.addComponent<CRectCollider>();
+    rectCollider.rect = Rect(sprite.sprite.getTextureRect());
+    player.addComponent<CPhysicsBody>();
+    auto& netIDComp = player.addComponent<CNetID>();
+    netIDComp.netID = netID;
+    netIDComp.ownerID = clientID;
+    auto& netTransform = player.addComponent<CNetworkTransform>();
+    netTransform.position = pos;
     if (clientID == NetworkManager::clientID)
     {
-        player->addComponent<CInput>();
+        player.addComponent<CInput>();
         _playerEntity = player;
+        _spawnedLocalPlayer = true;
     }
     _engine->getNetManager()->clientAddNetID(netID, player);
 }
@@ -210,26 +252,22 @@ void Scene_PhysicsTest::sInput()
 {
     for (auto ent : _entities.getEntities("Player"))
     {
-        if (ent->hasComponent<CInput>() && ent->hasComponent<CPhysicsBody>())
+        if (ent.hasComponent<CInput>() && ent.hasComponent<CPhysicsBody>())
         {
-            std::shared_ptr<CInput> input = ent->getComponent<CInput>();
+            auto& input = ent.getComponent<CInput>();
             Vector2 vel;
 
-            if (input->up)     
-                vel.y -= Settings::PADDLE_SPEED;
-            if (input->down)   
-                vel.y += Settings::PADDLE_SPEED;
-            if (input->left)   
-                vel.x -= Settings::PADDLE_SPEED;
-            if (input->right)  
-                vel.x += Settings::PADDLE_SPEED;
+            if (input.up) vel.y -= Settings::PADDLE_SPEED;
+            if (input.down) vel.y += Settings::PADDLE_SPEED;
+            if (input.left) vel.x -= Settings::PADDLE_SPEED;
+            if (input.right) vel.x += Settings::PADDLE_SPEED;
 
-            ent->getComponent<CPhysicsBody>()->velocity = vel;
+            ent.getComponent<CPhysicsBody>().velocity = vel;
 
             if (!NetworkManager::isServer)
             {
                 sf::Packet packet;
-                packet << NetworkManager::PacketType::INPUT_EVENT << ent->getComponent<CNetID>()->netID << input;
+                packet << NetworkManager::PacketType::INPUT_EVENT << ent.getComponent<CNetID>().netID << input;
                 _engine->sendToServer(packet);
             }
         }
@@ -240,26 +278,28 @@ void Scene_PhysicsTest::sHandleCollision(float dt)
 {
     for (auto ent : _entities.getEntities("CollisionEvent"))
     {
-        std::shared_ptr<CCollisionEvent> cEvent = ent->getComponent<CCollisionEvent>();
+        auto& cEvent = ent.getComponent<CCollisionEvent>();
+        Entity ent1 = _entities[cEvent.ent1];
+        Entity ent2 = _entities[cEvent.ent2];
         // handle ball collision with something
-        if (cEvent->ent1->tag() == "Ball")
+        if (ent1.tag() == "Ball")
         {
-            if (cEvent->ent2->tag() == "Goal")
+            if (ent2.tag() == "Goal")
             {
                 if (NetworkManager::isServer)
                 {
-                    if (cEvent->ent2 == _player2Goal)
+                    if (ent2.id == _player2Goal.id)
                     {
                         std::string scoreString = "Player 1: " + std::to_string(++_player1Score);
-                        _player1ScoreBoard->getComponent<CText>()->text.setString(scoreString);
+                        _player1ScoreBoard.getComponent<CText>().text.setString(scoreString);
                     }
                     else
                     {
                         std::string scoreString = "Player 2: " + std::to_string(++_player2Score);
-                        _player2ScoreBoard->getComponent<CText>()->text.setString(scoreString);
+                        _player2ScoreBoard.getComponent<CText>().text.setString(scoreString);
                     }
-                    _engine->getNetManager()->serverDestroyEntity(cEvent->ent1->getComponent<CNetID>()->netID);
-                    cEvent->ent1->getComponent<CRectCollider>()->enabled = false;
+                    _engine->getNetManager()->serverDestroyEntity(ent1.getComponent<CNetID>().netID);
+                    ent1.getComponent<CRectCollider>().enabled = false;
                 }
             }
             else

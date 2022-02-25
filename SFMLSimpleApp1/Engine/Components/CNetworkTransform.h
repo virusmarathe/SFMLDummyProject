@@ -8,5 +8,6 @@ public:
 	Vector2 position;
 	Vector2 velocity;
 
+	CNetworkTransform() {}
 	CNetworkTransform(Vector2 pos) : position(pos) { }
 };

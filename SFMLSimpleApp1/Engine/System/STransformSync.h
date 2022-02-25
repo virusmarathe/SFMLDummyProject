@@ -15,16 +15,16 @@ public:
 		{
 			for (auto ent : _entities->getEntities())
 			{
-				if (ent->hasComponent<CNetworkTransform>() && ent->hasComponent<CNetID>() && ent->isValid())
+				if (ent.hasComponent<CNetworkTransform>() && ent.hasComponent<CNetID>() && ent.isValid())
 				{
-					std::shared_ptr<CNetworkTransform> netTransform = ent->getComponent<CNetworkTransform>();
-					netTransform->position = ent->getComponent<CTransform>()->position;
+					auto& netTransform = ent.getComponent<CNetworkTransform>();
+					netTransform.position = ent.getComponent<CTransform>().position;
 					sf::Packet pack;
-					pack << NetworkManager::PacketType::TRANSFORM << ent->getComponent<CNetID>()->netID << netTransform->position;
-					if (ent->hasComponent<CPhysicsBody>())
+					pack << NetworkManager::PacketType::TRANSFORM << ent.getComponent<CNetID>().netID << netTransform.position;
+					if (ent.hasComponent<CPhysicsBody>())
 					{
-						netTransform->velocity = ent->getComponent<CPhysicsBody>()->velocity;
-						pack << netTransform->velocity;
+						netTransform.velocity = ent.getComponent<CPhysicsBody>().velocity;
+						pack << netTransform.velocity;
 					}
 					else pack << Vector2();
 					_engine->updatePacket(pack);
@@ -35,25 +35,25 @@ public:
 		{
 			for (auto ent : _entities->getEntities())
 			{
-				if (ent->hasComponent<CNetworkTransform>() && ent->isValid())
+				if (ent.hasComponent<CNetworkTransform>() && ent.isValid())
 				{
-					if (ent->hasComponent<CPhysicsBody>())
+					if (ent.hasComponent<CPhysicsBody>())
 					{
-						Vector2 pos = ent->getComponent<CTransform>()->position;
-						Vector2 desiredPos = ent->getComponent<CNetworkTransform>()->position;
+						Vector2 pos = ent.getComponent<CTransform>().position;
+						Vector2 desiredPos = ent.getComponent<CNetworkTransform>().position;
 						float distSqr = (desiredPos - pos).magnitudeSqr();
 						if (distSqr < 500)
 						{
-							ent->getComponent<CPhysicsBody>()->velocity = ent->getComponent<CNetworkTransform>()->velocity;
+							ent.getComponent<CPhysicsBody>().velocity = ent.getComponent<CNetworkTransform>().velocity;
 						}
 						else
 						{
-							ent->getComponent<CTransform>()->position = ent->getComponent<CNetworkTransform>()->position;
+							ent.getComponent<CTransform>().position = ent.getComponent<CNetworkTransform>().position;
 						}
 					}
 					else
 					{
-						ent->getComponent<CTransform>()->position = ent->getComponent<CNetworkTransform>()->position;
+						ent.getComponent<CTransform>().position = ent.getComponent<CNetworkTransform>().position;
 					}
 				}
 			}

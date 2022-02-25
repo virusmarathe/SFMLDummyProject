@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Entity.h"
+#include "EntityMemoryPool.h"
 #include <vector>
 #include <map>
 
-typedef std::vector<std::shared_ptr<Entity>> EntityList;
+typedef std::vector<Entity> EntityList;
 typedef std::map<std::string, EntityList> EntityMap;
-typedef std::map<size_t, std::shared_ptr<Entity>> EntityIDMap;
+typedef std::map<size_t, Entity> EntityIDMap;
 
 class EntityManager
 {
@@ -14,21 +15,20 @@ class EntityManager
 public:
 	EntityManager();
 
-	std::shared_ptr<Entity> addEntity(const std::string& tag);
+	Entity addEntity(const std::string& tag);
 
-	EntityList& getEntities() { return _entityList; }
-	EntityList& getEntities(const std::string& tag);
+	EntityList getEntities();
+	EntityList getEntities(std::string tag);
 
 	void update();
 
 	void destroyAll();
+	
+	Entity operator[](size_t id) { return _entityList[id]; }
 
-	std::shared_ptr<Entity> operator[](size_t id) { return _entityIDMap[id]; }
 
 private:
-	EntityList _entityList, _entitiesToAdd, _entitiesToRemove;
-	EntityMap _entityMap;
-	EntityIDMap _entityIDMap;
+	EntityList _entityList;
 	size_t _totalEntities = 0;
 };
 

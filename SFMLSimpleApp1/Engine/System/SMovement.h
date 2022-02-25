@@ -11,12 +11,12 @@ public:
 	{
         for (auto ent : _entities->getEntities())
         {
-            if (ent->hasComponent<CTransform>() && ent->hasComponent<CPhysicsBody>())
+            if (ent.hasComponent<CTransform>() && ent.hasComponent<CPhysicsBody>())
             {
-                ent->getComponent<CTransform>()->position += ent->getComponent<CPhysicsBody>()->velocity * dt;
-                if (ent->hasComponent<CRectCollider>())
+                ent.getComponent<CTransform>().position += ent.getComponent<CPhysicsBody>().velocity * dt;
+                if (ent.hasComponent<CRectCollider>())
                 {
-                    ent->getComponent<CRectCollider>()->rect.pos = ent->getComponent<CTransform>()->position + ent->getComponent<CRectCollider>()->offset;
+                    ent.getComponent<CRectCollider>().rect.pos = ent.getComponent<CTransform>().position + ent.getComponent<CRectCollider>().offset;
                 }
             }
         }

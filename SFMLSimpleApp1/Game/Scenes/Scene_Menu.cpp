@@ -11,16 +11,12 @@ void Scene_Menu::init()
 	Primitives::DrawText("Press H for host.", Vector2(_window->getSize().x / 2.0f - 100.0f, _window->getSize().y / 2.0f), _assets->getFont("NormalUIFont"));
 	Primitives::DrawText("Press J to join a server.", Vector2(_window->getSize().x / 2.0f - 100.0f, _window->getSize().y / 2.0f + 50), _assets->getFont("NormalUIFont"));
 	auto camera = _entities.addEntity("Camera");
-	camera->addComponent<CTransform>(Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f), Vector2(_window->getSize()));
-
+	auto& transform = camera.addComponent<CTransform>();
+	transform.position = Vector2(_window->getSize().x / 2.0f, _window->getSize().y / 2.0f);
+	transform.scale = Vector2(_window->getSize());
 	_engine->registerAction(sf::Keyboard::H, "Host");
 	_engine->registerAction(sf::Keyboard::J, "Join");
 	_engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
-}
-
-void Scene_Menu::update(float dt)
-{
-
 }
 
 void Scene_Menu::sDoAction(const Action& action)

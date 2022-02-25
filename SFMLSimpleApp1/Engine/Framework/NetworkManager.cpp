@@ -86,7 +86,7 @@ void NetworkManager::addToLateConnectPacket(sf::Packet& packet)
 
 void NetworkManager::serverDestroyEntity(unsigned int netID)
 {
-    _netIDToEntityMap[netID]->destroy();
+    _netIDToEntityMap[netID].destroy();
     _netIDToEntityMap.erase(netID);
     sf::Packet pack;
     pack << DESTROY_ENT << netID;
@@ -96,11 +96,12 @@ void NetworkManager::serverDestroyEntity(unsigned int netID)
     // send 3 destroys in case one misses
 }
 
-std::shared_ptr<Entity> NetworkManager::serverCreateEntity(EntityManager* entities, std::string tag)
+Entity NetworkManager::serverCreateEntity(EntityManager* entities, std::string tag)
 {
     auto ent = entities->addEntity(tag);
     unsigned int netID = nextNetID++;
-    ent->addComponent<CNetID>(netID);
+    auto& comp = ent.addComponent<CNetID>();
+    comp.netID = netID;
     _netIDToEntityMap[netID] = ent;
     return ent;
 }
@@ -147,10 +148,10 @@ void NetworkManager::receive()
                 {
                     unsigned int netID;
                     packet >> netID;
-                    std::shared_ptr<Entity> ent = _netIDToEntityMap[netID];
-                    if (ent)
+                    if (_netIDToEntityMap.find(netID) != _netIDToEntityMap.end())
                     {
-                        packet >> ent->getComponent<CInput>();
+                        Entity ent = _netIDToEntityMap[netID];
+                        packet >> ent.getComponent<CInput>();
                     }
                 }
             }
@@ -173,11 +174,11 @@ void NetworkManager::receive()
                     unsigned int netID;
                     Vector2 pos, vel;
                     packet >> netID >> pos >> vel;
-                    std::shared_ptr<Entity> ent = _netIDToEntityMap[netID];
-                    if (ent)
+                    if (_netIDToEntityMap.find(netID) != _netIDToEntityMap.end())
                     {
-                        ent->getComponent<CNetworkTransform>()->position = pos;
-                        ent->getComponent<CNetworkTransform>()->velocity = vel;
+                        Entity ent = _netIDToEntityMap[netID];
+                        ent.getComponent<CNetworkTransform>().position = pos;
+                        ent.getComponent<CNetworkTransform>().velocity = vel;
                     }
                 }
                 else if (pType == DESTROY_ENT)
@@ -186,7 +187,7 @@ void NetworkManager::receive()
                     packet >> id;
                     if (_netIDToEntityMap.find(id) != _netIDToEntityMap.end())
                     {
-                        _netIDToEntityMap[id]->destroy();
+                        _netIDToEntityMap[id].destroy();
                         _netIDToEntityMap.erase(id);
                     }
                 }

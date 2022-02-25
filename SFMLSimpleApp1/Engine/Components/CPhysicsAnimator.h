@@ -5,6 +5,7 @@
 class CPhysicsAnimator : public Component
 {
 public:
+	CPhysicsAnimator() {}
 	CPhysicsAnimator(std::string idleAnim, std::string moveAnim, std::string fastMoveAnim, float velThreshold) : 
 		idleAnimName(idleAnim),
 		movingAnimName(moveAnim),
@@ -12,9 +13,9 @@ public:
 		velThreshold(velThreshold) { }
 
 	std::string currentAnimName = "";
-	std::string idleAnimName;
-	std::string movingAnimName;
-	std::string fastMovingAnimName;
-	float velThreshold;
+	std::string idleAnimName = "";
+	std::string movingAnimName = "";
+	std::string fastMovingAnimName = "";
+	float velThreshold = 0;
 	bool isMovingRight = true;
 };

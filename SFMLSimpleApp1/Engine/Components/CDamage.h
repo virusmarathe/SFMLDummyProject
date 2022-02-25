@@ -4,8 +4,9 @@
 class CDamage : public Component
 {
 public:
-	float damage;
-	int layer;
+	float damage = 0;
+	int layer = 0;
 
+	CDamage() {}
 	CDamage(float damage, int layer) : damage(damage), layer(layer) { }
 };

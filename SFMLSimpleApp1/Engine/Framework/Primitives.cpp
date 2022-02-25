@@ -2,58 +2,70 @@
 
 EntityManager * Primitives::_entities = NULL;
 
-std::shared_ptr<Entity> Primitives::DrawLine(Vector2 start, Vector2 end, sf::Color color)
+Entity Primitives::DrawLine(Vector2 start, Vector2 end, sf::Color color)
 {
 	auto e1 = _entities->addEntity("PrimitiveLine");
-	e1->addComponent<CShapeLine>(start, end, color);
-
+	auto& comp = e1.addComponent<CShapeLine>();
+	comp.start = sf::Vector2f(start.x, start.y);
+	comp.end = sf::Vector2f(end.x, end.y);
+	comp.color = color;
 	return e1;
 }
 
-std::shared_ptr<Entity> Primitives::DrawRectShape(Rect rect, sf::Color color)
+Entity Primitives::DrawRectShape(Rect rect, sf::Color color)
 {
 	auto e1 = _entities->addEntity("PrimitiveRect");
-	e1->addComponent<CTransform>(rect.pos);
-	e1->addComponent<CShapeRect>(rect, color);
-
+	auto& transform = e1.addComponent<CTransform>();
+	transform.position = rect.pos;
+	auto& rectShape = e1.addComponent<CShapeRect>();
+	rectShape.rectShape = sf::RectangleShape(sf::Vector2f(rect.size.x, rect.size.y));
+	rectShape.color = color;
 	return e1;
 }
 
-std::shared_ptr<Entity> Primitives::TiledSprite(Rect size, float tileSize, sf::Texture& texture, std::string tag)
+Entity Primitives::TiledSprite(Rect size, float tileSize, sf::Texture& texture, std::string tag)
 {
 	auto e1 = _entities->addEntity(tag);
-	e1->addComponent<CTransform>(size.pos);
-	std::shared_ptr<CSprite> spriteComp = e1->addComponent<CSprite>(texture);
-	sf::IntRect texRect = spriteComp->sprite.getTextureRect();
+	auto& transform = e1.addComponent<CTransform>();
+	transform.position = size.pos;
+	auto& spriteComp = e1.addComponent<CSprite>();
+	spriteComp.sprite = sf::Sprite(texture);
+	sf::IntRect texRect = spriteComp.sprite.getTextureRect();
 	Vector2 scale(tileSize / texRect.width, tileSize / texRect.height);
-	spriteComp->sprite.setScale(scale.x, scale.y);
-	spriteComp->sprite.setTextureRect(sf::IntRect(0, 0, (int)(size.size.x / scale.x), (int)(size.size.y / scale.y)));
-
+	spriteComp.sprite.setScale(scale.x, scale.y);
+	spriteComp.sprite.setTextureRect(sf::IntRect(0, 0, (int)(size.size.x / scale.x), (int)(size.size.y / scale.y)));
 	return e1;
 }
 
-std::shared_ptr<Entity> Primitives::ScaledSprite(Rect rect, sf::Texture& texture, bool autoCollider, std::string tag)
+Entity Primitives::ScaledSprite(Rect rect, sf::Texture& texture, bool autoCollider, std::string tag)
 {
 	auto e1 = _entities->addEntity(tag);
-	e1->addComponent<CTransform>(rect.pos);
-	std::shared_ptr<CSprite> spriteComp = e1->addComponent<CSprite>(texture);
-	sf::IntRect texRect = spriteComp->sprite.getTextureRect();
+	auto& transform = e1.addComponent<CTransform>();
+	transform.position = rect.pos;
+	auto& spriteComp = e1.addComponent<CSprite>();
+	spriteComp.sprite = sf::Sprite(texture);
+	sf::IntRect texRect = spriteComp.sprite.getTextureRect();
 
 	Vector2 scale(rect.size.x / ((float)texRect.width), rect.size.y / ((float)texRect.height));
-	spriteComp->sprite.setScale(scale.x, scale.y);
+	spriteComp.sprite.setScale(scale.x, scale.y);
 
 	if (autoCollider)
 	{
-		e1->addComponent<CRectCollider>(rect);
+		auto& rectCollider = e1.addComponent<CRectCollider>();
+		rectCollider.rect = rect;
 	}
 
 	return e1;
 }
 
-std::shared_ptr<Entity> Primitives::DrawText(const char* text, Vector2 pos, sf::Font& font, float fontSize, sf::Color color)
+Entity Primitives::DrawText(const char* text, Vector2 pos, sf::Font& font, unsigned int fontSize, sf::Color color)
 {
 	auto ent = _entities->addEntity("PrimitiveText");
-	ent->addComponent<CTransform>(pos);
-	ent->addComponent<CText>(text, font, fontSize, color);
+	auto& transform = ent.addComponent<CTransform>();
+	transform.position = pos;
+	auto& textComp = ent.addComponent<CText>();
+	textComp.text = sf::Text(sf::String(text), font, fontSize);
+	textComp.textColor = color;
+
 	return ent;
 }
