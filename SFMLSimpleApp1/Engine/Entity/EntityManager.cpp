@@ -14,6 +14,7 @@ EntityManager::EntityManager()
 Entity EntityManager::addEntity(const std::string& tag)
 {
 	size_t index = EntityMemoryPool::Instance().addEntity(tag);
+	if (index > _maxEntityIndex) _maxEntityIndex = index;
 	return Entity(index);
 }
 
@@ -23,6 +24,7 @@ EntityList EntityManager::getEntities()
 	for (Entity ent : _entityList)
 	{
 		if (ent.isValid()) list.push_back(ent);
+		if (ent.id >= _maxEntityIndex) break;
 	}
 	return list;
 }
@@ -33,6 +35,7 @@ EntityList EntityManager::getEntities(std::string tag)
 	for (Entity ent : _entityList)
 	{
 		if (ent.isValid() && ent.tag() == tag) list.push_back(ent);
+		if (ent.id >= _maxEntityIndex) break;
 	}
 	return list;
 }

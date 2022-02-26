@@ -182,14 +182,20 @@ void GameEngine::sUserInput()
             if (currEvent.mouseButton.button == sf::Mouse::Middle) code = MOUSE_MIDDLE_DOWN;
             _currentScene->sDoAction(Action(_actionMap[code], Action::ActionType::START, mousePos));
         }
+        if (currEvent.type == sf::Event::MouseMoved)
+        {
+            sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
+            Vector2 mousePos = (_window).mapPixelToCoords(pixelPos);
+            _currentScene->sDoAction(Action(_actionMap[MOUSE_MOVED], Action::ActionType::START, mousePos));
+        }
         if (currEvent.type == sf::Event::MouseButtonReleased)
         {
             sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
             Vector2 mousePos = (_window).mapPixelToCoords(pixelPos);
             int code;
-            if (currEvent.mouseButton.button == sf::Mouse::Left) code = MOUSE_LEFT_UP;
-            if (currEvent.mouseButton.button == sf::Mouse::Right) code = MOUSE_RIGHT_UP;
-            if (currEvent.mouseButton.button == sf::Mouse::Middle) code = MOUSE_MIDDLE_UP;
+            if (currEvent.mouseButton.button == sf::Mouse::Left) code = MOUSE_LEFT_DOWN;
+            if (currEvent.mouseButton.button == sf::Mouse::Right) code = MOUSE_RIGHT_DOWN;
+            if (currEvent.mouseButton.button == sf::Mouse::Middle) code = MOUSE_MIDDLE_DOWN;
             _currentScene->sDoAction(Action(_actionMap[code], Action::ActionType::END, mousePos));
         }
     }

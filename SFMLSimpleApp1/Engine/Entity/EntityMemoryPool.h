@@ -35,7 +35,7 @@ typedef std::tuple<
 	std::vector<CTransform>
 > EntityComponentVectorTuple;
 
-const size_t MAX_ENTITIES = 1000;
+const size_t MAX_ENTITIES = 20000;
 
 class EntityMemoryPool
 {

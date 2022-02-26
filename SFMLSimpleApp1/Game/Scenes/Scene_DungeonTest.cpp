@@ -46,6 +46,7 @@ void Scene_DungeonTest::init()
     _engine->registerAction(GameEngine::MOUSE_SCROLL_UP, "ZOOM_IN");
     _engine->registerAction(GameEngine::MOUSE_SCROLL_DOWN, "ZOOM_OUT");
     _engine->registerAction(GameEngine::MOUSE_LEFT_DOWN, "FIRE");
+    _engine->registerAction(GameEngine::MOUSE_MOVED, "FIRE_TARGET");
 
     _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
     _engine->registerSystem(std::make_shared<SDamage>(&_entities, Priority::PHYSICS + 1));
@@ -488,6 +489,20 @@ void Scene_DungeonTest::preUpdate(float dt)
     {
         _camera.getComponent<CTransform>().position = _player1Entity.getComponent<CTransform>().position;
     }
+
+    if (_firing)
+    {
+        _fireCooldownTimer += dt;
+        if (_fireCooldownTimer >= 0.25f)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                fireBullet(_firePos + Vector2(rand()%100, rand()%100));
+            }
+            _fireCooldownTimer = 0;
+        }
+    }
+    else _fireCooldownTimer = 0.25f;
 }
 
 void Scene_DungeonTest::sDoAction(const Action& action)
@@ -514,10 +529,8 @@ void Scene_DungeonTest::sDoAction(const Action& action)
             if (action.name == "P1DOWN") _player1Entity.getComponent<CInput>().down = action.type == Action::ActionType::START;
             if (action.name == "P1RIGHT") _player1Entity.getComponent<CInput>().right = action.type == Action::ActionType::START;
             if (action.name == "P1RUN") _player1Entity.getComponent<CInput>().run = action.type == Action::ActionType::START;
-            if (action.name == "FIRE" && action.type == Action::ActionType::START)
-            {
-                fireBullet(action.pos);
-            }
+            if (action.name == "FIRE") _firing = action.type == Action::ActionType::START;
+            if (action.name == "FIRE_TARGET") _firePos = action.pos;
         }
     }
 
@@ -526,13 +539,12 @@ void Scene_DungeonTest::sDoAction(const Action& action)
 
     if (action.name == "RESET_ROOMS" && action.type == Action::ActionType::START)
     {
-        for (auto room : _entities.getEntities("Room"))
+        for (auto ent : _entities.getEntities())
         {
-            room.destroy();
-        }
-        for (auto room : _entities.getEntities("Wall"))
-        {
-            room.destroy();
+            if (ent.tag() == "Room" || ent.tag() == "Wall" || ent.tag() == "Destructable")
+            {
+                ent.destroy();
+            }
         }
         generateRooms(100);
     }

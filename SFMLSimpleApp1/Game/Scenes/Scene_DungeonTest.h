@@ -43,6 +43,9 @@ private:
 	bool _createRoomGraph = false;
 	bool _createBorder = false;
 	bool _freeCam = false;
+	bool _firing = false;
+	float _fireCooldownTimer = 0;
+	Vector2 _firePos;
 
 	EntityList _rooms;
 };

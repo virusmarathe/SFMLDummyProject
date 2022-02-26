@@ -31,6 +31,8 @@ public:
                         Vector2 normal;
                         float hitTime;
 
+                        if (!Physics::checkCollision(ent1Collider.rect, ent2Collider.rect)) continue;
+
                         if (Physics::checkCollision(ent1Collider.rect, physics.velocity * dt, ent2Collider.rect, contactPoint, normal, hitTime))
                         {
                             Entity collisionEntity = _entities->addEntity("CollisionEvent");

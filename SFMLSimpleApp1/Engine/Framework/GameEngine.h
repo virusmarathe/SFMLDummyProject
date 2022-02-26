@@ -22,11 +22,9 @@ public:
 		MOUSE_SCROLL_UP,
 		MOUSE_SCROLL_DOWN,
 		MOUSE_LEFT_DOWN,
-		MOUSE_LEFT_UP,
 		MOUSE_RIGHT_DOWN,
-		MOUSE_RIGHT_UP,
 		MOUSE_MIDDLE_DOWN,
-		MOUSE_MIDDLE_UP
+		MOUSE_MOVED
 	};
 
 	void init(std::string gameName, unsigned int windowWidth, unsigned int windowHeight, std::string resourcePath);

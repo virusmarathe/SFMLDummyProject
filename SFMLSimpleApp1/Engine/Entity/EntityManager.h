@@ -30,5 +30,6 @@ public:
 private:
 	EntityList _entityList;
 	size_t _totalEntities = 0;
+	size_t _maxEntityIndex = 0;
 };
 
