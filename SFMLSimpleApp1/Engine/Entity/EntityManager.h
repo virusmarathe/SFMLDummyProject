@@ -42,7 +42,7 @@ inline EntityList EntityManager::getEntitiesByType()
 	EntityList list;
 	for (Entity ent : _entityList)
 	{
-		if (ent.isValid() && ent.hasComponent<T>()) list.push_back(ent);
+		if (ent.hasComponent<T>()) list.push_back(ent);
 		if (ent.id >= _maxEntityIndex) break;
 	}
 	return list;

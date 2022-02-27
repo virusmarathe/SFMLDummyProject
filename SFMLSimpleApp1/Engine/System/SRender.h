@@ -7,7 +7,7 @@ class SRender : public System
 {
 public:
 
-    SRender(EntityManager* entityManagerRef, int priority, sf::RenderWindow * windowRef) : _window(windowRef), System(entityManagerRef, priority) { }
+    SRender(EntityManager* entityManagerRef, int priority, sf::RenderWindow * windowRef, Entity camera) : _window(windowRef), _camera(camera), System(entityManagerRef, priority) { }
 
 	virtual void update(float dt) override
 	{
@@ -16,12 +16,20 @@ public:
         Vector2 mousePos = (*_window).mapPixelToCoords(pixelPos);
 
         // temporary camera movement
-        for (auto ent : _entities->getEntities("Camera"))
+        auto& transform = _camera.getComponent<CTransform>();
+        Vector2 startPos = transform.position - transform.scale / 2.0f;
+        Rect viewPort(startPos.x, startPos.y, transform.scale.x, transform.scale.y);
+        sf::View view(sf::FloatRect(startPos.x, startPos.y, transform.scale.x, transform.scale.y));
+        _window->setView(view);
+
+
+        for (auto ent : _entities->getEntitiesByType<CSprite>())
         {
-            auto& transform = ent.getComponent<CTransform>();
-            Vector2 startPos = transform.position - transform.scale / 2.0f;
-            sf::View view(sf::FloatRect(startPos.x, startPos.y, transform.scale.x, transform.scale.y));
-            _window->setView(view);
+            Vector2 pos = ent.getComponent<CTransform>().position;
+            Rect spriteRect = Rect(pos.x, pos.y, ent.getComponent<CSprite>().sprite.getLocalBounds().width, ent.getComponent<CSprite>().sprite.getLocalBounds().height);
+            if (!Physics::checkCollision(spriteRect, viewPort)) continue;
+            ent.getComponent<CSprite>().sprite.setPosition(pos.x, pos.y);
+            _window->draw(ent.getComponent<CSprite>().sprite);
         }
 
         for (auto ent : _entities->getEntities())
@@ -41,12 +49,6 @@ public:
                 sf::Vertex line[] = { sf::Vertex(start), sf::Vertex(end) };
                 line[0].color = line[1].color = ent.getComponent<CShapeLine>().color;
                 _window->draw(line, 2, sf::Lines);
-            }
-
-            if (ent.hasComponent<CSprite>())
-            {
-                ent.getComponent<CSprite>().sprite.setPosition(ent.getComponent<CTransform>().position.x, ent.getComponent<CTransform>().position.y);
-                _window->draw(ent.getComponent<CSprite>().sprite);
             }
            
             if (ent.hasComponent<CHealth>())
@@ -96,4 +98,5 @@ public:
 
 private:
     sf::RenderWindow* _window = nullptr;
+    Entity _camera;
 };

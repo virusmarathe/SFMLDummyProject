@@ -10,49 +10,45 @@ public:
 
 	virtual void update(float dt) override
 	{
-        for (auto ent : _entities->getEntities())
+        for (auto ent : _entities->getEntitiesByType<CPhysicsBody>())
         {
-            if (ent.hasComponent<CRectCollider>() && ent.hasComponent<CPhysicsBody>())
+            if (ent.hasComponent<CRectCollider>())
             {
                 auto& ent1Collider = ent.getComponent<CRectCollider>();
-                if (!ent1Collider.enabled) continue;
+                auto& physics = ent.getComponent<CPhysicsBody>();
+                if (!ent1Collider.enabled || physics.velocity == Vector2(0,0) || physics.collidesWith == 0) continue;
 
-                for (auto ent2 : _entities->getEntities())
+                for (auto ent2 : _entities->getEntitiesByType<CRectCollider>())
                 {
                     if (ent == ent2) continue;
-                    if (ent2.hasComponent<CRectCollider>())
+                    auto& ent2Collider = ent2.getComponent<CRectCollider>();
+                    if (!ent2Collider.enabled) continue;
+                    if ((ent2Collider.collisionLayer & physics.collidesWith) == 0) continue;
+
+                    Vector2 contactPoint;
+                    Vector2 normal;
+                    float hitTime;
+
+                    if (Physics::checkCollision(ent1Collider.rect, physics.velocity * dt, ent2Collider.rect, contactPoint, normal, hitTime))
                     {
-                        auto& ent2Collider = ent2.getComponent<CRectCollider>();
-                        if (!ent2Collider.enabled) continue;
+                        Entity collisionEntity = _entities->addEntity("CollisionEvent");
+                        auto& collisionEvent = collisionEntity.addComponent<CCollisionEvent>();
+                        collisionEvent.ent1 = ent.id;
+                        collisionEvent.ent2 = ent2.id;
+                        collisionEvent.contactPoint = contactPoint;
+                        collisionEvent.normal = normal;
+                        collisionEvent.hitTime = hitTime;
 
-                        auto& physics = ent.getComponent<CPhysicsBody>();
-
-                        Vector2 contactPoint;
-                        Vector2 normal;
-                        float hitTime;
-
-                        if (Physics::checkCollision(ent1Collider.rect, physics.velocity * dt, ent2Collider.rect, contactPoint, normal, hitTime))
+                        if (!ent2Collider.isTrigger && !ent1Collider.isTrigger)
                         {
-                            Entity collisionEntity = _entities->addEntity("CollisionEvent");
-                            auto& collisionEvent = collisionEntity.addComponent<CCollisionEvent>();
-                            collisionEvent.ent1 = ent.id;
-                            collisionEvent.ent2 = ent2.id;
-                            collisionEvent.contactPoint = contactPoint;
-                            collisionEvent.normal = normal;
-                            collisionEvent.hitTime = hitTime;
-
-                            if (!ent2Collider.isTrigger && !ent1Collider.isTrigger)
+                            if (physics.elastic)
                             {
-                                if (physics.elastic)
-                                {
-                                    // calculate reflection vector
-                                    physics.velocity = (normal * (-1 * physics.velocity.dot(normal)) * 2) + physics.velocity;
-                                }
-                                else
-                                {
-                                    physics.velocity -= (normal * (physics.velocity * dt * (1 - hitTime)).dot(normal)) / dt;
-                                    std::string s = "dfgdg";
-                                }
+                                // calculate reflection vector
+                                physics.velocity = (normal * (-1 * physics.velocity.dot(normal)) * 2) + physics.velocity;
+                            }
+                            else
+                            {
+                                physics.velocity -= (normal * (physics.velocity * dt * (1 - hitTime)).dot(normal)) / dt;
                             }
                         }
                     }

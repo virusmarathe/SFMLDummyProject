@@ -16,12 +16,13 @@
 
 const float GRID_SIZE = 50.0f;
 
-enum DamageLayer
+enum PhysicsLayer
 {
-    PLAYER = 1,
-    ENEMY = 2,
-    NEUTRAL = 4,
-    ALL = (PLAYER | ENEMY | NEUTRAL)
+    DEFAULT = 1,
+    PLAYER = 2,
+    ENEMY = 4,
+    NEUTRAL = 8,
+    ALL = (DEFAULT | PLAYER | ENEMY | NEUTRAL)
 };
 
 void Scene_DungeonTest::init()
@@ -53,7 +54,7 @@ void Scene_DungeonTest::init()
     _engine->registerSystem(std::make_shared<SHealthBar>(&_entities, Priority::PHYSICS + 1));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SAnimation>(&_entities, Priority::UPDATE, _assets));
-    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
+    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window, _camera));
 
     _engine->playBGMusic("Level1BG");
 
@@ -294,7 +295,7 @@ void Scene_DungeonTest::preUpdate(float dt)
             auto& healthComp = barrel.addComponent<CHealth>();
             healthComp.health = 100.0f;
             healthComp.maxHealth = 100.0f;
-            healthComp.hitLayer = DamageLayer::ALL;
+            healthComp.hitLayer = PhysicsLayer::ALL;
             healthComp.background.setSize(sf::Vector2f(100, 10));
             healthComp.background.setFillColor(sf::Color::Red);
             healthComp.foreground.setSize(sf::Vector2f(100, 10));
@@ -493,11 +494,11 @@ void Scene_DungeonTest::preUpdate(float dt)
     if (_firing)
     {
         _fireCooldownTimer += dt;
-        if (_fireCooldownTimer >= 0.25f)
+        if (_fireCooldownTimer >= 0.1f)
         {
             for (int i = 0; i < 10; i++)
             {
-                fireBullet(_firePos + Vector2(rand()%100, rand()%100));
+                fireBullet(_firePos + Vector2((float)(rand()%100), (float)(rand()%100)));
             }
             _fireCooldownTimer = 0;
         }
@@ -625,7 +626,9 @@ Entity Scene_DungeonTest::spawnPlayer()
     auto& rectCollider = player.addComponent<CRectCollider>();
     rectCollider.rect = Rect(0, 0, 70, 80);
     rectCollider.offset = Vector2(20, 5);
-    player.addComponent<CPhysicsBody>();
+    rectCollider.collisionLayer = PLAYER;
+    auto& physics = player.addComponent<CPhysicsBody>();
+    physics.collidesWith = DEFAULT | NEUTRAL | ENEMY;
     player.addComponent<CInput>();
     auto& animator = player.addComponent<CPhysicsAnimator>();
     animator.idleAnimName = "ArcherIdle";
@@ -648,6 +651,7 @@ void Scene_DungeonTest::fireBullet(Vector2 mouseLocation)
     vel *= Settings::BULLET_SPEED;
     auto& physics = bullet.addComponent<CPhysicsBody>();
     physics.velocity = vel;
+    physics.collidesWith = DEFAULT | NEUTRAL | ENEMY;
     auto& sprite = bullet.addComponent<CSprite>();
     sprite.sprite = sf::Sprite(_assets->getTexture("Ball"));
     sprite.sprite.setScale(0.25f, 0.25f);
@@ -656,6 +660,7 @@ void Scene_DungeonTest::fireBullet(Vector2 mouseLocation)
     auto& rectCollider = bullet.addComponent<CRectCollider>();
     rectCollider.rect = box;
     rectCollider.isTrigger = true;
+    rectCollider.collisionLayer = PLAYER;
     auto& damage = bullet.addComponent<CDamage>();
     damage.damage = 10.0f;
     damage.layer = PLAYER;

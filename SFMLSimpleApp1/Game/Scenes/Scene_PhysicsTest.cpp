@@ -83,7 +83,7 @@ void Scene_PhysicsTest::init()
     _engine->registerSystem(std::make_shared<STransformSync>(_engine, &_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
-    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window));
+    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window, camera));
 
     if (!NetworkManager::isServer)
     {
@@ -157,6 +157,7 @@ void Scene_PhysicsTest::spawnBallServer()
     auto& physics = ball.addComponent<CPhysicsBody>();
     physics.velocity = Vector2(Settings::BALL_START_SPEED * xVel, Settings::BALL_START_SPEED * yVel);
     physics.elastic = true;
+    physics.collidesWith = 1;
     auto& netTransform = ball.addComponent<CNetworkTransform>();
     netTransform.position = transform.position;
     sf::Packet packet;
@@ -179,6 +180,7 @@ void Scene_PhysicsTest::spawnBallClient(sf::Packet& packet)
     rectCollider.rect = Rect(ball.getComponent<CTransform>().position.x, ball.getComponent<CTransform>().position.y, Settings::BALL_SIZE, Settings::BALL_SIZE);
     auto& physics = ball.addComponent<CPhysicsBody>();
     physics.elastic = true;
+    physics.collidesWith = 1;
     auto& netTrans = ball.addComponent<CNetworkTransform>();
     netTrans.position = pos;
     auto& netIDComp = ball.addComponent<CNetID>();
@@ -204,7 +206,8 @@ void Scene_PhysicsTest::spawnPlayerServer(Vector2 pos, int clientID)
     sprite.sprite = sf::Sprite(_assets->getTexture("Paddle"));
     auto& rectCollider = player.addComponent<CRectCollider>();
     rectCollider.rect = Rect(sprite.sprite.getTextureRect());
-    player.addComponent<CPhysicsBody>();
+    auto& physics = player.addComponent<CPhysicsBody>();
+    physics.collidesWith = 1;
     auto& netTransform = player.addComponent<CNetworkTransform>();
     netTransform.position = pos;
     player.addComponent<CInput>();
@@ -233,7 +236,8 @@ void Scene_PhysicsTest::spawnPlayerClient(sf::Packet& packet)
     sprite.sprite = sf::Sprite(_assets->getTexture("Paddle"));
     auto& rectCollider = player.addComponent<CRectCollider>();
     rectCollider.rect = Rect(sprite.sprite.getTextureRect());
-    player.addComponent<CPhysicsBody>();
+    auto& physics = player.addComponent<CPhysicsBody>();
+    physics.collidesWith = 1;
     auto& netIDComp = player.addComponent<CNetID>();
     netIDComp.netID = netID;
     netIDComp.ownerID = clientID;
