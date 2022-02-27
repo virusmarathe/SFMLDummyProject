@@ -4,6 +4,7 @@
 #include "Framework/Action.h"
 #include "../../Game/Settings.h"
 #include <iostream>
+#include "Primitives.h"
 
 bool GameEngine::DEBUG_MODE = false;
 
@@ -47,6 +48,7 @@ void GameEngine::changeScene(std::string name)
         _currentScene = _scenesMap[name];
         _currentScene->setEngineRefs(this, &_window);
         _currentScene->init();
+        _fpsEnt = Primitives::DrawText("FPS: 0", Vector2(_window.getSize().x - 200, 200), _assets->getFont("NormalUIFont"));
     }
 }
 
@@ -123,6 +125,7 @@ void GameEngine::update()
         _networkManager.receive();
     }
     _currentScene->updateEntityList();
+    fpsUpdate();
     sf::Time deltaTime = _updateTimer.restart();
 
     if (_currentScene != nullptr)
@@ -198,5 +201,24 @@ void GameEngine::sUserInput()
             if (currEvent.mouseButton.button == sf::Mouse::Middle) code = MOUSE_MIDDLE_DOWN;
             _currentScene->sDoAction(Action(_actionMap[code], Action::ActionType::END, mousePos));
         }
+    }
+}
+
+void GameEngine::fpsUpdate()
+{
+    FPS = (int)(1000000.0 / _updateTimer.getElapsedTime().asMicroseconds());
+    Vector2 pos;
+    for (auto ent : _currentScene->getEntityManager()->getEntities("Camera"))
+    {
+        auto& transform = ent.getComponent<CTransform>();
+        pos = transform.position + Vector2(400, -200);
+    }
+    _fpsEnt.getComponent<CTransform>().position = pos;
+
+    _fpsUpdateTimer += _updateTimer.getElapsedTime().asSeconds();
+    if (_fpsUpdateTimer >= 0.1f)
+    {
+        _fpsEnt.getComponent<CText>().text.setString(sf::String("FPS: " + std::to_string(FPS)));
+        _fpsUpdateTimer = 0;
     }
 }

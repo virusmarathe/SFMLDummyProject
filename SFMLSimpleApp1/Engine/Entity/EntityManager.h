@@ -20,6 +20,9 @@ public:
 	EntityList getEntities();
 	EntityList getEntities(std::string tag);
 
+	template <typename T>
+	EntityList getEntitiesByType();
+
 	void update();
 
 	void destroyAll();
@@ -33,3 +36,14 @@ private:
 	size_t _maxEntityIndex = 0;
 };
 
+template<typename T>
+inline EntityList EntityManager::getEntitiesByType()
+{
+	EntityList list;
+	for (Entity ent : _entityList)
+	{
+		if (ent.isValid() && ent.hasComponent<T>()) list.push_back(ent);
+		if (ent.id >= _maxEntityIndex) break;
+	}
+	return list;
+}

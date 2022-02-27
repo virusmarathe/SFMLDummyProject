@@ -53,11 +53,13 @@ public:
 
 	std::shared_ptr<Assets> getAssets() { return _assets; }
 	static bool DEBUG_MODE;
+	int FPS = 0;
 
 private:
 
 	void update();
 	void sUserInput();
+	void fpsUpdate();
 
 	sf::RenderWindow _window;
 	bool _isRunning;
@@ -73,5 +75,7 @@ private:
 	NetworkManager _networkManager;
 	bool _isNetworked = false;
 	int _clientID = -1;
+	Entity _fpsEnt;
+	float _fpsUpdateTimer = 0;
 };
 

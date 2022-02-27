@@ -48,14 +48,7 @@ public:
                 ent.getComponent<CSprite>().sprite.setPosition(ent.getComponent<CTransform>().position.x, ent.getComponent<CTransform>().position.y);
                 _window->draw(ent.getComponent<CSprite>().sprite);
             }
-
-            if (ent.hasComponent<CText>())
-            {
-                ent.getComponent<CText>().text.setPosition(ent.getComponent<CTransform>().position.x, ent.getComponent<CTransform>().position.y);
-                ent.getComponent<CText>().text.setFillColor(ent.getComponent<CText>().textColor);
-                _window->draw(ent.getComponent<CText>().text);
-            }
-
+           
             if (ent.hasComponent<CHealth>())
             {
                 if (ent.getComponent<CHealth>().rendered)
@@ -90,6 +83,12 @@ public:
                     _window->draw(line, 5, sf::LineStrip);
                 }
             }
+        }
+        for (auto ent : _entities->getEntitiesByType<CText>())
+        {
+            ent.getComponent<CText>().text.setPosition(ent.getComponent<CTransform>().position.x, ent.getComponent<CTransform>().position.y);
+            ent.getComponent<CText>().text.setFillColor(ent.getComponent<CText>().textColor);
+            _window->draw(ent.getComponent<CText>().text);
         }
 
         _window->display();
