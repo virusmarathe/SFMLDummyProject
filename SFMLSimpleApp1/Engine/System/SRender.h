@@ -2,12 +2,13 @@
 
 #include "System.h"
 #include "Physics/Physics.h"
+#include "Resources/Assets.h"
 
 class SRender : public System
 {
 public:
 
-    SRender(EntityManager* entityManagerRef, int priority, sf::RenderWindow * windowRef, Entity camera) : _window(windowRef), _camera(camera), System(entityManagerRef, priority) { }
+    SRender(EntityManager* entityManagerRef, int priority, sf::RenderWindow * windowRef, Entity camera, std::shared_ptr<Assets> assetsRef) : _window(windowRef), _camera(camera), _assets(assetsRef), System(entityManagerRef, priority) { }
 
 	virtual void update(float dt) override
 	{
@@ -33,7 +34,7 @@ public:
         }
 
         for (auto ent : _entities->getEntities())
-        {
+        {            
             if (ent.hasComponent<CShapeRect>())
             {
                 sf::RectangleShape shape = ent.getComponent<CShapeRect>().rectShape;
@@ -64,10 +65,43 @@ public:
             }            
         }
 
+        EntityList allQuads = _entities->getEntitiesByType<CQuad>();
+        int counter = 0;
+        std::map<unsigned char, EntityList> textureToQuadsMap; // should probably be switched to array
+
+        for (auto ent : allQuads)
+        {
+            textureToQuadsMap[ent.getComponent<CQuad>().textureID].push_back(ent);
+        }
+
+        for (auto const& pair : textureToQuadsMap)
+        {
+            counter = 0;
+            sf::VertexArray quadVertices(sf::Quads, pair.second.size() * 4);
+            for (auto ent : pair.second)
+            {
+                Vector2 pos = ent.getComponent<CTransform>().position;
+                Rect sizeRect = ent.getComponent<CQuad>().rect;
+                Rect texRect = ent.getComponent<CQuad>().texCoords;
+                quadVertices[counter + 0].position = sf::Vector2f(pos.x, pos.y);
+                quadVertices[counter + 0].texCoords = sf::Vector2f(0, 0);
+                quadVertices[counter + 1].position = sf::Vector2f(pos.x + sizeRect.size.x, pos.y);
+                quadVertices[counter + 1].texCoords = sf::Vector2f(texRect.size.x, 0);
+                quadVertices[counter + 2].position = sf::Vector2f(pos.x + sizeRect.size.x, pos.y + sizeRect.size.y);
+                quadVertices[counter + 2].texCoords = sf::Vector2f(texRect.size.x, texRect.size.y);
+                quadVertices[counter + 3].position = sf::Vector2f(pos.x, pos.y + sizeRect.size.y);
+                quadVertices[counter + 3].texCoords = sf::Vector2f(0, texRect.size.y);
+                counter += 4;
+            }
+
+            sf::RenderStates states(&_assets->getTextureFromID(pair.first));
+            _window->draw(quadVertices, states);
+        }
+
         if (GameEngine::DEBUG_MODE)
         {
             EntityList colliders = _entities->getEntitiesByType<CRectCollider>();
-            int counter = 0;
+            counter = 0;
             sf::VertexArray vertices(sf::PrimitiveType::Lines, colliders.size() * 8);
             for (auto ent : colliders)
             {
@@ -97,4 +131,5 @@ public:
 private:
     sf::RenderWindow* _window = nullptr;
     Entity _camera;
+    std::shared_ptr<Assets> _assets;
 };

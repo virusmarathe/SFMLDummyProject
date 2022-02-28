@@ -54,11 +54,11 @@ void Scene_DungeonTest::init()
     _engine->registerSystem(std::make_shared<SHealthBar>(&_entities, Priority::PHYSICS + 1));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SAnimation>(&_entities, Priority::UPDATE, _assets));
-    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window, _camera));
+    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window, _camera, _assets));
 
     _engine->playBGMusic("Level1BG");
 
-    generateRooms(100);
+    generateRooms(20);
 }
 
 const float HALLWAY_WIDTH_HALF = GRID_SIZE * 3;
@@ -496,10 +496,11 @@ void Scene_DungeonTest::preUpdate(float dt)
         _fireCooldownTimer += dt;
         if (_fireCooldownTimer >= 0.1f)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                fireBullet(_firePos + Vector2((float)(rand()%100), (float)(rand()%100)));
-            }
+            fireBullet(_firePos);
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    fireBullet(_firePos + Vector2((float)(rand()%100), (float)(rand()%100)));
+            //}
             _fireCooldownTimer = 0;
         }
     }
@@ -653,10 +654,12 @@ void Scene_DungeonTest::fireBullet(Vector2 mouseLocation)
     physics.velocity = vel;
     physics.collidesWith = DEFAULT | NEUTRAL | ENEMY;
     auto& sprite = bullet.addComponent<CSprite>();
-    sprite.sprite = sf::Sprite(_assets->getTexture("Ball"));
-    sprite.sprite.setScale(0.25f, 0.25f);
-    Rect box = Rect(sprite.sprite.getLocalBounds());
-    box.size *= 0.25f;
+    auto& quadComp = bullet.addComponent<CQuad>();
+    sf::Vector2u texSize = _assets->getTexture("Ball").getSize();
+    Rect box(0, 0, 12.5, 12.5);
+    quadComp.texCoords = Rect(0, 0, texSize.x, texSize.y);
+    quadComp.rect = box;
+    quadComp.textureID = _assets->getTextureIDFromName("Ball");
     auto& rectCollider = bullet.addComponent<CRectCollider>();
     rectCollider.rect = box;
     rectCollider.isTrigger = true;

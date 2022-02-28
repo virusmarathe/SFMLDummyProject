@@ -33,6 +33,7 @@ void EntityMemoryPool::destroy(size_t entityID)
 	removeComponent<CNetworkTransform>(entityID);
 	removeComponent<CPhysicsAnimator>(entityID);
 	removeComponent<CPhysicsBody>(entityID);
+	removeComponent<CQuad>(entityID);
 	removeComponent<CRectCollider>(entityID);
 	removeComponent<CShapeLine>(entityID);
 	removeComponent<CShapeRect>(entityID);
@@ -79,6 +80,7 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities) : _numEntities(maxEntitie
 		std::vector<CNetworkTransform>(maxEntities, CNetworkTransform()),
 		std::vector<CPhysicsAnimator>(maxEntities, CPhysicsAnimator()),
 		std::vector<CPhysicsBody>(maxEntities, CPhysicsBody()),
+		std::vector<CQuad>(maxEntities, CQuad()),
 		std::vector<CRectCollider>(maxEntities, CRectCollider()),
 		std::vector<CShapeLine>(maxEntities, CShapeLine()),
 		std::vector<CShapeRect>(maxEntities, CShapeRect()),

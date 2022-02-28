@@ -83,7 +83,7 @@ void Scene_PhysicsTest::init()
     _engine->registerSystem(std::make_shared<STransformSync>(_engine, &_entities, Priority::UPDATE));
     _engine->registerSystem(std::make_shared<SPhysics>(&_entities, Priority::PHYSICS));
     _engine->registerSystem(std::make_shared<SMovement>(&_entities, Priority::UPDATE));
-    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window, camera));
+    _engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window, camera, _assets));
 
     if (!NetworkManager::isServer)
     {

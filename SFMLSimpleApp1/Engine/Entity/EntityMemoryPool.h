@@ -10,6 +10,7 @@
 #include "Components/CNetworkTransform.h"
 #include "Components/CPhysicsAnimator.h"
 #include "Components/CPhysicsBody.h"
+#include "Components/CQuad.h"
 #include "Components/CRectCollider.h"
 #include "Components/CShapeLine.h"
 #include "Components/CShapeRect.h"
@@ -27,6 +28,7 @@ typedef std::tuple<
 	std::vector<CNetworkTransform>,
 	std::vector<CPhysicsAnimator>,
 	std::vector<CPhysicsBody>,
+	std::vector<CQuad>,
 	std::vector<CRectCollider>,
 	std::vector<CShapeLine>,
 	std::vector<CShapeRect>,

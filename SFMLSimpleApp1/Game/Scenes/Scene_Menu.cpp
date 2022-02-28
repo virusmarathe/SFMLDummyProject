@@ -16,7 +16,7 @@ void Scene_Menu::init()
 	transform.scale = Vector2(_window->getSize());
 	_engine->registerAction(sf::Keyboard::H, "Host");
 	_engine->registerAction(sf::Keyboard::J, "Join");
-	_engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window, camera));
+	_engine->registerSystem(std::make_shared<SRender>(&_entities, Priority::RENDER, _window, camera, _assets));
 }
 
 void Scene_Menu::sDoAction(const Action& action)

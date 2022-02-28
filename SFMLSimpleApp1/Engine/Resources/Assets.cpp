@@ -16,6 +16,8 @@ bool Assets::loadAssets(std::string filePath)
 	float duration;
 	bool status = true;
 	int repeated = 0;
+	textureCounter = 1;
+	_textureIDs.clear();
 
 	while (fin >> type)
 	{
@@ -69,6 +71,8 @@ bool Assets::addTexture(std::string name, std::string path, int repeated)
 	}
 
 	if (repeated == 1) _textures[name].setRepeated(true);
+	_textureNames[textureCounter] = name;
+	_textureIDs[name] = textureCounter++;
 
 	return true;
 }

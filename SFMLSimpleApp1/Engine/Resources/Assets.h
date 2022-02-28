@@ -15,6 +15,8 @@ public:
 	std::shared_ptr<Animation> getAnimation(std::string name) { return _animations[name]; }
 	sf::Music& getMusic(std::string name) { return _music[name]; }
 	sf::SoundBuffer& getSound(std::string name) { return _sounds[name]; }
+	unsigned char getTextureIDFromName(std::string name) { return _textureIDs[name]; }
+	sf::Texture& getTextureFromID(unsigned char id) { return _textures[_textureNames[id]]; }
 
 private:
 
@@ -29,5 +31,9 @@ private:
 	std::map<std::string, std::shared_ptr<Animation>> _animations;
 	std::map<std::string, sf::Music> _music;
 	std::map<std::string, sf::SoundBuffer> _sounds;
+	std::map<std::string, unsigned char> _textureIDs;
+	std::map<unsigned char, std::string> _textureNames;
+
+	int textureCounter = 0;
 };
 
