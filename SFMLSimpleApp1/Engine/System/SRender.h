@@ -61,31 +61,29 @@ public:
                     _window->draw(ent.getComponent<CHealth>().background);
                     _window->draw(ent.getComponent<CHealth>().foreground);
                 }
-            }
-
-            if (GameEngine::DEBUG_MODE)
-            {
-                if (ent.hasComponent<CRectCollider>())
-                {
-                    Rect rect = ent.getComponent<CRectCollider>().rect;
-                    sf::Vertex line[] =
-                    {
-                        sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y)),
-                        sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y)),
-                        sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y + rect.size.y)),
-                        sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y + rect.size.y)),
-                        sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y))
-                    };
-                    line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Green;
-                    if (Physics::checkCollision(mousePos, rect))
-                    {
-                        line[0].color = line[1].color = line[2].color = line[3].color = line[4].color = sf::Color::Red;
-                    }
-
-                    _window->draw(line, 5, sf::LineStrip);
-                }
-            }
+            }            
         }
+
+        if (GameEngine::DEBUG_MODE)
+        {
+            EntityList colliders = _entities->getEntitiesByType<CRectCollider>();
+            int counter = 0;
+            sf::VertexArray vertices(sf::PrimitiveType::Lines, colliders.size() * 8);
+            for (auto ent : colliders)
+            {
+                Rect rect = ent.getComponent<CRectCollider>().rect;
+                vertices[counter++] = sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y), sf::Color::Green);
+                vertices[counter++] = sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y), sf::Color::Green);
+                vertices[counter++] = sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y), sf::Color::Green);
+                vertices[counter++] = sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y + rect.size.y), sf::Color::Green);
+                vertices[counter++] = sf::Vertex(sf::Vector2f(rect.pos.x + rect.size.x, rect.pos.y + rect.size.y), sf::Color::Green);
+                vertices[counter++] = sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y + rect.size.y), sf::Color::Green);
+                vertices[counter++] = sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y + rect.size.y), sf::Color::Green);
+                vertices[counter++] = sf::Vertex(sf::Vector2f(rect.pos.x, rect.pos.y), sf::Color::Green);
+            }
+            _window->draw(vertices);
+        }
+
         for (auto ent : _entities->getEntitiesByType<CText>())
         {
             ent.getComponent<CText>().text.setPosition(ent.getComponent<CTransform>().position.x, ent.getComponent<CTransform>().position.y);
