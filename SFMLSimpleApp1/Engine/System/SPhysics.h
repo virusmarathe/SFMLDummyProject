@@ -62,6 +62,7 @@ public:
                                     physics.velocity -= (normal * (physics.velocity * dt * (1 - hitTime)).dot(normal)) / dt;
                                 }
                             }
+                            break;
                         }
                     }
                 }

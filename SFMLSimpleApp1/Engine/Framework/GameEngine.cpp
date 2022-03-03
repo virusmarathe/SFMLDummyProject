@@ -48,7 +48,7 @@ void GameEngine::changeScene(std::string name)
         _currentScene = _scenesMap[name];
         _currentScene->setEngineRefs(this, &_window);
         _currentScene->init();
-        _fpsEnt = Primitives::DrawText("FPS: 0", Vector2(_window.getSize().x - 200, 200), _assets->getFont("NormalUIFont"));
+        _fpsEnt = Primitives::DrawText("FPS: 0", Vector2((float)_window.getSize().x - 200, 200), _assets->getFont("NormalUIFont"));
     }
 }
 

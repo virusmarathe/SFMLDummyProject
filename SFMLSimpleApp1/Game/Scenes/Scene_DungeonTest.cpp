@@ -496,11 +496,11 @@ void Scene_DungeonTest::preUpdate(float dt)
         _fireCooldownTimer += dt;
         if (_fireCooldownTimer >= 0.1f)
         {
-            fireBullet(_firePos);
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    fireBullet(_firePos + Vector2((float)(rand()%100), (float)(rand()%100)));
-            //}
+            //fireBullet(_firePos);
+            for (int i = 0; i < 10; i++)
+            {
+                fireBullet(_firePos + Vector2((float)(rand()%200), (float)(rand()%200)));
+            }
             _fireCooldownTimer = 0;
         }
     }
@@ -657,7 +657,7 @@ void Scene_DungeonTest::fireBullet(Vector2 mouseLocation)
     auto& quadComp = bullet.addComponent<CQuad>();
     sf::Vector2u texSize = _assets->getTexture("Ball").getSize();
     Rect box(0, 0, 12.5, 12.5);
-    quadComp.texCoords = Rect(0, 0, texSize.x, texSize.y);
+    quadComp.texCoords = Rect(0, 0, (float)texSize.x, (float)texSize.y);
     quadComp.rect = box;
     quadComp.textureID = _assets->getTextureIDFromName("Ball");
     auto& rectCollider = bullet.addComponent<CRectCollider>();

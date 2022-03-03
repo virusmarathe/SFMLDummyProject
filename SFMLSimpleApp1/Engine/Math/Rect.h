@@ -2,6 +2,7 @@
 
 #include "Vector2.h"
 #include "SFML/Graphics.hpp"
+#include "SFML/Network.hpp"
 
 struct Rect
 {
@@ -16,4 +17,6 @@ struct Rect
 
 	bool operator>(const Rect& rhs) const { return (size.x * size.y) > (rhs.size.x * rhs.size.y); }
 
+	friend sf::Packet& operator<< (sf::Packet& packet, const Rect& rect) { return packet << rect.pos << rect.size; }
+	friend sf::Packet& operator>> (sf::Packet& packet, Rect& rect) { return packet >> rect.pos >> rect.size; }
 };
