@@ -1,5 +1,6 @@
 #pragma once
 #include "Framework/Scene.h"
+#include "Framework/ProceduralDungeon.h"
 #include <queue>
 
 class Assets;
@@ -27,8 +28,8 @@ public:
 
 private:
 	
-	void generateRooms(int numRooms);
-	Entity createRoom();
+	void resetLevel(int numRooms);
+	void createRoom(Rect rect, std::string assetName);
 	void createWall(Rect rect, std::string assetName);
 	Entity spawnPlayer();
 	void fireBullet(Vector2 mouseLocation);
@@ -39,14 +40,11 @@ private:
 	Entity _camera;
 	Entity _player1Entity;
 
-	bool _separatedRooms = true;
-	bool _createRoomGraph = false;
-	bool _createBorder = false;
 	bool _freeCam = false;
 	bool _firing = false;
 	float _fireCooldownTimer = 0;
 	Vector2 _firePos;
 
-	EntityList _rooms;
+	ProceduralDungeon _dungeon;
 };
 

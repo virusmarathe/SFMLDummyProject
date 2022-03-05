@@ -158,6 +158,7 @@
     <ClCompile Include="Game\Settings.cpp" />
     <ClCompile Include="Game\SFMLSimpleApp1.cpp" />
     <ClCompile Include="Game\Scenes\Scene_Menu.cpp" />
+    <ClCompile Include="Engine\Framework\ProceduralDungeon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Animation\Animation.h" />
@@ -205,6 +206,7 @@
     <ClInclude Include="Game\Scenes\Scene_PhysicsTest.h" />
     <ClInclude Include="Game\Settings.h" />
     <ClInclude Include="Game\Scenes\Scene_Menu.h" />
+    <ClInclude Include="Engine\Framework\ProceduralDungeon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
