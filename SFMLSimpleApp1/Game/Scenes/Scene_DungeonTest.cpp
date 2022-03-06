@@ -141,9 +141,20 @@ void Scene_DungeonTest::resetLevel(int numRooms)
     _dungeon.generateDungeon(numRooms, GRID_SIZE);
     Vector2 startPos = _dungeon.getRooms()[0].pos;
 
+    int minX = INT32_MAX;
+    int minY = INT32_MAX;
+    int maxX = INT32_MIN;
+    int maxY = INT32_MIN;
+
     for (auto& room : _dungeon.getRooms())
     {
         createRoom(room, "Ground");
+
+        if (room.pos.x < minX) minX = (int)room.pos.x;
+        if (room.pos.y < minY) minY = (int)room.pos.y;
+        if (room.pos.x + room.size.x > maxX) maxX = (int)room.pos.x + (int)room.size.x;
+        if (room.pos.y + room.size.y > maxY) maxY = (int)room.pos.y + (int)room.size.y;
+
     }
     for (auto& wall : _dungeon.getWalls())
     {
@@ -165,6 +176,14 @@ void Scene_DungeonTest::resetLevel(int numRooms)
         healthComp.background.setFillColor(sf::Color::Red);
         healthComp.foreground.setSize(sf::Vector2f(100, 10));
         healthComp.foreground.setFillColor(sf::Color::Green);
+    }
+
+    _navMesh.generateNodes(_dungeon.getRooms(), GRID_SIZE);
+
+    for (auto ent : _entities.getEntitiesByType<CRectCollider>())
+    {
+        Rect collider = ent.getComponent<CRectCollider>().rect;        
+        _navMesh.registerObstacle(collider);
     }
 }
 

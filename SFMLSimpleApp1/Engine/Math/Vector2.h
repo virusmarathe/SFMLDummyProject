@@ -19,7 +19,13 @@ struct Vector2 {
 	Vector2 operator/(const float scale) const { return Vector2(x / scale, y / scale); }
 	bool operator==(const Vector2& rhs) const { return x == rhs.x && y == rhs.y; }
 	bool operator!=(const Vector2& rhs) const { return x != rhs.x || y != rhs.y; }
-	Vector2& operator+=(const Vector2& rhs) 
+	bool operator<(const Vector2& rhs) const 
+	{
+		if (y == rhs.y) return x < rhs.x;
+		return y < rhs.y;
+	}
+	
+	Vector2& operator+=(const Vector2& rhs)
 	{
 		x += rhs.x;
 		y += rhs.y;
@@ -70,6 +76,26 @@ struct Vector2 {
 		return (vecB - vecA).magnitudeSqr();
 	}
 
+	static Vector2 right() { return Vector2(1, 0); }
+	static Vector2 left() { return Vector2(-1, 0); }
+	static Vector2 up() { return Vector2(0, -1); }
+	static Vector2 down() { return Vector2(0, 1); }
+	static Vector2 upRight() { return Vector2(1, -1); }
+	static Vector2 upLeft() { return Vector2(-1, -1); }
+	static Vector2 downRight() { return Vector2(1, 1); }
+	static Vector2 downLeft() { return Vector2(-1, 1); }
+
 	friend sf::Packet& operator<< (sf::Packet& packet, const Vector2& vec) { return packet << vec.x << vec.y; }
 	friend sf::Packet& operator>> (sf::Packet& packet, Vector2& vec) { return packet >> vec.x >> vec.y; }
+};
+
+class Vector2HashFunction
+{
+public:
+	size_t operator()(const Vector2& p) const
+	{
+		size_t h1 = std::hash<float>()(p.x);
+		size_t h2 = std::hash<float>()(p.y);
+		return (h1 ^ (h2 << 1));
+	}
 };

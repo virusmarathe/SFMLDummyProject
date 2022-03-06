@@ -1,6 +1,7 @@
 #pragma once
 #include "Framework/Scene.h"
 #include "Framework/ProceduralDungeon.h"
+#include "Framework/NavMesh.h"
 #include <queue>
 
 class Assets;
@@ -46,5 +47,6 @@ private:
 	Vector2 _firePos;
 
 	ProceduralDungeon _dungeon;
+	NavMesh _navMesh;
 };
 
