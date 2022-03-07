@@ -42,7 +42,7 @@ void Scene_DungeonTest::init()
     _engine->registerAction(sf::Keyboard::LShift, "P1RUN");
     _engine->registerAction(sf::Keyboard::R, "RESET_ROOMS");
     _engine->registerAction(sf::Keyboard::F, "CAM_CHANGE");
-    _engine->registerAction(sf::Keyboard::P, "ASTAR");
+    _engine->registerAction(sf::Keyboard::L, "ASTAR");
     _engine->registerAction(GameEngine::MOUSE_SCROLL_UP, "ZOOM_IN");
     _engine->registerAction(GameEngine::MOUSE_SCROLL_DOWN, "ZOOM_OUT");
     _engine->registerAction(GameEngine::MOUSE_LEFT_DOWN, "FIRE");
@@ -184,7 +184,7 @@ void Scene_DungeonTest::resetLevel(int numRooms)
 
     for (auto ent : _entities.getEntitiesByType<CRectCollider>())
     {
-        Rect collider = ent.getComponent<CRectCollider>().rect;        
+        Rect collider = ent.getComponent<CRectCollider>().rect;
         _navMesh.registerObstacle(collider);
     }
 }

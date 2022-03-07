@@ -64,6 +64,18 @@ void NavMesh::registerObstacle(Rect rect)
     }
 }
 
+void NavMesh::notifyObstacleDestroyed(Rect rect)
+{
+    for (float x = rect.pos.x; x < rect.pos.x + rect.size.x; x += _gridSize)
+    {
+        for (float y = rect.pos.y; y < rect.pos.y + rect.size.y; y += _gridSize)
+        {
+            // node[x][y] becomes an obstacle?
+            _nodeMap[Vector2(x, y)].layer = NavLayer::FREE;
+        }
+    }
+}
+
 void NavMesh::debugShow()
 {
     for (auto& pair : _nodeMap)

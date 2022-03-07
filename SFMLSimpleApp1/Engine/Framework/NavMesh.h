@@ -41,6 +41,7 @@ public:
 	void generateNodes(std::vector<Rect> terrain, float gridSize);
 	void generateAdjacencyLists();
 	void registerObstacle(Rect rect);
+	void notifyObstacleDestroyed(Rect rect);
 	void debugShow();
 	std::vector<Vector2> getPath(NavNode* startNode, NavNode* endNode);
 	NavNode* getNodeAtCoord(Vector2 coord);
