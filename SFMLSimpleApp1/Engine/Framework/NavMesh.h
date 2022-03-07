@@ -24,9 +24,15 @@ struct NavNode
 	Vector2 coord;
 	NavLayer layer = FREE;
 	std::vector<NodeConnection> adjacencyList;
-	
+	float hCost = (float)INT_MAX;
+	float gCost = (float)INT_MAX;
+	float fCost = (float)INT_MAX;
+	bool processed = false;
+	NavNode* parent = nullptr;
+
 	NavNode(Vector2 coord) : coord(coord) {}
 	NavNode() {}
+	bool operator<(const NavNode& rhs) const { return fCost < rhs.fCost; }
 };
 
 class NavMesh
@@ -36,9 +42,12 @@ public:
 	void generateAdjacencyLists();
 	void registerObstacle(Rect rect);
 	void debugShow();
+	std::vector<Vector2> getPath(NavNode* startNode, NavNode* endNode);
+	NavNode* getNodeAtCoord(Vector2 coord);
 
 private:
 	void addAdjacentNode(NavNode& node, Vector2 direction, float cost);
+	void setHCosts(NavNode* endNode);
 
 private:
 	float _gridSize = 50;

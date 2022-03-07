@@ -36,6 +36,7 @@ private:
 	void fireBullet(Vector2 mouseLocation);
 	void sInput();
 	void sHandleCollision();
+	void testPathFinding();
 
 	std::shared_ptr<Assets> _assets;
 	Entity _camera;

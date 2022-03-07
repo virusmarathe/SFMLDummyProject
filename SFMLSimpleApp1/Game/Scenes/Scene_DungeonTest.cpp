@@ -12,7 +12,7 @@
 #include "System/SDamage.h"
 #include "System/SHealthBar.h"
 
-const float GRID_SIZE = 50.0f;
+const float GRID_SIZE = 100.0f;
 
 enum PhysicsLayer
 {
@@ -42,6 +42,7 @@ void Scene_DungeonTest::init()
     _engine->registerAction(sf::Keyboard::LShift, "P1RUN");
     _engine->registerAction(sf::Keyboard::R, "RESET_ROOMS");
     _engine->registerAction(sf::Keyboard::F, "CAM_CHANGE");
+    _engine->registerAction(sf::Keyboard::P, "ASTAR");
     _engine->registerAction(GameEngine::MOUSE_SCROLL_UP, "ZOOM_IN");
     _engine->registerAction(GameEngine::MOUSE_SCROLL_DOWN, "ZOOM_OUT");
     _engine->registerAction(GameEngine::MOUSE_LEFT_DOWN, "FIRE");
@@ -110,6 +111,7 @@ void Scene_DungeonTest::sDoAction(const Action& action)
             if (action.name == "P1RUN") _player1Entity.getComponent<CInput>().run = action.type == Action::ActionType::START;
             if (action.name == "FIRE") _firing = action.type == Action::ActionType::START;
             if (action.name == "FIRE_TARGET") _firePos = action.pos;
+            if (action.name == "ASTAR" && action.type == Action::ActionType::START) testPathFinding();
         }
     }
 
@@ -189,12 +191,12 @@ void Scene_DungeonTest::resetLevel(int numRooms)
 
 void Scene_DungeonTest::createRoom(Rect rect, std::string assetName)
 {
-    Entity room = Primitives::TiledSprite(rect, GRID_SIZE * 2, _assets->getTexture(assetName), "Room");
+    Entity room = Primitives::TiledSprite(rect, GRID_SIZE, _assets->getTexture(assetName), "Room");
 }
 
 void Scene_DungeonTest::createWall(Rect wallRect, std::string assetName)
 {
-    Entity wall = Primitives::TiledSprite(wallRect, GRID_SIZE, _assets->getTexture(assetName), "Wall");
+    Entity wall = Primitives::TiledSprite(wallRect, GRID_SIZE / 2, _assets->getTexture(assetName), "Wall");
     auto& rectCollider = wall.addComponent<CRectCollider>();
     rectCollider.rect = wallRect;
 }
@@ -293,5 +295,17 @@ void Scene_DungeonTest::sHandleCollision()
                 if (distSqr < 100000.0f) _engine->playSound("WallImpact");
             }
         }
+    }
+}
+
+void Scene_DungeonTest::testPathFinding()
+{
+    NavNode* startNode = _navMesh.getNodeAtCoord(_player1Entity.getComponent<CTransform>().position);
+    NavNode* endNode = _navMesh.getNodeAtCoord(_dungeon.getRooms()[rand() % (_dungeon.getRooms().size() - 1)].center());
+    std::vector<Vector2> path = _navMesh.getPath(startNode, endNode);
+
+    for (int i = 1; i < path.size(); i++)
+    {
+        Primitives::DrawLine(path[i - 1] + Vector2(GRID_SIZE/2,GRID_SIZE/2), path[i] + Vector2(GRID_SIZE / 2, GRID_SIZE / 2), sf::Color::Green);
     }
 }
