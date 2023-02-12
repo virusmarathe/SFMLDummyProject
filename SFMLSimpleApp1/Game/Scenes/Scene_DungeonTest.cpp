@@ -69,20 +69,20 @@ void Scene_DungeonTest::preUpdate(float dt)
         _camera.getComponent<CTransform>().position = _player1Entity.getComponent<CTransform>().position;
     }
 
-    if (_firing)
+    //if (_firing)
     {
         _fireCooldownTimer += dt;
-        if (_fireCooldownTimer >= 0.1f)
+        if (_fireCooldownTimer >= 1.0f)
         {
             //fireBullet(_firePos);
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 100; i++)
             {
-                fireBullet(_firePos + Vector2((float)(rand()%200), (float)(rand()%200)));
+                fireBullet(_firePos + Vector2((float)(rand()%200) - 100, (float)(rand()%200) -100));
             }
             _fireCooldownTimer = 0;
         }
     }
-    else _fireCooldownTimer = 0.25f;
+    //else _fireCooldownTimer = 0.25f;
 }
 
 void Scene_DungeonTest::sDoAction(const Action& action)

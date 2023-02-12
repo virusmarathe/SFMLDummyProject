@@ -14,7 +14,10 @@ public:
         Vector2 normal;
         float hitTime;
 
-        for (auto ent : _entities->getEntitiesByType<CPhysicsBody>())
+        EntityList entities = _entities->getEntitiesByType<CPhysicsBody>();
+        EntityList colliders = _entities->getEntitiesByType<CRectCollider>();
+
+        for (auto ent : entities)
         {
             if (ent.hasComponent<CRectCollider>())
             {
@@ -22,7 +25,7 @@ public:
                 auto& physics = ent.getComponent<CPhysicsBody>();
                 if (!ent1Collider.enabled || physics.velocity == Vector2(0,0) || physics.collidesWith == 0) continue;
 
-                for (auto ent2 : _entities->getEntitiesByType<CRectCollider>())
+                for (auto ent2 : colliders)
                 {
                     if (ent == ent2) continue;
                     auto& ent2Collider = ent2.getComponent<CRectCollider>();

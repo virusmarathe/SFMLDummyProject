@@ -15,7 +15,7 @@ int main()
     engine.registerScene("PhysicsTest", std::make_shared<Scene_PhysicsTest>());
     engine.registerScene("DungeonTest", std::make_shared<Scene_DungeonTest>());
     engine.registerScene("Menu", std::make_shared<Scene_Menu>());
-    engine.changeScene("DungeonTest");
+    engine.changeScene("Menu");
     engine.run();
 
     return 0;

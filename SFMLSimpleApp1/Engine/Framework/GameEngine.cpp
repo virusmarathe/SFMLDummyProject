@@ -208,7 +208,8 @@ void GameEngine::fpsUpdate()
 {
     FPS = (int)(1000000.0 / _updateTimer.getElapsedTime().asMicroseconds());
     Vector2 pos;
-    for (auto ent : _currentScene->getEntityManager()->getEntities("Camera"))
+    EntityList cameras = _currentScene->getEntityManager()->getEntities("Camera");
+    for (auto ent : cameras)
     {
         auto& transform = ent.getComponent<CTransform>();
         pos = transform.position + Vector2(400, -200);

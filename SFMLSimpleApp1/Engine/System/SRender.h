@@ -23,8 +23,10 @@ public:
         sf::View view(sf::FloatRect(startPos.x, startPos.y, transform.scale.x, transform.scale.y));
         _window->setView(view);
 
+        EntityList sprites = _entities->getEntitiesByType<CSprite>();
+        EntityList entities = _entities->getEntities();
 
-        for (auto ent : _entities->getEntitiesByType<CSprite>())
+        for (auto ent : sprites)
         {
             Vector2 pos = ent.getComponent<CTransform>().position;
             Rect spriteRect = Rect(pos.x, pos.y, ent.getComponent<CSprite>().sprite.getLocalBounds().width, ent.getComponent<CSprite>().sprite.getLocalBounds().height);
@@ -33,7 +35,7 @@ public:
             _window->draw(ent.getComponent<CSprite>().sprite);
         }
 
-        for (auto ent : _entities->getEntities())
+        for (auto ent : entities)
         {            
             if (ent.hasComponent<CShapeRect>())
             {
@@ -118,7 +120,8 @@ public:
             _window->draw(vertices);
         }
 
-        for (auto ent : _entities->getEntitiesByType<CText>())
+        EntityList texts = _entities->getEntitiesByType<CText>();
+        for (auto ent : texts)
         {
             ent.getComponent<CText>().text.setPosition(ent.getComponent<CTransform>().position.x, ent.getComponent<CTransform>().position.y);
             ent.getComponent<CText>().text.setFillColor(ent.getComponent<CText>().textColor);
